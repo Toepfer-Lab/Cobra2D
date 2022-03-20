@@ -21,7 +21,6 @@ __version__ = "0.0.1-alpha"
 
 
 def _rename(model: Model, suffix: str):
-
     item: Union[Metabolite, Reaction, Group, Gene]
     for item in model.metabolites + model.reactions + model.groups:
 
@@ -32,18 +31,17 @@ def _rename(model: Model, suffix: str):
         else:
             logger.warn(
                 msg=f"Item {id(item)} has a problem with its id. No suffix"
-                + "was added"
+                    + "was added"
             )
 
 
 def _connect_models(
-    main: Model,
-    secondary: Model,
-    left_suffix: str,
-    right_suffix: str,
-    metabolites: List[str] = None,
+        main: Model,
+        secondary: Model,
+        left_suffix: str,
+        right_suffix: str,
+        metabolites: List[str] = None,
 ) -> Model:
-
     try:
         model: Model = _merge(model=main, right=secondary, suffix=right_suffix)
 
@@ -67,7 +65,6 @@ def _connect_models(
 
 
 def _test(main: Model, submodel: Model) -> bool:
-
     passed = False
 
     # Copy original
@@ -96,11 +93,9 @@ def _test(main: Model, submodel: Model) -> bool:
 
 
 def _main_placeholder(
-    model: Model, labels: List[str], file: Path = None, genes: bool = False
+        model: Model, labels: List[str], file: Path = None, genes: bool = False
 ) -> Model:
-
     if len(labels) < 2:
-
         raise Exception("There must be at least two label!. Aborting...")
 
     _model = model.copy()
@@ -123,10 +118,20 @@ def _main_placeholder(
         submodel: Model = model.copy()
         _rename(model=submodel, suffix=f"{label}")
 
+        # Add all objects of the model to a group named after the label
+        submodel.add_groups([
+            Group(
+                id=label,
+                name="All reactions and metabolites of Phase: " + label,
+                members=submodel.reactions + submodel.metabolites,
+                kind="partonomy"
+            )
+        ])
+
         _model = _connect_models(
             main=_model,
             secondary=submodel,
-            left_suffix=f"{labels[i-1]}",
+            left_suffix=f"{labels[i - 1]}",
             right_suffix=f"{label}",
             metabolites=metabolites,
         )
