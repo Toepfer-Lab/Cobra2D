@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="URL/To/schema.xsd"
+           xmlns="URL/To/schema.xsd">
+
+  <xs:element name="Conf" type="ConfType"/>
+  <xs:complexType name="phaseType" >
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:ID" name="id" use="required"/>
+        <xs:attribute type="xs:integer" name="volume" default="1"/>
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="light_dark" use="required"/>
+        <xs:attribute type="xs:integer" name="timeframe" default="1"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="phasesType">
+    <xs:sequence>
+      <xs:element type="phaseType" name="phase" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="destinationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:IDREF" name="refid"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="sourceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:IDREF" name="refid"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="linkerType">
+    <xs:sequence>
+      <xs:element type="destinationType" name="destination"/>
+      <xs:element type="sourceType" name="source"/>
+    </xs:sequence>
+    <xs:attribute type="xs:ID" name="id"/>
+    <xs:attribute type="xs:integer" name="lower_bound"/>
+    <xs:attribute type="xs:integer" name="upper_bound"/>
+  </xs:complexType>
+
+  <xs:complexType name="linkageType">
+    <xs:sequence>
+      <xs:element type="linkerType" name="linker" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConfType">
+    <xs:sequence>
+      <xs:element type="phasesType" name="phases"/>
+      <xs:element type="linkageType" name="linkage"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
