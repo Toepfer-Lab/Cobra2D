@@ -8,8 +8,8 @@ from cobra.core import Gene, Group, Metabolite, Model, Reaction
 from cobra.core.configuration import Configuration
 from cobra.exceptions import OptimizationError
 
-from merging import _merge, _link_genes
-from reactions import _create_reactions, read_file
+from model_duplication.duplication.merging import _merge, _link_genes
+from model_duplication.duplication.reactions import _create_reactions, read_file
 
 TOLERANCE = Configuration().tolerance
 
@@ -31,16 +31,16 @@ def _rename(model: Model, suffix: str):
         else:
             logger.warn(
                 msg=f"Item {id(item)} has a problem with its id. No suffix"
-                    + "was added"
+                + "was added"
             )
 
 
 def _connect_models(
-        main: Model,
-        secondary: Model,
-        left_suffix: str,
-        right_suffix: str,
-        metabolites: List[str] = None,
+    main: Model,
+    secondary: Model,
+    left_suffix: str,
+    right_suffix: str,
+    metabolites: List[str] = None,
 ) -> Model:
     try:
         model: Model = _merge(model=main, right=secondary, suffix=right_suffix)
@@ -93,7 +93,7 @@ def _test(main: Model, submodel: Model) -> bool:
 
 
 def _main_placeholder(
-        model: Model, labels: List[str], file: Path = None, genes: bool = False
+    model: Model, labels: List[str], file: Path = None, genes: bool = False
 ) -> Model:
     if len(labels) < 2:
         raise Exception("There must be at least two label!. Aborting...")
@@ -119,14 +119,16 @@ def _main_placeholder(
         _rename(model=submodel, suffix=f"{label}")
 
         # Add all objects of the model to a group named after the label
-        submodel.add_groups([
-            Group(
-                id=label,
-                name="All reactions and metabolites of Phase: " + label,
-                members=submodel.reactions + submodel.metabolites,
-                kind="partonomy"
-            )
-        ])
+        submodel.add_groups(
+            [
+                Group(
+                    id=label,
+                    name="All reactions and metabolites of Phase: " + label,
+                    members=submodel.reactions + submodel.metabolites,
+                    kind="partonomy",
+                )
+            ]
+        )
 
         _model = _connect_models(
             main=_model,
