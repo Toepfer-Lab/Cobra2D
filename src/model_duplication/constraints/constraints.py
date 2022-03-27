@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Literal, List, Union, Tuple, Any
 from xml.etree.ElementTree import Element, ElementTree, indent
 
+from cobra import Model
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -156,6 +157,13 @@ class Constraints:
 
         self.linker.add_linker(linker)
 
+    def apply_to_model(self, model: Model):
+
+        new_model = self.phases.apply_phases(model)
+        new_model = self.linker.apply_linkage(new_model, phases=self.phases)
+
+        return new_model
+
     def to_xml(self) -> Element:
         root = Element("Conf")
         root.set("xmlns", "URL/To/schema.xsd")
@@ -217,8 +225,6 @@ class Constraints:
 
         labels = list(OrderedDict.fromkeys(labels))
         times = list(OrderedDict.fromkeys(times))
-
-        print(labels)
 
         # NOTE The following two loops reconstruct time_ranges and sub_models
         # only insufficiently.Only one phase is used to determine which
