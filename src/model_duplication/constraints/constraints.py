@@ -201,14 +201,15 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True, exist_ok=True,
+            parents=True,
+            exist_ok=True,
         )
 
         data = self.to_xml()
 
-        data = minidom.parseString(
-            ElementTree.tostring(data)
-        ).toprettyxml(indent="    ")
+        data = minidom.parseString(ElementTree.tostring(data)).toprettyxml(
+                indent="    "
+        )
 
         with open(path, "w") as file:
             file.write(data)
