@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import xml.etree.ElementTree
 from collections import OrderedDict
 from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any, List, Literal, Tuple, Union
-from xml.etree.ElementTree import Element, ElementTree, indent
+from typing import Any, List, Tuple, Union
+from xml.dom import minidom
+from xml.etree import ElementTree
+
+from typing_extensions import Literal
+from xml.etree.ElementTree import Element
 
 from cobra import Model, Reaction
 from prettytable import PrettyTable
@@ -197,15 +202,17 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
+            parents=True, exist_ok=True,
         )
 
         data = self.to_xml()
-        tree = ElementTree(data)
-        indent(tree, space="    ")
 
-        tree.write(path, encoding="UTF-8", xml_declaration=True, method="xml")
+        data = minidom.parseString(
+            ElementTree.tostring(data)
+        ).toprettyxml(indent="    ")
+
+        with open(path, "w") as file:
+            file.write(data)
 
     @classmethod
     def load_from_xml(cls, path: Union[Path, str]) -> Constraints:

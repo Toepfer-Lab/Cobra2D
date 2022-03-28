@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from inspect import isclass
-from typing import List, Literal, Union
+from typing import List, Union
+from typing_extensions import Literal
 from xml.etree.ElementTree import Element
 
 from cobra import DictList, Model, Reaction
