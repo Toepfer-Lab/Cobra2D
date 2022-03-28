@@ -9,7 +9,10 @@ from cobra.core.configuration import Configuration
 from cobra.exceptions import OptimizationError
 
 from model_duplication.duplication.merging import _merge, _link_genes
-from model_duplication.duplication.reactions import _create_reactions, read_file
+from model_duplication.duplication.reactions import (
+    _create_reactions,
+    read_file,
+)
 
 TOLERANCE = Configuration().tolerance
 

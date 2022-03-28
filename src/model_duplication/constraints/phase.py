@@ -22,12 +22,12 @@ class Phase:
     reaction_settings: List[Reaction]
 
     def __init__(
-            self,
-            id: str,
-            light_dark: Literal["light", "dark"],
-            timeframe: int = 1,
-            volume: int = 1,
-            name: str = "",
+        self,
+        id: str,
+        light_dark: Literal["light", "dark"],
+        timeframe: int = 1,
+        volume: int = 1,
+        name: str = "",
     ):
         self.id = id
         self.volume = volume
@@ -61,11 +61,11 @@ class Phase:
     @classmethod
     def from_dict(cls, data: dict) -> Phase:
         output = cls(
-                id=data["id"],
-                volume=int(data["volume"]),
-                name=data["name"],
-                light_dark=data["light_dark"],
-                timeframe=int(data["timeframe"]),
+            id=data["id"],
+            volume=int(data["volume"]),
+            name=data["name"],
+            light_dark=data["light_dark"],
+            timeframe=int(data["timeframe"]),
         )
 
         if "reaction" not in data.keys():
@@ -73,9 +73,9 @@ class Phase:
 
         for reaction in data["reaction"]:
             new_reaction = Reaction(
-                    id=reaction["id"],
-                    lower_bound=reaction["lower_bound"],
-                    upper_bound=reaction["upper_bound"]
+                id=reaction["id"],
+                lower_bound=reaction["lower_bound"],
+                upper_bound=reaction["upper_bound"],
             )
 
             output.add_reaction(new_reaction)
@@ -93,7 +93,7 @@ class Phases:
         output = PrettyTable(["Phase", "Name", "Volume", "Timeframe"])
         for phase in self.phases:
             output.add_row(
-                    [phase.id, phase.name, phase.volume, phase.timeframe]
+                [phase.id, phase.name, phase.volume, phase.timeframe]
             )
 
         return output.get_string()
@@ -121,13 +121,13 @@ class Phases:
         phase_names = [phase.id for phase in self.phases]
 
         new_model = _main_placeholder(
-                model=model, labels=phase_names, genes=link_genes
+            model=model, labels=phase_names, genes=link_genes
         )
 
         for phase in self.phases:
             for reaction in phase.reaction_settings:
                 reaction2adjust: Reaction = new_model.reactions.get_by_id(
-                        f"{reaction.id}_{phase.id}"
+                    f"{reaction.id}_{phase.id}"
                 )
                 reaction2adjust.lower_bound = reaction.lower_bound
                 reaction2adjust.upper_bound = reaction.upper_bound
