@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import xml.etree.ElementTree
 from collections import OrderedDict
 from importlib.resources import open_text
 from inspect import isclass
