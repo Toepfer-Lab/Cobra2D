@@ -207,12 +207,12 @@ class Constraints:
 
         data = self.to_xml()
 
-        data = minidom.parseString(ElementTree.tostring(data)).toprettyxml(
+        xml_string = minidom.parseString(ElementTree.tostring(data)).toprettyxml(
             indent="    "
         )
 
         with open(path, "w") as file:
-            file.write(data)
+            file.write(xml_string)
 
     @classmethod
     def load_from_xml(cls, path: Union[Path, str]) -> Constraints:
