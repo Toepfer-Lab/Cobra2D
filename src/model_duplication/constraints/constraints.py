@@ -207,9 +207,9 @@ class Constraints:
 
         data = self.to_xml()
 
-        xml_string = minidom.parseString(ElementTree.tostring(data)).toprettyxml(
-            indent="    "
-        )
+        xml_string = minidom.parseString(
+            ElementTree.tostring(data)
+        ).toprettyxml(indent="    ")
 
         with open(path, "w") as file:
             file.write(xml_string)
