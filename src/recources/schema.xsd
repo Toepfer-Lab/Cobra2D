@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="URL/To/schema.xsd"
-           xmlns="URL/To/schema.xsd">
+           targetNamespace="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd"
+           xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd">
 
   <xs:element name="Conf" type="ConfType"/>
-  <xs:complexType name="phaseType" >
+
+  <xs:complexType name="reactionType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:ID" name="id" use="required"/>
-        <xs:attribute type="xs:integer" name="volume" default="1"/>
-        <xs:attribute type="xs:string" name="name"/>
-        <xs:attribute type="xs:string" name="light_dark" use="required"/>
-        <xs:attribute type="xs:integer" name="timeframe" default="1"/>
+        <xs:attribute type="xs:string" name="id"/>
+        <xs:attribute type="xs:integer" name="lower_bound"/>
+        <xs:attribute type="xs:integer" name="upper_bound"/>
       </xs:extension>
     </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="phaseType" >
+    <xs:sequence>
+      <xs:element type="reactionType" name="reaction" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+      <xs:attribute type="xs:ID" name="id" use="required"/>
+      <xs:attribute type="xs:integer" name="volume" default="1"/>
+      <xs:attribute type="xs:string" name="name"/>
+      <xs:attribute type="xs:string" name="light_dark" use="required"/>
+      <xs:attribute type="xs:integer" name="timeframe" default="1"/>
   </xs:complexType>
 
   <xs:complexType name="phasesType">

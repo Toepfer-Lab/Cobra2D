@@ -5,10 +5,14 @@ from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
-from typing import Literal, List, Union, Tuple, Any
-from xml.etree.ElementTree import Element, ElementTree, indent
+from typing import Any, List, Tuple, Union
+from xml.dom import minidom
+from xml.etree import ElementTree
 
-from cobra import Model
+from typing_extensions import Literal
+from xml.etree.ElementTree import Element
+
+from cobra import Model, Reaction
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -16,7 +20,7 @@ from xmlschema import XMLSchema
 
 import recources
 from model_duplication.constraints.linker import Linkage, Linker
-from model_duplication.constraints.phase import Phases, Phase
+from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
 
@@ -44,13 +48,7 @@ class Constraints:
         self.linker = Linkage()
         self.order = Matrix()
         self.phases.add_phase(
-            Phase(
-                id="default",
-                volume=1,
-                name="Default Phase",
-                light_dark="light",
-                timeframe=1,
-            )
+            Phase(id="default", name="Default Phase", light_dark="light")
         )
 
     def __str__(self):
@@ -63,6 +61,7 @@ class Constraints:
                 " " * (len(label) - 1) + "| id\n"
                 f"{label}  | volume\n" + (" " * len(label)) + "| time"
             ]
+
             for index, timeframe, light in self.time_ranges:
                 row.append(f"{label}-{index}\n" f"{volume}\n" f"{timeframe}")
 
@@ -70,6 +69,26 @@ class Constraints:
             output.hrules = 1
 
         return output.get_string()
+
+    def get_phase_by_id(self, id: str) -> Phase:
+        return self.phases.phases.get_by_id(id)
+
+    def add_reaction_to_phase(
+        self,
+        reaction: Reaction,
+        phase: Union[Union[str, Phase], List[str], List[Phase]],
+    ):
+
+        if isinstance(phase, List):
+            for single_phase in phase:
+                self.add_reaction_to_phase(reaction, single_phase)
+                return
+
+        if isinstance(phase, str):
+            phase = self.phases.phases.get_by_id(phase)
+
+        assert isinstance(phase, Phase)
+        phase.add_reaction(reaction)
 
     def rich_output(self):
         output = Table()
@@ -93,13 +112,14 @@ class Constraints:
     def add_time_slots(
         self, n_ranges: int, time: int, light_dark: Literal["light", "dark"]
     ):
+
         if self.default_time:
             self.default_time = False
             del self.time_ranges[0]
             self.phases.clear_phases()
 
         for i in range(n_ranges):
-            i = i + self.index_time_ranges
+            i += self.index_time_ranges
 
             for label, volume, name in self.sub_models:
                 self.phases.add_phase(
@@ -122,11 +142,9 @@ class Constraints:
         volumes: List[int],
         names: Union[List[str], None] = None,
     ):
-        assert (len(labels) == len(volumes) and names is None) or len(
-            labels
-        ) == len(volumes) == len(
-            names
-        )  # type: ignore
+        assert (len(labels) == len(volumes) and names is None) or (
+            len(labels) == len(volumes) == len(names)  # type: ignore
+        )
 
         if "default" in labels:
             raise InvalidLabel(
@@ -166,7 +184,11 @@ class Constraints:
 
     def to_xml(self) -> Element:
         root = Element("Conf")
-        root.set("xmlns", "URL/To/schema.xsd")
+        root.set(
+            "xmlns",
+            "https://github.com/Toepfer-Lab/"
+            "model_duplication/blob/main/src/recources/schema.xsd",
+        )
 
         root.append(self.phases.to_xml())
         root.append(self.linker.to_xml())
@@ -179,14 +201,18 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True, exist_ok=True,
+            parents=True,
+            exist_ok=True,
         )
 
         data = self.to_xml()
-        tree = ElementTree(data)
-        indent(tree, space="    ")
 
-        tree.write(path, encoding="UTF-8", xml_declaration=True, method="xml")
+        xml_string = minidom.parseString(
+            ElementTree.tostring(data)
+        ).toprettyxml(indent="    ")
+
+        with open(path, "w") as file:
+            file.write(xml_string)
 
     @classmethod
     def load_from_xml(cls, path: Union[Path, str]) -> Constraints:
@@ -204,7 +230,7 @@ class Constraints:
 
         # 'to_etree' returns only root. Therefore the same logic as for
         # encoding cannot be used.
-        data: Any = xsd.to_dict(path, validation="strict", attr_prefix="")
+        data: Any = xsd.to_dict(path, attr_prefix="")
 
         constraints.phases = Phases.from_dict(data["phases"]["phase"])
         constraints.linker = Linkage.from_dict(data["linkage"]["linker"])

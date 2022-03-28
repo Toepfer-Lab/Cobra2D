@@ -5,7 +5,7 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened, closed ]
     branches:
-      - master
+      - main
 
 jobs:
   lint-format:

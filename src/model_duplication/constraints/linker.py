@@ -25,14 +25,14 @@ class Linker(Metabolite):
     def __init__(
         self,
         id: str,
-        source: Union[Phase,str],
-        destination: Union[Phase,str],
+        source: Union[Phase, str],
+        destination: Union[Phase, str],
         lower_bound: int = 0,
         upper_bound: int = 1000,
         *args,
-        **kwargs
+        **kwargs,
     ):
-        super().__init__(id=id,*args, **kwargs)
+        super().__init__(id=id, *args, **kwargs)
 
         if isinstance(source, Phase):
             source = source.id
