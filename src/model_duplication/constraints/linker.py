@@ -30,7 +30,7 @@ class Linker(Metabolite):
         lower_bound: int = 0,
         upper_bound: int = 1000,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(id=id, *args, **kwargs)
 
