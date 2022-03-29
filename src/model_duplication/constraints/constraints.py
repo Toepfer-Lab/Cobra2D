@@ -1,3 +1,6 @@
+"""
+Implementation of the Constraints class.
+"""
 from __future__ import annotations
 
 from collections import OrderedDict
@@ -26,6 +29,16 @@ from model_duplication.utils import Matrix
 
 
 class Constraints:
+
+    """
+    This class bundles the functionalities of :py:class:`Linker` and
+    :py:class:`Linkage`. So the application of these is not only possible with
+    a single line but there are also helper functions to simplify the creation
+    of organs and time periods. Last but not least it realizes a storage of a
+    constraints object as XML and also the creation of a constraints object
+    based on such an XML file.
+    """
+
     phases: Phases
     order: Matrix
     linker: Linkage
@@ -44,6 +57,10 @@ class Constraints:
     ]
 
     def __init__(self):
+        """
+        Create a Constraints object.
+
+        """
         self.phases = Phases()
         self.linker = Linkage()
         self.order = Matrix()
@@ -52,6 +69,14 @@ class Constraints:
         )
 
     def __str__(self):
+        """
+        The toString method of the Constraints class. It creates a tabular
+        based representation with focus on the Phases.
+
+        Returns:
+            A table containing the IDs of the phases, their volume and time
+            range.
+        """
         output = PrettyTable(
             ["Sub-Model\\Time Index"]
             + list(str(time[0]) for time in self.time_ranges)
@@ -71,13 +96,36 @@ class Constraints:
         return output.get_string()
 
     def get_phase_by_id(self, id: str) -> Phase:
+        """
+        A method to get individual phases by their ID.
+
+        Args:
+            id: ID of the desired phase.
+
+        Returns:
+            The phase that has the specified ID.
+        """
         return self.phases.phases.get_by_id(id)
 
     def add_reaction_to_phase(
         self,
         reaction: Reaction,
-        phase: Union[Union[str, Phase], List[str], List[Phase]],
+        phase: Union[str, Phase, List[str], List[Phase]],
     ):
+        """
+        A method that allows to influence the reaction in certain phases.
+        For example, reactions during certain phases can be restricted by
+        adjusting upper_bounds and lower_bounds.
+
+        Args:
+            reaction: A reaction that has the same ID as the one to be adjusted
+                and contains the adjusted parameters. The ID must be the same
+                as the original ID and must not have the phase name extension.
+            phase: The ID of the phase, the phase itself or a list of IDs or a
+                list of phases in which the adjustment defined by the reaction
+                is to be performed.
+
+        """
 
         if isinstance(phase, List):
             for single_phase in phase:
@@ -91,6 +139,10 @@ class Constraints:
         phase.add_reaction(reaction)
 
     def rich_output(self):
+        """
+        Experimental only
+        Display via rich
+        """
         output = Table()
 
         output.add_column("Sub-Model\\Time Index")
@@ -112,6 +164,19 @@ class Constraints:
     def add_time_slots(
         self, n_ranges: int, time: int, light_dark: Literal["light", "dark"]
     ):
+        """
+        Method to add new time ranges. It is designed to create multiple time
+        ranges of the same length that are also subject to the same
+        :py:attr:`light_dark` parameter.
+
+        Args:
+            n_ranges: The number of how many such time ranges should be
+                created.
+            time: The length of the time ranges to be created.
+            light_dark: The light_dark parameter to be assigned to these time
+                ranges.
+
+        """
 
         if self.default_time:
             self.default_time = False
@@ -142,6 +207,16 @@ class Constraints:
         volumes: List[int],
         names: Union[List[str], None] = None,
     ):
+        """
+        Method to add sub models. These can correspond to organs, for example.
+
+        Args:
+            labels: A list containing the name of the sub models.
+            volumes: A list containing the volumes of the sub models
+            names: A list of human-readable names to be used for the sub
+                models.
+
+        """
         assert (len(labels) == len(volumes) and names is None) or (
             len(labels) == len(volumes) == len(names)  # type: ignore
         )
@@ -171,11 +246,28 @@ class Constraints:
                 self.sub_models.append((label, volume, name))
 
     def add_linker(self, linker: Linker):
+        """
+        Method to add previously created linkers to the constraints object.
+
+        Args:
+            linker: The linker to be added.
+
+        """
         # ToDo check if phase ID/Phase exist for reference
+        # ToDo apply linker between multiple phases.
 
         self.linker.add_linker(linker)
 
     def apply_to_model(self, model: Model):
+        """
+        Method to apply all defined adjustments to a :py:class:`Model`.
+
+        Args:
+            model: The model that should be changed.
+
+        Returns: A :py:class:`Model` that contains all defined adjustments.
+
+        """
 
         new_model = self.phases.apply_phases(model)
         new_model = self.linker.apply_linkage(new_model, phases=self.phases)
@@ -183,6 +275,14 @@ class Constraints:
         return new_model
 
     def to_xml(self) -> Element:
+        """
+        Converts a :py:class:`Constraints` object to an :py:class:`Element`.
+
+        Returns:
+            An :py:class:`Element` that represents a :py:class:`Constraints`
+            object.
+
+        """
         root = Element("Conf")
         root.set(
             "xmlns",
@@ -196,6 +296,14 @@ class Constraints:
         return root
 
     def save_as_xml(self, path: Union[Path, str]):
+        """
+        Method to save the constraints object as XML file. Based on this file
+        the constraints object can be reconstructed.
+
+        Args:
+            path: The file path where the created XML file should be saved.
+
+        """
 
         if isinstance(path, str):
             path = Path(path)
@@ -216,6 +324,19 @@ class Constraints:
 
     @classmethod
     def load_from_xml(cls, path: Union[Path, str]) -> Constraints:
+        """
+        Method to create a :py:class:`Constraints` object from an XML file.
+        This must match the format of the XSD found at
+        https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
+        Args:
+            path: The path to the XML file to be used for creating a
+            :py:class:`Constraints` object.
+
+        Returns:
+            The :py:class:`Constraints` object created on the properties in the
+            XML file.
+
+        """  # nopep8
 
         if isclass(cls):
             constraints = cls()

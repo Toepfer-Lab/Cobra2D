@@ -21,7 +21,7 @@ class Phase:
     The phase class defines the representation of an organ, period combination.
     Hereby phase contains all information like the id but also the time frame
     of the considered period and the volume of the organ. This information is
-    not only used for the creation of a :py:class:`cobra.model` with these
+    not only used for the creation of a :py:class:`Model` with these
     organ-period combinations but also for the normalization of for example
     linker reactions. Furthermore, phases also contain individual adjustments
     of reactions within the phase.
@@ -55,8 +55,8 @@ class Phase:
         name: str = "",
     ):
         """
-        Initialize a Phase
-        .
+        Initialize a Phase.
+
         Args:
             id: The ID to be used for the phase.
             light_dark: Definition of the lighting
@@ -272,10 +272,10 @@ class Phases:
 
     def to_xml(self) -> Element:
         """
-        Converts a linkage to an :py:class:`xml.etree.ElementTree.Element`.
+        Converts a linkage to an :py:class:`Element`.
 
         Returns:
-            A :py:class:`xml.etree.ElementTree.Element` representing a phases
+            A :py:class:`Element` representing a phases
             object.
         """
 
