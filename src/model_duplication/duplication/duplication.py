@@ -98,8 +98,6 @@ def _test(main: Model, submodel: Model) -> bool:
 def _main_placeholder(
     model: Model, labels: List[str], file: Path = None, genes: bool = False
 ) -> Model:
-    if len(labels) < 2:
-        raise Exception("There must be at least two label!. Aborting...")
 
     _model = model.copy()
     _rename(model=_model, suffix=labels[0])
