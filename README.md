@@ -2,7 +2,6 @@
 ![Tests](https://github.com/Toepfer-Lab/model_duplication/actions/workflows/test.yml/badge.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/model_duplication)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/model_duplication)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/model_duplication)
 
 A Python package that extends the COBRApy package with functions to represent time periods and organs by copying the
 original model for every organ time combination, which we refer to as phases. This way, different time ranges and

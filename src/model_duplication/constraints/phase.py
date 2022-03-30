@@ -72,6 +72,8 @@ class Phase:
         self.timeframe = timeframe
         self.reaction_settings = []
 
+    # ToDo add toString method
+
     def to_xml(self):
         """
         Converts a Phase to an :py:class:`xml.etree.ElementTree.Element`.
@@ -287,7 +289,7 @@ class Phases:
         return root
 
     @classmethod
-    def from_dict(cls, data: dict) -> Phases:
+    def from_dict(cls, data: List[dict]) -> Phases:
         """
         Creates a phases object based on the data encoded in a dict.
 
@@ -307,10 +309,12 @@ class Phases:
                     'name': '',
                     'light_dark': 'light',
                     'timeframe': 2,
-                    'reaction': [
-                        {'id': 'ATPM', 'lower_bound': 456, 'upper_bound': 765}
-                    ]
-                }]
+                    'reaction': [{
+                        'id': 'ATPM',
+                        'lower_bound': 456,
+                        'upper_bound': 765
+                        }]
+                    },]
 
                 phases = Phases.from_dict(input)
         """
