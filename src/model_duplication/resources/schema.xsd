@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd"
-           xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd">
+           targetNamespace="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd"
+           xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd">
 
   <xs:element name="Conf" type="ConfType"/>
 

@@ -21,7 +21,7 @@ from rich.console import Console
 from rich.table import Table
 from xmlschema import XMLSchema
 
-import recources
+from model_duplication import resources
 from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
@@ -29,7 +29,6 @@ from model_duplication.utils import Matrix
 
 
 class Constraints:
-
     """
     This class bundles the functionalities of :py:class:`Linker` and
     :py:class:`Linkage`. So the application of these is not only possible with
@@ -38,23 +37,6 @@ class Constraints:
     constraints object as XML and also the creation of a constraints object
     based on such an XML file.
     """
-
-    phases: Phases
-    order: Matrix
-    linker: Linkage
-
-    default_time = True
-    default_sub_model = True
-
-    time_ranges: List[Tuple[int, int, Literal["light", "dark"]]] = [
-        (0, 1, "light")
-    ]
-
-    index_time_ranges = 0
-
-    sub_models: List[Tuple[str, int, str]] = [
-        ("default", 1, "Default sub_model")
-    ]
 
     def __init__(self):
         """
@@ -67,6 +49,18 @@ class Constraints:
         self.phases.add_phase(
             Phase(id="default", name="Default Phase", light_dark="light")
         )
+
+        self.default_time = True
+        self.default_sub_model = True
+
+        self.time_ranges: List[Tuple[int, int, Literal["light", "dark"]]] = [
+            (0, 1, "light")
+        ]
+        self.index_time_ranges = 0
+
+        self.sub_models: List[Tuple[str, int, str]] = [
+            ("default", 1, "Default sub_model")
+        ]
 
     def __str__(self):
         """
@@ -83,7 +77,7 @@ class Constraints:
         )
         for label, volume, name in self.sub_models:
             row = [
-                " " * (len(label) - 1) + "| id\n"
+                " " * (len(label) - 2) + "| id\n"
                 f"{label}  | volume\n" + (" " * len(label)) + "| time"
             ]
 
@@ -243,7 +237,7 @@ class Constraints:
                     )
                 )
 
-                self.sub_models.append((label, volume, name))
+            self.sub_models.append((label, volume, name))
 
     def add_linker(self, linker: Linker):
         """
@@ -287,7 +281,7 @@ class Constraints:
         root.set(
             "xmlns",
             "https://github.com/Toepfer-Lab/"
-            "model_duplication/blob/main/src/recources/schema.xsd",
+            "model_duplication/blob/main/src/resources/schema.xsd",
         )
 
         root.append(self.phases.to_xml())
@@ -347,7 +341,7 @@ class Constraints:
         if isinstance(path, str):
             path = Path(path)
 
-        xsd = XMLSchema(open_text(recources, "schema.xsd", encoding="UTF-8"))
+        xsd = XMLSchema(open_text(resources, "schema.xsd", encoding="UTF-8"))
 
         # 'to_etree' returns only root. Therefore the same logic as for
         # encoding cannot be used.
@@ -409,7 +403,11 @@ class Constraints:
                     f"{labels[0]}-{time}"
                 )
                 constraints.time_ranges.append(
-                    (time, example_phase.timeframe, example_phase.light_dark)
+                    (
+                        int(time),
+                        example_phase.timeframe,
+                        example_phase.light_dark,
+                    )
                 )
 
         constraints.index_time_ranges = max([int(x) for x in times])

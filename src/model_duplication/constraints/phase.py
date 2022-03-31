@@ -84,10 +84,10 @@ class Phase:
         element = Element("phase")
 
         element.set("id", self.id)
-        element.set("volume", str(self.volume))
-        element.set("name", self.name)
         element.set("light_dark", self.light_dark)
+        element.set("name", self.name)
         element.set("timeframe", str(self.timeframe))
+        element.set("volume", str(self.volume))
 
         for reaction in self.reaction_settings:
             child = Element("reaction")

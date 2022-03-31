@@ -284,7 +284,7 @@ class TestPhases(TestCase):
         self.assertEqual(len(phases.phases), 1)
 
         phase: Phase = phases.phases[0]
-              
+
         self.assertEqual(phase.id, "leaf-0")
         self.assertEqual(phase.light_dark, "light")
         self.assertEqual(phase.timeframe, 2)

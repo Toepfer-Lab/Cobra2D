@@ -117,6 +117,19 @@ class Linker(Metabolite):
 
         return output.get_string()
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Linker):
+            if (
+                other.id == self.id
+                and other.source == self.source
+                and other.destination == self.destination
+                and other.lower_bound == self.lower_bound
+                and other.upper_bound == self.upper_bound
+            ):
+                return True
+
+        return False
+
     def to_xml(self) -> Element:
         """
         Converts a linker to an :py:class:`xml.etree.ElementTree.Element`.

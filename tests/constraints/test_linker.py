@@ -164,7 +164,6 @@ class TestLinkage(TestCase):
         expected = [linker, linker2]
 
         self.assertCountEqual(linkage.linker, expected)
-        self.assertEqual(set(linkage.linker), set(expected))
 
     def test_remove_linker(self):
         linkage = Linkage()
@@ -188,6 +187,7 @@ class TestLinkage(TestCase):
         # ToDo use 2 Phases
 
         model: Model = create_test_model(model_name="textbook")
+
         linkage = Linkage()
         linker_default = Linker(
             id="gln__L_c",
