@@ -1,7 +1,9 @@
 <?xml version="1.0" ?>
 <Conf xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd">
     <phases>
-        <phase id="leaf-0" volume="1" name="" light_dark="light" timeframe="2"/>
+        <phase id="leaf-0" volume="1" name="" light_dark="light" timeframe="2">
+            <reaction id="ATPM" lower_bound="456" upper_bound="765"/>
+        </phase>
         <phase id="root-0" volume="1" name="" light_dark="light" timeframe="2"/>
         <phase id="leaf-1" volume="1" name="" light_dark="light" timeframe="2"/>
         <phase id="root-1" volume="1" name="" light_dark="light" timeframe="2"/>

@@ -1,3 +1,7 @@
+"""
+Implementation of the phase and Phases classes.
+
+"""
 from __future__ import annotations
 
 from inspect import isclass
@@ -13,6 +17,26 @@ from model_duplication.error import IdAlreadyInUse
 
 
 class Phase:
+    """
+    The phase class defines the representation of an organ, period combination.
+    Hereby phase contains all information like the id but also the time frame
+    of the considered period and the volume of the organ. This information is
+    not only used for the creation of a :py:class:`Model` with these
+    organ-period combinations but also for the normalization of for example
+    linker reactions. Furthermore, phases also contain individual adjustments
+    of reactions within the phase.
+
+    Attributes:
+        id(str): The ID of the phase.
+        name(str): The name of the phase.
+        light_dark(Literal["light","dark"]): Definition of the lighting
+            conditions and thus the energy consumed for maintenance??
+            # ToDo ask
+        volume(int): The volume of the organ.
+        reaction_settings(Reaction): Definition of reactions to be adjusted
+            identically to those defined here within the phase.
+    """
+
     id: str
     name: str
 
@@ -30,6 +54,17 @@ class Phase:
         volume: int = 1,
         name: str = "",
     ):
+        """
+        Initialize a Phase.
+
+        Args:
+            id: The ID to be used for the phase.
+            light_dark: Definition of the lighting
+                conditions and thus the energy consumed for maintenance??
+            timeframe:
+            volume: The volume of the organ.
+            name: The name of the phase.
+        """
         self.id = id
         self.volume = volume
         self.name = name
@@ -37,14 +72,22 @@ class Phase:
         self.timeframe = timeframe
         self.reaction_settings = []
 
+    # ToDo add toString method
+
     def to_xml(self):
+        """
+        Converts a Phase to an :py:class:`xml.etree.ElementTree.Element`.
+
+        Returns:
+        A :py:class:`xml.etree.ElementTree.Element` representing a phase.
+        """
         element = Element("phase")
 
         element.set("id", self.id)
-        element.set("volume", str(self.volume))
-        element.set("name", self.name)
         element.set("light_dark", self.light_dark)
+        element.set("name", self.name)
         element.set("timeframe", str(self.timeframe))
+        element.set("volume", str(self.volume))
 
         for reaction in self.reaction_settings:
             child = Element("reaction")
@@ -57,10 +100,45 @@ class Phase:
         return element
 
     def add_reaction(self, reaction: Reaction):
+        """
+        Function to add a reaction whose parameters are used to adjust
+        reactions within the phase.
+
+        Args:
+            reaction: A reaction whose parameters are applied to the reaction
+            with identical name in the phase. The name must not contain the
+            phase ID.
+        """
         self.reaction_settings.append(reaction)
 
     @classmethod
     def from_dict(cls, data: dict) -> Phase:
+        """
+        Creates a phase object based on the data encoded in a dict.
+
+        Args:
+            data: A dict that contains the necessary data to create a phase.
+
+        Returns:
+            A phase created based on the data from the dict.
+
+        Examples:
+            .. code-block:: python
+
+                dictionary = {
+                    "id": "id",
+                    "volume": "4",
+                    "light_dark": "500",
+                    "timeframe": "4",
+                    "reaction":[{
+                        "id":"reactions_id",
+                        "lower_bound": "3",
+                        "upper_bound": "23",
+                    }]
+                }
+                phase = Phase.from_dict(dictionary)
+
+        """
         output = cls(
             id=data["id"],
             volume=int(data["volume"]),
@@ -85,12 +163,35 @@ class Phase:
 
 
 class Phases:
+    """
+    The Phases class manages all phases defined for a model. Furthermore,
+    it is responsible for creating an extended model based on the phases.
+
+
+    Attributes
+        phases (DictList[Phase]): A list that contains the individual phases.
+
+    """
+
     phases: DictList[Phase]
 
     def __init__(self):
+        """
+        Initialize Phases.
+        """
         self.phases = DictList()
 
     def __str__(self):
+        """
+        The toString method of the Phases class. It creates a tabular based
+        representation of the Phases class.
+
+        Returns:
+            The ID, name, volume and time frame of each phase in a table form
+            as a string.
+
+
+        """
         output = PrettyTable(["Phase", "Name", "Volume", "Timeframe"])
         for phase in self.phases:
             output.add_row(
@@ -100,17 +201,35 @@ class Phases:
         return output.get_string()
 
     def clear_phases(self):
+        """
+        Method to delete all phases.
+        """
         del self.phases
         self.phases = DictList()
 
     def add_phase(self, phase: Phase):
+        """
+        Method to add a phase to the Phases object.
+
+        Args:
+            phase: The phase object to be added.
+        """
 
         if self.phases.has_id(phase.id):
             raise IdAlreadyInUse(phase.id)
 
         self.phases.append(phase)
 
-    def remove_phase(self, phase: Union[Phase, str]):
+    def remove_phase(self, phase: Union[Phase, str]):  # ToDo Change to @Param
+        """
+        Method to remove individual phases.
+
+        Args:
+            phase: The phase itself or its position in the internal list
+            that is to be removed
+
+        """
+
         id: str = phase.id if isinstance(phase, Phase) else phase
 
         if not self.phases.has_id(id):
@@ -118,7 +237,25 @@ class Phases:
 
         del self.phases[self.phases.index(id)]
 
-    def apply_phases(self, model: Model, link_genes: bool = False):
+    def apply_phases(self, model: Model, link_genes: bool = False) -> Model:
+        """
+        Method to apply the previously defined phases to a
+        :py:class:`cobra.Model`. The :py:class:`cobra.Model` is copied several
+        times and each resulting :py:class:`cobra.Model` corresponds to a
+        phase or time and organ combination. The extended
+        :py:class:`cobra.Model` is returned.
+
+        Args:
+            model: The model to which the phases are to be applied.
+            link_genes: Boolean that determines whether the already existing
+                genes should be assigned to the differently named reactions
+                when duplicating the models.
+
+        Returns:
+            A Cobra model that consists of multiple copies of the original,
+            each assigned to a phase. The name of the elements that belong to
+            a phase ends with "_nameOfThePhase".
+        """
         phase_names = [phase.id for phase in self.phases]
 
         new_model = _main_placeholder(
@@ -136,6 +273,13 @@ class Phases:
         return new_model
 
     def to_xml(self) -> Element:
+        """
+        Converts a linkage to an :py:class:`Element`.
+
+        Returns:
+            A :py:class:`Element` representing a phases
+            object.
+        """
 
         root = Element("phases")
 
@@ -145,7 +289,35 @@ class Phases:
         return root
 
     @classmethod
-    def from_dict(cls, data: dict) -> Phases:
+    def from_dict(cls, data: List[dict]) -> Phases:
+        """
+        Creates a phases object based on the data encoded in a dict.
+
+        Args:
+            data: A list of dicts that contain the necessary data to create a
+                phases object.
+
+        Returns:
+            A phases object created based on the data from the dict.
+
+        Examples:
+            .. code-block:: python
+
+                input = [{
+                    'id': 'leaf-0',
+                    'volume': 1,
+                    'name': '',
+                    'light_dark': 'light',
+                    'timeframe': 2,
+                    'reaction': [{
+                        'id': 'ATPM',
+                        'lower_bound': 456,
+                        'upper_bound': 765
+                        }]
+                    },]
+
+                phases = Phases.from_dict(input)
+        """
         if isclass(cls):
             phases = cls()
 

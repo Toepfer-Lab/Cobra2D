@@ -1,3 +1,7 @@
+"""
+Implementation of the Linker and Linkage classes.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -10,15 +14,30 @@ from prettytable import PrettyTable
 
 from model_duplication.constraints.phase import Phase, Phases
 
-
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.level = 20
 
 
 class Linker(Metabolite):
-    source: Union[Phase, str]
-    destination: Union[Phase, str]
+    """
+    Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended with
+    information representing the source and target for a metabolite. Phases are
+    used for this purpose. These define a fixed time period in a fixed organ.
+    Using this information, a pseudo reaction can be created representing the
+    transition between two such phases.
+
+    Attributes:
+        source (str): The ID of the source phase.
+        destination (str): The ID of the destination phase.
+        lower_bound (int): The 'lower_bound' to be used for the reaction.
+            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+        upper_bound (int): The 'upper_bound' to be used for the reaction.
+            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+    """
+
+    source: str
+    destination: str
     lower_bound: int
     upper_bound: int
 
@@ -32,6 +51,27 @@ class Linker(Metabolite):
         *args,
         **kwargs,
     ):
+        """
+        Initialize a Linker.
+
+
+
+        Args:
+            id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
+            source: The ID of the source phase or the source
+                phase itself.
+            destination: The ID of the source phase or the
+                source phase itself..
+            lower_bound: The 'lower_bound' to be used for the reaction.
+                For more information see :py:attr:`cobra.Reaction.lower_bound`
+                in :py:func:`cobra.Reaction`.
+            upper_bound: The 'upper_bound' to be used for the reaction.
+                For more information see :py:attr:`lower_bound` in
+                :py:class:`cobra.Reaction.`.
+            *args: See :py:class:`cobra.Metabolite` for possible '*args'.
+            **kwargs: See :py:class:'cobra.Metabolite' for possible '*kwargs'.
+        """
         super().__init__(id=id, *args, **kwargs)
 
         if isinstance(source, Phase):
@@ -45,7 +85,14 @@ class Linker(Metabolite):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        The toString method of the Linker class.
+        Returns:
+            The ID, name, source, destination, lower bound and upper
+            bound of the linker object as a formatted string.
+
+        """
         output = PrettyTable(
             [
                 "ID",
@@ -57,9 +104,40 @@ class Linker(Metabolite):
             ]
         )
 
+        output.add_row(
+            [
+                self.id,
+                self.name,
+                self.source,
+                self.destination,
+                self.lower_bound,
+                self.upper_bound,
+            ]
+        )
+
         return output.get_string()
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Linker):
+            if (
+                other.id == self.id
+                and other.source == self.source
+                and other.destination == self.destination
+                and other.lower_bound == self.lower_bound
+                and other.upper_bound == self.upper_bound
+            ):
+                return True
+
+        return False
+
     def to_xml(self) -> Element:
+        """
+        Converts a linker to an :py:class:`xml.etree.ElementTree.Element`.
+
+        Returns:
+            The :py:class:`xml.etree.ElementTree.Element` representation of
+            a linker.
+        """
         element = Element("linker")
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
@@ -72,6 +150,27 @@ class Linker(Metabolite):
 
     @classmethod
     def from_dict(cls, data: dict) -> Linker:
+        """
+        Creates a linker object based on the data encoded in a dict.
+
+        Args:
+            data: A dict that contains the necessary data to create a linker.
+
+        Returns:
+            A linker created based on the data from the dict.
+
+        Examples:
+            .. code-block:: python
+
+                dictionary = {
+                    "id": "id",
+                    "lower_bound": "4",
+                    "upper_bound": "500",
+                    "destination": {"refid": "destination"},
+                    "source": {"refid": "source"}
+                }
+                linker = Linker.from_dict(dictionary)
+        """
         return cls(
             id=data["id"],
             lower_bound=int(data["lower_bound"]),
@@ -82,13 +181,32 @@ class Linker(Metabolite):
 
 
 class Linkage:
+    """
+    Linkage as a class represents multiple Linker. Furthermore it implements
+    the applying of Linkers to a cobra.model.
+
+    Attributes:
+        linker (List[Linker]): A list containing individual Linker.
+
+    """
+
     # ToDo change to Set? or to DictList
     linker: List[Linker]
 
     def __init__(self):
+        """
+        Initialize a Linkage.
+        """
         self.linker = []
 
     def __str__(self):
+        """
+        The toString method of the Linkage class.
+
+        Returns:
+            The ID, name, source, destination, lower bound and upper
+            bound of all linker objects as a formatted string.
+        """
         output = PrettyTable(
             [
                 "ID",
@@ -113,17 +231,45 @@ class Linkage:
         return output.get_string()
 
     def add_linker(self, linker: Linker):
+        """
+        Adds linker to the linkage class.
+
+        Args:
+            linker: The linker to be added.
+        """
         # ToDo check for duplicates?
         self.linker.append(linker)
 
     def remove_linker(self, obj_pos: Union[Linker, int]):
+        """
+        Function to remove a linker. Either the position of the linker in the
+        :py:attr:`linkage.linker` list can be specified or the respective
+        linker.
+
+        Args:
+            obj_pos: The position of the linker object to be deleted or it
+                itself.
+
+        """
         if isinstance(obj_pos, int):
             del self.linker[obj_pos]
             return
 
         self.linker.remove(obj_pos)
 
-    def apply_linkage(self, model: Model, phases: Phases):
+    def apply_linkage(self, model: Model, phases: Phases) -> Model:
+        """
+        Function to apply all linkers contained in Linkage to a
+        :py:class:`cobra.Model`
+
+        Args:
+            model: The model to which the Linker should be applied.
+            phases: A phases object that contains all phases referenced by
+                the individual Linker.
+
+        Returns:
+            A :py:class:`cobra.model` that contains the Linker.
+        """
         reactions2add: List[Reaction] = []
 
         for link in self.linker:
@@ -139,12 +285,8 @@ class Linkage:
 
             linker: Reaction = Reaction(
                 id=link.id + "_L_" + link.source + "_" + link.destination,
-                name="Linker for "
-                + link.id
-                + " from "
-                + link.source
-                + " to "
-                + link.destination,
+                name=f"Linker for {link.id} from {link.source} "
+                f"to {link.destination}",
                 subsystem="Linker",
                 lower_bound=link.lower_bound,
                 upper_bound=link.upper_bound,
@@ -165,6 +307,14 @@ class Linkage:
         return model
 
     def to_xml(self) -> Element:
+        """
+        Converts a linkage to an :py:class:`xml.etree.ElementTree.Element`.
+
+        Returns:
+            The :py:class:`xml.etree.ElementTree.Element` representation of
+            a linkage.
+
+        """
 
         root = Element("linkage")
         for linker in self.linker:
@@ -173,7 +323,29 @@ class Linkage:
         return root
 
     @classmethod
-    def from_dict(cls, data: dict) -> Linkage:
+    def from_dict(cls, data: List[dict]) -> Linkage:
+        """
+        Creates a linkage object based on the data encoded in a dict.
+
+        Args:
+            data: A list of dicts that contain the necessary data to create a
+                linker object.
+
+        Returns:
+            A linkage created based on the data from the dict.
+
+        Examples:
+            .. code-block:: python
+
+                input = [{
+                    "id": "id",
+                    "lower_bound": "4",
+                    "upper_bound": "500",
+                    "destination": {"refid": "destination"},
+                    "source": {"refid": "source"}
+                }]
+                linkage = Linkage.from_dict(input)
+        """
         if isclass(cls):
             linkage = cls()
         else:
