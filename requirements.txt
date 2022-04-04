@@ -22,7 +22,7 @@ importlib-resources==5.6.0  # via cobra
 mpmath==1.2.1             # via sympy
 numpy==1.22.3             # via cobra, pandas
 optlang==1.5.2            # via cobra
-pandas==1.4.1             # via cobra
+pandas==1.4.2             # via cobra
 prettytable==3.2.0        # via model-duplication (./setup.cfg)
 pydantic==1.9.0           # via cobra
 pygments==2.11.2          # via rich
