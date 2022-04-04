@@ -30,7 +30,7 @@ python-dateutil==2.8.2    # via pandas
 python-libsbml==5.19.2    # via cobra
 pytz==2022.1              # via pandas
 rfc3986[idna2008]==1.5.0  # via httpx
-rich==12.0.1              # via cobra, model-duplication (./setup.cfg)
+rich==12.1.0              # via cobra, model-duplication (./setup.cfg)
 ruamel-yaml==0.17.21      # via cobra
 ruamel-yaml-clib==0.2.6   # via ruamel-yaml
 six==1.16.0               # via optlang, python-dateutil
