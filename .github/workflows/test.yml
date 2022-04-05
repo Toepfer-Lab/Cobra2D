@@ -39,7 +39,7 @@ jobs:
       - name: Run type-checking
         run: python -m tox -e types
 
-  test-dev:
+  test_dev:
     needs: [lint-format, types]
     runs-on: ubuntu-latest
     steps:
