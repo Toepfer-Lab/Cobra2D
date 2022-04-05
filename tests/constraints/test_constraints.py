@@ -24,7 +24,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(1, len(con.phases.phases))
         default_phase: Phase = con.phases.phases[0]
-        self.assertEqual("default", default_phase.id)
+        self.assertEqual("default-0", default_phase.id)
         self.assertEqual("Default Phase", default_phase.name)
         self.assertEqual("light", default_phase.light_dark)
 
@@ -45,10 +45,10 @@ class TestConstraints(TestCase):
 
     def test_get_phase_by_id(self):
         con = Constraints()
-        phase = con.get_phase_by_id("default")
+        phase = con.get_phase_by_id("default-0")
 
         self.assertIsInstance(phase, Phase)
-        self.assertEqual("default", phase.id)
+        self.assertEqual("default-0", phase.id)
         self.assertEqual("Default Phase", phase.name)
         self.assertEqual("light", phase.light_dark)
 
@@ -59,8 +59,8 @@ class TestConstraints(TestCase):
             lower_bound=4,
             upper_bound=541,
         )
-        con.add_reaction_to_phase(reaction, "default")
-        phase = con.get_phase_by_id("default")
+        con.add_reaction_to_phase(reaction, "default-0")
+        phase = con.get_phase_by_id("default-0")
 
         self.assertEqual(1, len(phase.reaction_settings))
         self.assertEqual("test", phase.reaction_settings[0].id)
@@ -118,6 +118,111 @@ class TestConstraints(TestCase):
         self.assertEqual(1, len(con.linker.linker))
         self.assertEqual(linker, con.linker.linker[0])
 
+        # Raise error if source or destination are not known
+
+        linker = Linker(
+            id="test_id",
+            source="unknown",
+            destination="default-1",
+        )
+
+        with self.assertRaisesRegex(
+            KeyError, "The source: 'unknown' is unknown."
+        ):
+            con.add_linker(linker)
+
+        linker = Linker(
+            id="test_id",
+            source="default-0",
+            destination="unknown",
+        )
+
+        with self.assertRaisesRegex(
+            KeyError, "The destination: 'unknown' is unknown."
+        ):
+            con.add_linker(linker)
+
+    def test_add_linker_series(self):
+        con = Constraints()
+        con.add_time_slots(5, 1, "light")
+        linker = []
+
+        for n in range(4):
+            source = f"default-{n}"
+            destination = f"default-{n+1}"
+            linker.append(
+                Linker(
+                    id="test_id",
+                    source=source,
+                    destination=destination,
+                )
+            )
+
+        # last2first: bool = False reverse: bool = False
+        self.assertEqual(0, len(con.linker.linker))
+        con.add_linker_series("test_id")
+        self.assertCountEqual(con.linker.linker, linker)
+
+        # last2first: bool = True reverse: bool = False
+        con = Constraints()
+        con.add_time_slots(5, 1, "light")
+        self.assertEqual(0, len(con.linker.linker))
+        con.add_linker_series("test_id", last2first=True)
+
+        linker.append(
+            Linker(id="test_id", source="default-4", destination="default-0")
+        )
+
+        self.assertCountEqual(con.linker.linker, linker)
+
+        # last2first: bool = False reverse: bool = True
+        con = Constraints()
+        con.add_time_slots(5, 1, "light")
+        linker = []
+
+        for n in range(4):
+            destination = f"default-{n}"
+            source = f"default-{n + 1}"
+            linker.append(
+                Linker(
+                    id="test_id",
+                    source=source,
+                    destination=destination,
+                )
+            )
+
+        self.assertEqual(0, len(con.linker.linker))
+        con.add_linker_series("test_id", reverse=True)
+        self.assertCountEqual(linker, con.linker.linker)
+
+        # last2first: bool = True reverse: bool = True
+        linker.append(
+            Linker(id="test_id", source="default-0", destination="default-4")
+        )
+        con = Constraints()
+        con.add_time_slots(5, 1, "light")
+        self.assertEqual(0, len(con.linker.linker))
+        con.add_linker_series("test_id", reverse=True, last2first=True)
+        self.assertCountEqual(linker, con.linker.linker)
+
+        # phase is not usable
+        con = Constraints()
+        con.add_time_slots(4, 1, "light")
+        con.add_sub_models(["root", "leaf"], [1, 2])
+        self.assertEqual(0, len(con.linker.linker))
+        del con.phases.phases[3]
+        con.add_linker_series("test_linker")
+
+        with self.assertLogs(level="WARNING") as waning:
+            con.add_linker_series("test_linker")
+        self.assertEqual(
+            waning.output,
+            [
+                "WARNING:root:Linker from root-2 to root-3 "
+                "could not be created."
+            ],
+        )
+
     def test_apply_to_model(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
@@ -174,6 +279,24 @@ class TestConstraints(TestCase):
                             f"No reaction with ID {new_id} was found in the"
                             f" new model"
                         )
+        # test when Phase has a model
+
+        con = Constraints()
+        con.add_time_slots(2, 1, "light")
+        phase = con.get_phase_by_id("default-0")
+        phase_model: Model = create_test_model(model_name="ecoli")
+        phase.model = phase_model
+        model = create_test_model(model_name="textbook")
+
+        new_model = con.apply_to_model(model)
+        self.assertEqual(
+            len(phase_model.reactions) + len(model.reactions),
+            len(new_model.reactions),
+        )
+        self.assertEqual(
+            len(phase_model.metabolites) + len(model.metabolites),
+            len(new_model.metabolites),
+        )
 
     def test_to_xml(self):
         con = Constraints()

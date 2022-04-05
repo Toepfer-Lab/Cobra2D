@@ -22,10 +22,10 @@ def update_stoichiometry(
     for metabolite, coef in metabolites.items():
 
         if coef < 0:
-            coef = left * coef
+            coef *= left
 
         else:
-            coef = right * coef
+            coef *= right
 
         metabolites[metabolite] = coef
 
