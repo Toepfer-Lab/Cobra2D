@@ -37,9 +37,12 @@ class Phase:
         id(str): The ID of the phase.
         name(str): The name of the phase.
         light_dark(Literal["light","dark"]): Definition of the lighting
-            conditions and thus the energy consumed for maintenance??
-            # ToDo ask
+            conditions.
         volume(int): The volume of the organ.
+        model(Model): This attribute can be used to assign a model to the
+            phase. This guarantees that :py:func:`apply_phases` does not create
+            a duplicate of the passed model but uses the one associated with
+            the phase.
         reaction_settings(Reaction): Definition of reactions to be adjusted
             identically to those defined here within the phase.
     """
@@ -263,10 +266,12 @@ class Phases:
     def apply_phases(self, model: Model, link_genes: bool = False) -> Model:
         """
         Method to apply the previously defined phases to a
-        :py:class:`cobra.Model`. The :py:class:`cobra.Model` is copied several
-        times and each resulting :py:class:`cobra.Model` corresponds to a
-        phase or time and organ combination. The extended
-        :py:class:`cobra.Model` is returned.
+        :py:class:`Model`. The :py:class:`Model` is copied several
+        times and each resulting :py:class:`Model` corresponds to a
+        phase or time and organ combination. If a phase contains a
+        :py:class:`Model`, then that :py:class:`Model` will be used
+        and not the passed :py:class:`Model`. The extended
+        :py:class:`Model` is returned.
 
         Args:
             model: The model to which the phases are to be applied.

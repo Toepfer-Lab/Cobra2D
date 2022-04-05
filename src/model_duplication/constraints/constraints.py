@@ -298,6 +298,35 @@ class Constraints:
         last2first: bool = False,
         reverse: bool = False,
     ):
+        """
+        Method to create linkers across all existing time periods. As an
+        example, the following linkers would be created for a model that
+        spans 4 time periods:
+
+        .. code-block::
+        Linker from time period 0 to time period 1\n
+        Linker from time period 1 to time period 2\n
+        Linker from time period 2 to time period 3
+
+        Args:
+            id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
+            lower_bound: The 'lower_bound' to be used for the reaction.
+                For more information see :py:attr:`cobra.Reaction.lower_bound`
+                in :py:func:`cobra.Reaction`.
+            upper_bound: The 'upper_bound' to be used for the reaction.
+                For more information see :py:attr:`lower_bound` in
+                :py:class:`cobra.Reaction.`.
+            last2first: Bool that determines whether a linker should be created
+                between the last and the first period.
+                If True said linker will be created.
+                If reverse equals True, a linker will be created
+                from the first to the last period.
+            reverse: Bool that specifies the orientation of the linkers.
+                If True, the linkers are created starting from the last to the
+                first time period and not from the first to the last as usual.
+
+        """
 
         labels, times = self.__get_label_time(reverse=reverse)
 
