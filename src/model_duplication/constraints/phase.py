@@ -286,6 +286,7 @@ class Phases:
         """
         with_model: List[Phase] = []
         without_model: List[Phase] = []
+        new_model = Model()
 
         for phase in self.phases:
             (without_model if phase.model is None else with_model).append(
@@ -294,9 +295,10 @@ class Phases:
 
         phase_names = [phase.id for phase in without_model]
 
-        new_model = _main_placeholder(
-            model=model, labels=phase_names, genes=link_genes
-        )
+        if without_model:
+            new_model = _main_placeholder(
+                model=model, labels=phase_names, genes=link_genes
+            )
 
         for phase in with_model:
             copy = phase.model.copy()
