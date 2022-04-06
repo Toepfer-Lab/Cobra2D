@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Constraints Class &mdash; model-duplication 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API Reference for model-duplication" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> model-duplication
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-time-periods-or-sub-models">Adding new time periods or sub_models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-linker">Adding new linker</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">model-duplication</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="api.html">API Reference for model-duplication</a> &raquo;</li>
+      <li>Constraints Class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/constraints.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="constraints-class">
+<h1>Constraints Class<a class="headerlink" href="#constraints-class" title="Permalink to this headline"></a></h1>
+<p>In the following we will take a closer look at the Constraints class. This is
+the one that brings together all the functionalities of this package.
+For a user it is therefore the most important class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constraints</span></span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints" title="Permalink to this definition"></a></dt>
+<dd><p>This class bundles the functionalities of <code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Linkage</span></code>. So the application of these is not only possible with
+a single line but there are also helper functions to simplify the creation
+of organs and time periods. Last but not least it realizes a storage of a
+constraints object as XML and also the creation of a constraints object
+based on such an XML file.</p>
+</dd></dl>
+
+<section id="adding-new-time-periods-or-sub-models">
+<h2>Adding new time periods or sub_models<a class="headerlink" href="#adding-new-time-periods-or-sub-models" title="Permalink to this headline"></a></h2>
+<p>This class contains two functions to add periods or sub_models.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.add_sub_models">
+<span class="sig-name descname"><span class="pre">add_sub_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.add_sub_models" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add sub models. These can correspond to organs, for example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – A list containing the name of the sub models.</p></li>
+<li><p><strong>volumes</strong> – A list containing the volumes of the sub models</p></li>
+<li><p><strong>names</strong> – A list of human-readable names to be used for the sub
+models.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.add_time_slots">
+<span class="sig-name descname"><span class="pre">add_time_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ranges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_dark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'light'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dark'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'light'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.add_time_slots" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add new time ranges. It is designed to create multiple time
+ranges of the same length that are also subject to the same
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">light_dark</span></code> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_ranges</strong> – The number of how many such time ranges should be
+created.</p></li>
+<li><p><strong>time</strong> – The length of the time ranges to be created.</p></li>
+<li><p><strong>light_dark</strong> – The light_dark parameter to be assigned to these time
+ranges.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The functions create phase objects for the newly
+added time period, sub_model combinations. For the creation of the phase objects the parameters are used, which
+were specified in each case with the addition of periods or sub_models. By default there is a phase called “default-0”.
+This has a volume of 1 and a time period of 1. When one of the two methods is used for the first time, it is extended
+as shown below.</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">model_duplication.constraints.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span> <span class="o">=</span> <span class="n">Constraints</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+<span class="go">+----------------------+-----------+</span>
+<span class="go">| Sub-Model\Time Index |     0     |</span>
+<span class="go">+----------------------+-----------+</span>
+<span class="go">|           | id       | default-0 |</span>
+<span class="go">|  default  | volume   |     1     |</span>
+<span class="go">|           | time     |     1     |</span>
+<span class="go">+----------------------+-----------+</span>
+</pre></div>
+</div>
+<p>By adding time frames we get</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">model_duplication.constraints.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span> <span class="o">=</span> <span class="n">Constraints</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span><span class="o">.</span><span class="n">add_time_slots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+<span class="go">+----------------------+-----------+-----------+-----------+-----------+</span>
+<span class="go">| Sub-Model\Time Index |     0     |     1     |     2     |     3     |</span>
+<span class="go">+----------------------+-----------+-----------+-----------+-----------+</span>
+<span class="go">|           | id       | default-0 | default-1 | default-2 | default-3 |</span>
+<span class="go">|  default  | volume   |     1     |     1     |     1     |     1     |</span>
+<span class="go">|           | time     |     2     |     2     |     2     |     2     |</span>
+<span class="go">+----------------------+-----------+-----------+-----------+-----------+</span>
+</pre></div>
+</div>
+<p>If we add sub_models instead we get the following:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">model_duplication.constraints.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span> <span class="o">=</span> <span class="n">Constraints</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">con</span><span class="o">.</span><span class="n">add_sub_models</span><span class="p">([</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span> <span class="s2">&quot;root&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+<span class="go">+----------------------+--------+</span>
+<span class="go">| Sub-Model\Time Index |   0    |</span>
+<span class="go">+----------------------+--------+</span>
+<span class="go">|          | id        | leaf-0 |</span>
+<span class="go">|    leaf  | volume    |   1    |</span>
+<span class="go">|          | time      |   1    |</span>
+<span class="go">+----------------------+--------+</span>
+<span class="go">|          | id        | root-0 |</span>
+<span class="go">|    root  | volume    |   2    |</span>
+<span class="go">|          | time      |   1    |</span>
+<span class="go">+----------------------+--------+</span>
+</pre></div>
+</div>
+<p>As we can see the default time period or sub_model is replaced as soon as we define times or sub_models ourselves.</p>
+</section>
+<section id="adding-new-linker">
+<h2>Adding new linker<a class="headerlink" href="#adding-new-linker" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.add_linker">
+<span class="sig-name descname"><span class="pre">add_linker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">model_duplication.constraints.linker.Linker</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.add_linker" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add previously created linkers to the constraints object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>linker</strong> – The linker to be added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.add_linker_series">
+<span class="sig-name descname"><span class="pre">add_linker_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last2first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.add_linker_series" title="Permalink to this definition"></a></dt>
+<dd><p>Method to create linkers across all existing time periods. As an
+example, the following linkers would be created for a model that
+spans 4 time periods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>Linker from time period 0 to time period 1</p>
+<p>Linker from time period 1 to time period 2</p>
+<p>Linker from time period 2 to time period 3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – The ID to be used for the metabolite. This should match
+the ID of the metabolite in the model.</p></li>
+<li><p><strong>lower_bound</strong> – The ‘lower_bound’ to be used for the reaction.
+For more information see <code class="xref py py-attr docutils literal notranslate"><span class="pre">cobra.Reaction.lower_bound</span></code>
+in <code class="xref py py-func docutils literal notranslate"><span class="pre">cobra.Reaction()</span></code>.</p></li>
+<li><p><strong>upper_bound</strong> – The ‘upper_bound’ to be used for the reaction.
+For more information see <code class="xref py py-attr docutils literal notranslate"><span class="pre">lower_bound</span></code> in
+<code class="xref py py-class docutils literal notranslate"><span class="pre">cobra.Reaction.</span></code>.</p></li>
+<li><p><strong>last2first</strong> – Bool that determines whether a linker should be created
+between the last and the first period.
+If True said linker will be created.
+If reverse equals True, a linker will be created
+from the first to the last period.</p></li>
+<li><p><strong>reverse</strong> – Bool that specifies the orientation of the linkers.
+If True, the linkers are created starting from the last to the
+first time period and not from the first to the last as usual.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constraints</span></span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><p>This class bundles the functionalities of <code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Linkage</span></code>. So the application of these is not only possible with
+a single line but there are also helper functions to simplify the creation
+of organs and time periods. Last but not least it realizes a storage of a
+constraints object as XML and also the creation of a constraints object
+based on such an XML file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">add_linker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">model_duplication.constraints.linker.Linker</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add previously created linkers to the constraints object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>linker</strong> – The linker to be added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">add_linker_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last2first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd><p>Method to create linkers across all existing time periods. As an
+example, the following linkers would be created for a model that
+spans 4 time periods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>Linker from time period 0 to time period 1</p>
+<p>Linker from time period 1 to time period 2</p>
+<p>Linker from time period 2 to time period 3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – The ID to be used for the metabolite. This should match
+the ID of the metabolite in the model.</p></li>
+<li><p><strong>lower_bound</strong> – The ‘lower_bound’ to be used for the reaction.
+For more information see <code class="xref py py-attr docutils literal notranslate"><span class="pre">cobra.Reaction.lower_bound</span></code>
+in <code class="xref py py-func docutils literal notranslate"><span class="pre">cobra.Reaction()</span></code>.</p></li>
+<li><p><strong>upper_bound</strong> – The ‘upper_bound’ to be used for the reaction.
+For more information see <code class="xref py py-attr docutils literal notranslate"><span class="pre">lower_bound</span></code> in
+<code class="xref py py-class docutils literal notranslate"><span class="pre">cobra.Reaction.</span></code>.</p></li>
+<li><p><strong>last2first</strong> – Bool that determines whether a linker should be created
+between the last and the first period.
+If True said linker will be created.
+If reverse equals True, a linker will be created
+from the first to the last period.</p></li>
+<li><p><strong>reverse</strong> – Bool that specifies the orientation of the linkers.
+If True, the linkers are created starting from the last to the
+first time period and not from the first to the last as usual.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.add_reaction_to_phase">
+<span class="sig-name descname"><span class="pre">add_reaction_to_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cobra.core.reaction.Reaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">model_duplication.constraints.phase.Phase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">model_duplication.constraints.phase.Phase</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.add_reaction_to_phase" title="Permalink to this definition"></a></dt>
+<dd><p>A method that allows to influence the reaction in certain phases.
+For example, reactions during certain phases can be restricted by
+adjusting upper_bounds and lower_bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reaction</strong> – A reaction that has the same ID as the one to be adjusted
+and contains the adjusted parameters. The ID must be the same
+as the original ID and must not have the phase name extension.</p></li>
+<li><p><strong>phase</strong> – The ID of the phase, the phase itself or a list of IDs or a
+list of phases in which the adjustment defined by the reaction
+is to be performed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">add_sub_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add sub models. These can correspond to organs, for example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – A list containing the name of the sub models.</p></li>
+<li><p><strong>volumes</strong> – A list containing the volumes of the sub models</p></li>
+<li><p><strong>names</strong> – A list of human-readable names to be used for the sub
+models.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">add_time_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_ranges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_dark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'light'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dark'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'light'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add new time ranges. It is designed to create multiple time
+ranges of the same length that are also subject to the same
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">light_dark</span></code> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_ranges</strong> – The number of how many such time ranges should be
+created.</p></li>
+<li><p><strong>time</strong> – The length of the time ranges to be created.</p></li>
+<li><p><strong>light_dark</strong> – The light_dark parameter to be assigned to these time
+ranges.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.apply_to_model">
+<span class="sig-name descname"><span class="pre">apply_to_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cobra.core.model.Model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.apply_to_model" title="Permalink to this definition"></a></dt>
+<dd><p>Method to apply all defined adjustments to a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> – The model that should be changed.</p>
+</dd>
+</dl>
+<p>Returns: A <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> that contains all defined adjustments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.get_phase_by_id">
+<span class="sig-name descname"><span class="pre">get_phase_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">model_duplication.constraints.phase.Phase</span></span></span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.get_phase_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>A method to get individual phases by their ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> – ID of the desired phase.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The phase that has the specified ID.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.load_from_xml">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">TextIO</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><span class="pre">model_duplication.constraints.constraints.Constraints</span></a></span></span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.load_from_xml" title="Permalink to this definition"></a></dt>
+<dd><p>Method to create a <a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraints</span></code></a> object from an XML file.
+This must match the format of the XSD found at
+<a class="reference external" href="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd">https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd</a>.
+:param path: The path to the XML file to be used for creating a
+:param <a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraints</span></code></a> object.:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The <a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraints</span></code></a> object created on the properties in the
+XML file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.rich_output">
+<span class="sig-name descname"><span class="pre">rich_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.rich_output" title="Permalink to this definition"></a></dt>
+<dd><p>Experimental only
+Display via rich</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.save_as_xml">
+<span class="sig-name descname"><span class="pre">save_as_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.save_as_xml" title="Permalink to this definition"></a></dt>
+<dd><p>Method to save the constraints object as XML file. Based on this file
+the constraints object can be reconstructed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – The file path where the created XML file should be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="model_duplication.constraints.constraints.Constraints.to_xml">
+<span class="sig-name descname"><span class="pre">to_xml</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">xml.etree.ElementTree.Element</span></span></span><a class="headerlink" href="#model_duplication.constraints.constraints.Constraints.to_xml" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a <a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraints</span></code></a> object to an <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code> that represents a <a class="reference internal" href="#id0" title="model_duplication.constraints.constraints.Constraints"><code class="xref py py-class docutils literal notranslate"><span class="pre">Constraints</span></code></a>
+object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API Reference for model-duplication" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jan-Niklas Weder.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
