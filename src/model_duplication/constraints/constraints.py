@@ -185,7 +185,10 @@ class Constraints:
         console.print(output)
 
     def add_time_slots(
-        self, n_ranges: int, time: int, light_dark: Literal["light", "dark"] = "light"
+        self,
+        n_ranges: int,
+        time: int,
+        light_dark: Literal["light", "dark"] = "light",
     ):
         """
         Method to add new time ranges. It is designed to create multiple time

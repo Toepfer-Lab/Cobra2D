@@ -30,7 +30,6 @@ def _rename(model: Model, suffix: str):
     for reaction, coeff in linear_reaction_coefficients(model).items():
         model_objective[reaction.id] = coeff
 
-
     item: Union[Metabolite, Reaction, Group, Gene]
     for item in model.metabolites + model.reactions + model.groups:
 

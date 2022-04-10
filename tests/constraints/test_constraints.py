@@ -132,7 +132,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-                KeyError, "The source: 'unknown' is unknown."
+            KeyError, "The source: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -143,7 +143,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-                KeyError, "The destination: 'unknown' is unknown."
+            KeyError, "The destination: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -311,25 +311,30 @@ class TestConstraints(TestCase):
         con.add_sub_models(["root", "leaf"], [2, 4])
 
         # check that base model results in expected summary
-        with open_text(data, "ecoli_summary.txt", encoding="UTF-8") as expected:
+        with open_text(
+            data, "ecoli_summary.txt", encoding="UTF-8"
+        ) as expected:
             model.optimize()
             summary = str(model.summary())
             self.assertEqual(expected.read(), summary)
 
         textbook_model: Model = create_test_model(model_name="textbook")
 
-        with open_text(data, "textbook_summary.txt", encoding="UTF-8") as expected:
+        with open_text(
+            data, "textbook_summary.txt", encoding="UTF-8"
+        ) as expected:
             textbook_model.optimize()
             summary = str(textbook_model.summary())
             self.assertEqual(expected.read(), summary)
-
-
 
         con.get_phase_by_id("leaf-1").model = textbook_model.copy()
         con.get_phase_by_id("root-2").model = textbook_model.copy()
 
         # no model given => Error
-        with self.assertRaisesRegex(ValueError, "Model was None although there were phases without model."):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Model was None although there were phases without model.",
+        ):
             con.apply_to_model()
 
         new_model = con.apply_to_model(model)
@@ -363,7 +368,7 @@ class TestConstraints(TestCase):
         self.assertEqual(
             {
                 "xmlns": "https://github.com/Toepfer-Lab/model_duplication/"
-                         "blob/main/src/resources/schema.xsd"
+                "blob/main/src/resources/schema.xsd"
             },
             xml.attrib,
         )
