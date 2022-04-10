@@ -10,11 +10,10 @@ logger = getLogger(__name__)
 
 def _merge(model: Model, right: Model, suffix: str) -> Model:
 
-    model.merge(right=right, prefix_existing="failed_")
+    model.merge(right=right, prefix_existing="failed_", objective="sum")
 
     assert len(model.metabolites.query("failed_")) == 0
     assert len(model.reactions.query("failed_")) == 0
-    assert len(model.genes) == len(right.genes)
 
     group: Group
     for group in right.groups.query(suffix):

@@ -1,0 +1,18 @@
+Objective
+=========
+1.0 Biomass_Ecoli_core = 0.8739215069684306
+
+Uptake
+------
+Metabolite    Reaction  Flux  C-Number  C-Flux
+  glc__D_e EX_glc__D_e    10         6 100.00%
+     nh4_e    EX_nh4_e 4.765         0   0.00%
+      o2_e     EX_o2_e  21.8         0   0.00%
+      pi_e     EX_pi_e 3.215         0   0.00%
+
+Secretion
+---------
+Metabolite Reaction   Flux  C-Number  C-Flux
+     co2_e EX_co2_e -22.81         1 100.00%
+     h2o_e EX_h2o_e -29.18         0   0.00%
+       h_e   EX_h_e -17.53         0   0.00%

@@ -4,6 +4,7 @@ Implementation of the phase and Phases classes.
 """
 from __future__ import annotations
 
+import logging
 from inspect import isclass
 from typing import List, Union, Optional
 
@@ -58,12 +59,12 @@ class Phase:
     reaction_settings: List[Reaction]
 
     def __init__(
-        self,
-        id: str,
-        light_dark: Literal["light", "dark"],
-        timeframe: int = 1,
-        volume: int = 1,
-        name: str = "",
+            self,
+            id: str,
+            light_dark: Literal["light", "dark"],
+            timeframe: int = 1,
+            volume: int = 1,
+            name: str = "",
     ):
         """
         Initialize a Phase.
@@ -263,7 +264,7 @@ class Phases:
 
         del self.phases[self.phases.index(id)]
 
-    def apply_phases(self, model: Model, link_genes: bool = False) -> Model:
+    def apply_phases(self, model: Optional[Model] = None, link_genes: bool = False) -> Model:
         """
         Method to apply the previously defined phases to a
         :py:class:`Model`. The :py:class:`Model` is copied several
@@ -296,6 +297,14 @@ class Phases:
         phase_names = [phase.id for phase in without_model]
 
         if without_model:
+            if model is None:
+                logging.error("There are phases without assigned models, but "
+                              "no model was passed that could be used as "
+                              "default model.")
+
+                raise ValueError("Model was None although there were phases "
+                                 "without model.")
+
             new_model = _main_placeholder(
                 model=model, labels=phase_names, genes=link_genes
             )
@@ -312,7 +321,7 @@ class Phases:
                     Group(
                         id=phase.id,
                         name=f"All reactions and metabolites of "
-                        f"Phase: {phase.id}",
+                             f"Phase: {phase.id}",
                         members=copy.reactions + copy.metabolites,
                         kind="partonomy",
                     )

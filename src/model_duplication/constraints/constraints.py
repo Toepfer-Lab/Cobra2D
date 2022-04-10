@@ -9,7 +9,7 @@ from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any, List, Tuple, Union, TextIO
+from typing import Any, List, Tuple, Union, TextIO, Optional
 from xml.dom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -36,6 +36,10 @@ class Constraints:
     of organs and time periods. Last but not least it realizes a storage of a
     constraints object as XML and also the creation of a constraints object
     based on such an XML file.
+
+    Attributes:
+        phases(Linkage) :
+        linker(Linkage) :
     """
 
     def __init__(self):
@@ -360,7 +364,7 @@ class Constraints:
                 )
                 self.add_linker(linker)
 
-    def apply_to_model(self, model: Model):
+    def apply_to_model(self, model: Optional[Model] = None):
         """
         Method to apply all defined adjustments to a :py:class:`Model`.
 
