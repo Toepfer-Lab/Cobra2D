@@ -1,0 +1,17 @@
+Results of doctest builder run on 2022-04-06 14:33:51
+=====================================================
+
+Document: constraints
+---------------------
+1 items passed all tests:
+  11 tests in default
+11 tests in 1 items.
+11 passed and 0 failed.
+Test passed.
+
+Doctest summary
+===============
+   11 tests
+    0 failures in tests
+    0 failures in setup code
+    0 failures in cleanup code

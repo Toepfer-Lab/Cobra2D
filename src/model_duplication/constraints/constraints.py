@@ -3,22 +3,22 @@ Implementation of the Constraints class.
 """
 from __future__ import annotations
 
+import logging
 from collections import OrderedDict
 from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple, Union, TextIO, Optional
 from xml.dom import minidom
 from xml.etree import ElementTree
-
-from typing_extensions import Literal
 from xml.etree.ElementTree import Element
 
 from cobra import Model, Reaction
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
+from typing_extensions import Literal
 from xmlschema import XMLSchema
 
 from model_duplication import resources
@@ -36,6 +36,10 @@ class Constraints:
     of organs and time periods. Last but not least it realizes a storage of a
     constraints object as XML and also the creation of a constraints object
     based on such an XML file.
+
+    Attributes:
+        phases(Linkage) :
+        linker(Linkage) :
     """
 
     def __init__(self):
@@ -47,7 +51,7 @@ class Constraints:
         self.linker = Linkage()
         self.order = Matrix()
         self.phases.add_phase(
-            Phase(id="default", name="Default Phase", light_dark="light")
+            Phase(id="default-0", name="Default Phase", light_dark="light")
         )
 
         self.default_time = True
@@ -62,6 +66,26 @@ class Constraints:
             ("default", 1, "Default sub_model")
         ]
 
+    def __get_label_time(
+        self, reverse: bool = False
+    ) -> Tuple[List[str], List[str]]:
+        labels: List[str] = []
+        times: List[str] = []
+
+        for phase in self.phases.phases:
+            label_time = phase.id.split("-")
+
+            labels.append(label_time[0])
+            times.append(label_time[1])
+
+        labels = list(set(labels))
+        times = list(set(times))
+
+        labels.sort()
+        times.sort(reverse=reverse)
+
+        return labels, times
+
     def __str__(self):
         """
         The toString method of the Constraints class. It creates a tabular
@@ -71,18 +95,23 @@ class Constraints:
             A table containing the IDs of the phases, their volume and time
             range.
         """
-        output = PrettyTable(
-            ["Sub-Model\\Time Index"]
-            + list(str(time[0]) for time in self.time_ranges)
-        )
-        for label, volume, name in self.sub_models:
+
+        labels, times = self.__get_label_time()
+
+        output = PrettyTable(["Sub-Model\\Time Index"] + times)
+        for label in labels:
             row = [
                 " " * (len(label) - 2) + "| id\n"
                 f"{label}  | volume\n" + (" " * len(label)) + "| time"
             ]
 
-            for index, timeframe, light in self.time_ranges:
-                row.append(f"{label}-{index}\n" f"{volume}\n" f"{timeframe}")
+            for time in times:
+                phase_id = f"{label}-{time}"
+                phase = self.get_phase_by_id(phase_id)
+
+                row.append(
+                    f"{phase_id}\n" f"{phase.volume}\n" f"{phase.timeframe}"
+                )
 
             output.add_row(row)
             output.hrules = 1
@@ -156,7 +185,10 @@ class Constraints:
         console.print(output)
 
     def add_time_slots(
-        self, n_ranges: int, time: int, light_dark: Literal["light", "dark"]
+        self,
+        n_ranges: int,
+        time: int,
+        light_dark: Literal["light", "dark"] = "light",
     ):
         """
         Method to add new time ranges. It is designed to create multiple time
@@ -239,6 +271,9 @@ class Constraints:
 
             self.sub_models.append((label, volume, name))
 
+    def remove_sub_model(self, id: str):
+        raise NotImplementedError
+
     def add_linker(self, linker: Linker):
         """
         Method to add previously created linkers to the constraints object.
@@ -247,12 +282,92 @@ class Constraints:
             linker: The linker to be added.
 
         """
-        # ToDo check if phase ID/Phase exist for reference
-        # ToDo apply linker between multiple phases.
+
+        try:
+            self.get_phase_by_id(linker.destination)
+        except KeyError:
+            raise KeyError(
+                f"The destination: '{linker.destination}' is unknown."
+            )
+
+        try:
+            self.get_phase_by_id(linker.source)
+        except KeyError:
+            raise KeyError(f"The source: '{linker.source}' is unknown.")
 
         self.linker.add_linker(linker)
 
-    def apply_to_model(self, model: Model):
+    def add_linker_series(
+        self,
+        id: str,
+        lower_bound: int = 0,
+        upper_bound: int = 1000,
+        last2first: bool = False,
+        reverse: bool = False,
+    ):
+        """
+        Method to create linkers across all existing time periods. As an
+        example, the following linkers would be created for a model that
+        spans 4 time periods:
+
+        .. code-block::
+        Linker from time period 0 to time period 1\n
+        Linker from time period 1 to time period 2\n
+        Linker from time period 2 to time period 3
+
+        Args:
+            id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
+            lower_bound: The 'lower_bound' to be used for the reaction.
+                For more information see :py:attr:`cobra.Reaction.lower_bound`
+                in :py:func:`cobra.Reaction`.
+            upper_bound: The 'upper_bound' to be used for the reaction.
+                For more information see :py:attr:`lower_bound` in
+                :py:class:`cobra.Reaction.`.
+            last2first: Bool that determines whether a linker should be created
+                between the last and the first period.
+                If True said linker will be created.
+                If reverse equals True, a linker will be created
+                from the first to the last period.
+            reverse: Bool that specifies the orientation of the linkers.
+                If True, the linkers are created starting from the last to the
+                first time period and not from the first to the last as usual.
+
+        """
+
+        labels, times = self.__get_label_time(reverse=reverse)
+
+        for label in labels:
+            for n in range(len(times) - 1):
+                time = times[n]
+                try:
+                    linker = Linker(
+                        id=id,
+                        source=f"{label}-{time}",
+                        destination=f"{label}-{times[n+1]}",
+                        upper_bound=upper_bound,
+                        lower_bound=lower_bound,
+                    )
+                    self.add_linker(linker)
+
+                except KeyError:
+                    logging.warning(
+                        f"Linker from {label}-{time} to "
+                        f"{label}-{times[n+1]} could not be "
+                        f"created."
+                    )
+
+            if last2first:
+                linker = Linker(
+                    id=id,
+                    source=f"{label}-{times[-1]}",
+                    destination=f"{label}-{times[0]}",
+                    upper_bound=upper_bound,
+                    lower_bound=lower_bound,
+                )
+                self.add_linker(linker)
+
+    def apply_to_model(self, model: Optional[Model] = None):
         """
         Method to apply all defined adjustments to a :py:class:`Model`.
 
@@ -317,7 +432,7 @@ class Constraints:
             file.write(xml_string)
 
     @classmethod
-    def load_from_xml(cls, path: Union[Path, str]) -> Constraints:
+    def load_from_xml(cls, path: Union[Path, str, TextIO]) -> Constraints:
         """
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
@@ -341,7 +456,8 @@ class Constraints:
         if isinstance(path, str):
             path = Path(path)
 
-        xsd = XMLSchema(open_text(resources, "schema.xsd", encoding="UTF-8"))
+        with open_text(resources, "schema.xsd", encoding="UTF-8") as file:
+            xsd = XMLSchema(file)
 
         # 'to_etree' returns only root. Therefore the same logic as for
         # encoding cannot be used.
@@ -352,7 +468,7 @@ class Constraints:
 
         if (
             len(constraints.phases.phases) == 1
-            and constraints.phases.phases[0].id == "default"
+            and constraints.phases.phases[0].id == "default-0"
         ):
             return constraints
 
@@ -374,7 +490,7 @@ class Constraints:
         # in the XML. However, this would have the consequence that
         # this would be more difficult for a human being to work on.
 
-        if len(labels) == 1 and labels[0] == "default":
+        if len(labels) == 1 and labels[0] == "default-0":
             pass
         else:
             constraints.default_sub_model = False

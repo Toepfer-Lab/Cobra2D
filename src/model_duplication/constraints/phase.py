@@ -4,15 +4,23 @@ Implementation of the phase and Phases classes.
 """
 from __future__ import annotations
 
+import logging
 from inspect import isclass
-from typing import List, Union
+from typing import List, Union, Optional
+
+from cobra.core import Group
 from typing_extensions import Literal
 from xml.etree.ElementTree import Element
 
 from cobra import DictList, Model, Reaction
 from prettytable import PrettyTable
 
-from model_duplication.duplication.duplication import _main_placeholder
+from model_duplication.duplication.duplication import (
+    _main_placeholder,
+    _rename,
+    _test,
+)
+from model_duplication.duplication.merging import _merge
 from model_duplication.error import IdAlreadyInUse
 
 
@@ -30,9 +38,12 @@ class Phase:
         id(str): The ID of the phase.
         name(str): The name of the phase.
         light_dark(Literal["light","dark"]): Definition of the lighting
-            conditions and thus the energy consumed for maintenance??
-            # ToDo ask
+            conditions.
         volume(int): The volume of the organ.
+        model(Model): This attribute can be used to assign a model to the
+            phase. This guarantees that :py:func:`apply_phases` does not create
+            a duplicate of the passed model but uses the one associated with
+            the phase.
         reaction_settings(Reaction): Definition of reactions to be adjusted
             identically to those defined here within the phase.
     """
@@ -44,6 +55,7 @@ class Phase:
     light_dark: Literal["light", "dark"]
     timeframe: int
     volume: int
+    model: Optional[Model]
     reaction_settings: List[Reaction]
 
     def __init__(
@@ -71,8 +83,23 @@ class Phase:
         self.light_dark = light_dark
         self.timeframe = timeframe
         self.reaction_settings = []
+        self.model = None
 
-    # ToDo add toString method
+    def __str__(self):
+        """
+        The toString method of the Phases class. It creates a tabular based
+        representation of the Phases class.
+
+        Returns:
+            The ID, name, volume and time frame of each phase in a table form
+            as a string.
+
+
+        """
+        output = PrettyTable(["Phase", "Name", "Volume", "Timeframe"])
+        output.add_row([self.id, self.name, self.volume, self.timeframe])
+
+        return output.get_string()
 
     def to_xml(self):
         """
@@ -237,13 +264,17 @@ class Phases:
 
         del self.phases[self.phases.index(id)]
 
-    def apply_phases(self, model: Model, link_genes: bool = False) -> Model:
+    def apply_phases(
+        self, model: Optional[Model] = None, link_genes: bool = False
+    ) -> Model:
         """
         Method to apply the previously defined phases to a
-        :py:class:`cobra.Model`. The :py:class:`cobra.Model` is copied several
-        times and each resulting :py:class:`cobra.Model` corresponds to a
-        phase or time and organ combination. The extended
-        :py:class:`cobra.Model` is returned.
+        :py:class:`Model`. The :py:class:`Model` is copied several
+        times and each resulting :py:class:`Model` corresponds to a
+        phase or time and organ combination. If a phase contains a
+        :py:class:`Model`, then that :py:class:`Model` will be used
+        and not the passed :py:class:`Model`. The extended
+        :py:class:`Model` is returned.
 
         Args:
             model: The model to which the phases are to be applied.
@@ -256,11 +287,57 @@ class Phases:
             each assigned to a phase. The name of the elements that belong to
             a phase ends with "_nameOfThePhase".
         """
-        phase_names = [phase.id for phase in self.phases]
+        with_model: List[Phase] = []
+        without_model: List[Phase] = []
+        new_model = Model()
 
-        new_model = _main_placeholder(
-            model=model, labels=phase_names, genes=link_genes
-        )
+        for phase in self.phases:
+            (without_model if phase.model is None else with_model).append(
+                phase
+            )
+
+        phase_names = [phase.id for phase in without_model]
+
+        if without_model:
+            if model is None:
+                logging.error(
+                    "There are phases without assigned models, but "
+                    "no model was passed that could be used as "
+                    "default model."
+                )
+
+                raise ValueError(
+                    "Model was None although there were phases "
+                    "without model."
+                )
+
+            new_model = _main_placeholder(
+                model=model, labels=phase_names, genes=link_genes
+            )
+
+        for phase in with_model:
+            copy = phase.model.copy()
+
+            # ToDo duplicate code from _main_placeholder should be refactored
+            _rename(copy, phase.id)
+
+            # Add all objects of the model to a group named after the label
+            copy.add_groups(
+                [
+                    Group(
+                        id=phase.id,
+                        name=f"All reactions and metabolites of "
+                        f"Phase: {phase.id}",
+                        members=copy.reactions + copy.metabolites,
+                        kind="partonomy",
+                    )
+                ]
+            )
+            new_model = _merge(new_model, copy, phase.id)
+            if not _test(new_model, copy):
+                raise Exception(f"Test for phase {copy.id} failed.")
+
+            # ToDo Genes wont be connected? no knowledge if Genes are identical
 
         for phase in self.phases:
             for reaction in phase.reaction_settings:

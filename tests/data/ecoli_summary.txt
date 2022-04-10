@@ -1,0 +1,35 @@
+Objective
+=========
+1.0 BIOMASS_Ec_iJO1366_core_53p95M = 0.9823718127269786
+
+Uptake
+------
+Metabolite     Reaction      Flux  C-Number  C-Flux
+     ca2_e     EX_ca2_e  0.005113         0   0.00%
+      cl_e      EX_cl_e  0.005113         0   0.00%
+ cobalt2_e EX_cobalt2_e 2.456E-05         0   0.00%
+     cu2_e     EX_cu2_e 0.0006965         0   0.00%
+     fe2_e     EX_fe2_e   0.01578         0   0.00%
+  glc__D_e  EX_glc__D_e        10         6 100.00%
+       k_e       EX_k_e    0.1918         0   0.00%
+     mg2_e     EX_mg2_e  0.008522         0   0.00%
+     mn2_e     EX_mn2_e 0.0006788         0   0.00%
+    mobd_e    EX_mobd_e 0.0001267         0   0.00%
+     nh4_e     EX_nh4_e     10.61         0   0.00%
+     ni2_e     EX_ni2_e 0.0003173         0   0.00%
+      o2_e      EX_o2_e     17.58         0   0.00%
+      pi_e      EX_pi_e    0.9476         0   0.00%
+     so4_e     EX_so4_e    0.2478         0   0.00%
+     zn2_e     EX_zn2_e  0.000335         0   0.00%
+
+Secretion
+---------
+Metabolite    Reaction       Flux  C-Number C-Flux
+  4crsol_c DM_4crsol_c -0.0002191         7  0.01%
+   5drib_c  DM_5drib_c  -0.000221         5  0.01%
+    amob_c   DM_amob_c -1.965E-06        15  0.00%
+  mththf_c DM_mththf_c -0.0004401         5  0.01%
+     co2_e    EX_co2_e     -19.68         1 99.98%
+     h2o_e    EX_h2o_e     -45.62         0  0.00%
+       h_e      EX_h_e     -9.026         0  0.00%
+    meoh_e   EX_meoh_e -1.965E-06         1  0.00%

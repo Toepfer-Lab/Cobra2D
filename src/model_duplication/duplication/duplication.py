@@ -7,6 +7,7 @@ from typing import List, Optional, Union
 from cobra.core import Gene, Group, Metabolite, Model, Reaction
 from cobra.core.configuration import Configuration
 from cobra.exceptions import OptimizationError
+from cobra.util import linear_reaction_coefficients
 
 from model_duplication.duplication.merging import _merge, _link_genes
 from model_duplication.duplication.reactions import (
@@ -24,6 +25,11 @@ __version__ = "0.0.1-alpha"
 
 
 def _rename(model: Model, suffix: str):
+
+    model_objective = {}
+    for reaction, coeff in linear_reaction_coefficients(model).items():
+        model_objective[reaction.id] = coeff
+
     item: Union[Metabolite, Reaction, Group, Gene]
     for item in model.metabolites + model.reactions + model.groups:
 
@@ -36,6 +42,13 @@ def _rename(model: Model, suffix: str):
                 msg=f"Item {id(item)} has a problem with its id. No suffix"
                 + "was added"
             )
+
+    new_objectives = {}
+    for reaction_id, coeff in model_objective.items():
+        reaction = model.reactions.get_by_id(f"{reaction_id}_{suffix}")
+        new_objectives[reaction] = coeff
+
+    model.objective = new_objectives
 
 
 def _connect_models(
@@ -138,6 +151,8 @@ def _main_placeholder(
             right_suffix=f"{label}",
             metabolites=metabolites,
         )
+
+        # update objective function
 
         if not _test(_model, submodel):
             raise Exception(f"Test for submodel {submodel.id}_{label} failed.")

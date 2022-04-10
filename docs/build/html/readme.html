@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>README &mdash; model-duplication 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> model-duplication
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">model-duplication</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>README</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="readme">
+<h1>README<a class="headerlink" href="#readme" title="Permalink to this headline"></a></h1>
+<p>![Generic badge](<a class="reference external" href="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue">https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue</a>)
+![Tests](<a class="reference external" href="https://github.com/Toepfer-Lab/model_duplication/actions/workflows/test.yml/badge.svg">https://github.com/Toepfer-Lab/model_duplication/actions/workflows/test.yml/badge.svg</a>)
+![GitHub last commit](<a class="reference external" href="https://img.shields.io/github/last-commit/Toepfer-Lab/model_duplication">https://img.shields.io/github/last-commit/Toepfer-Lab/model_duplication</a>)
+![GitHub pull requests](<a class="reference external" href="https://img.shields.io/github/issues-pr/Toepfer-Lab/model_duplication">https://img.shields.io/github/issues-pr/Toepfer-Lab/model_duplication</a>)</p>
+<p>A Python package that extends the COBRApy package with functions to represent time periods and organs by copying the
+original model for every organ time combination, which we refer to as phases. This way, different time ranges and
+customizable volumes of organs can be defined. Furthermore, a new model can be created automatically based on the
+specified organs and time periods for the simulation.</p>
+<p>### General process:
+* Define time ranges and organs
+* Individualization of single Phases</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Volume adjustment</p></li>
+<li><p>Time frame adjustments</p></li>
+<li><p>Defining linkers</p></li>
+<li><p>Adding special constraints for individual phases</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Creation of a new model containing all phases with their associated constraints</p></li>
+</ul>
+<p>For this process, this package provides functionalities to not only simplify this process, but also to easily save and
+share the defined settings with other people.</p>
+<p>### Possible usage of this package</p>
+<p>There are two ways to use this package. Either you use the functions implemented in Python to define phases and
+constraints or you create an XML file that can be read in and used to create a new model.</p>
+<p>### Examples
+Examples of the use of this package can be found in the examples folder. There are examples that demonstrate the
+functions but also an XML file that shows how the parameters are stored.</p>
+<p>### Installation
+After cloning the repository, the package can be installed in the current Python environment using pip.
+So, in a terminal, the package can be installed with the following commands.</p>
+<blockquote>
+<div><p>git clone <a class="reference external" href="https://github.com/Toepfer-Lab/model_duplication">https://github.com/Toepfer-Lab/model_duplication</a></p>
+<p>cd model_duplication</p>
+<p>pip install .</p>
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jan-Niklas Weder.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
