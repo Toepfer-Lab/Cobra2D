@@ -3,6 +3,7 @@ Implementation of the Constraints class.
 """
 from __future__ import annotations
 
+import json
 import logging
 from collections import OrderedDict
 from importlib.resources import open_text
@@ -14,7 +15,15 @@ from xml.dom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+import ipycytoscape
+import networkx as nx
+import plotly.io
+from IPython.core.display_functions import display, clear_output
+from bokeh.io import output_file, show, output_notebook
+from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
 from cobra import Model, Reaction
+from graphviz import Digraph
+from ipywidgets import Output
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -306,14 +315,7 @@ class Constraints:
         reverse: bool = False,
     ):
         """
-        Method to create linkers across all existing time periods. As an
-        example, the following linkers would be created for a model that
-        spans 4 time periods:
-
-        .. code-block::
-        Linker from time period 0 to time period 1\n
-        Linker from time period 1 to time period 2\n
-        Linker from time period 2 to time period 3
+        Method to create linkers across all existing time periods.
 
         Args:
             id: The ID to be used for the metabolite. This should match
@@ -333,6 +335,20 @@ class Constraints:
                 If True, the linkers are created starting from the last to the
                 first time period and not from the first to the last as usual.
 
+        Examples:
+            Application to a four phase model:
+
+            >>> con = Constraints()
+            >>> con.add_time_slots(4, 1)
+            >>> con.add_linker_series("ATP")
+            >>> print(con.linker)
+            +-----+------+-----------+-------------+--------------+--------------+
+            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
+            +-----+------+-----------+-------------+--------------+--------------+
+            | ATP |      | default-0 |  default-1  |      0       |     1000     |
+            | ATP |      | default-1 |  default-2  |      0       |     1000     |
+            | ATP |      | default-2 |  default-3  |      0       |     1000     |
+            +-----+------+-----------+-------------+--------------+--------------+
         """
 
         labels, times = self.__get_label_time(reverse=reverse)
@@ -437,9 +453,10 @@ class Constraints:
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
         https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
+        
         Args:
             path: The path to the XML file to be used for creating a
-            :py:class:`Constraints` object.
+                :py:class:`Constraints` object.
 
         Returns:
             The :py:class:`Constraints` object created on the properties in the
@@ -529,3 +546,424 @@ class Constraints:
         constraints.index_time_ranges = max([int(x) for x in times])
 
         return constraints
+
+    def create_graph(self):
+        g = Digraph(engine="dot")
+        labels, times = self.__get_label_time()
+
+        for label in labels:
+            with g.subgraph(name=f"cluster_{label}") as sub:
+                sub.attr(label=label)
+                for time in times:
+                    if self.phases.phases.has_id(f"{label}-{time}"):
+                        sub.node(f"{label}-{time}")
+
+        edge_dict = {}
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+            if linker.id in edge_dict:
+                edge_dict[linker.id].append(value)
+            else:
+                edge_dict[linker.id] = [value]
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+            # g.edge(linker.source, linker.destination, label=linker.id, dir="backward")
+
+        size = len(times) * len(labels)
+        linker_str = "linker existing in all connections:"
+        for key, value in edge_dict.items():
+            if len(value) == size:
+                linker_str += f"\n {key}"
+                for metabolite_ids in edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key, value in edge_dict_reverse.items():
+            source, destintaion = key
+            g.edge(
+                source,
+                destintaion,
+                label="\t\n".join(value),
+                labeldistance="6",
+                labelangle="75",
+            )
+
+        g.node(linker_str, shape="rectangle")
+
+        # g.attr(size='6,6')
+        return g
+
+    def graph_with_bokeh(self):
+        from bokeh.plotting import figure
+
+        labels, times = self.__get_label_time()
+        plot = figure(
+            title="Graph layout demonstration",
+            x_range=(-0.5, len(labels) -0.5),
+            y_range=(-0.5, len(times) -0.5),
+        )
+
+        graph = GraphRenderer()
+        nodes = {}
+        node_label = []
+        index2name = {}
+        index = 0
+
+        for x in range(len(labels)):
+            for y in range(len(times)):
+                index2name[f"{labels[x]}-{times[y]}"] = index
+                node_label.append(index)
+                nodes[index] = (x, y)
+                index += 1
+
+        graph.node_renderer.glyph = Ellipse(
+            height=0.1, width=0.2, fill_color="fill_color"
+        )
+
+        graph.node_renderer.data_source.data = dict(
+            index=list(range(index)), fill_color=["#3288bd"] * index
+        )
+
+        source = []
+        dest = []
+
+        for linker in self.linker.linker:
+            source.append(index2name[linker.source])
+            dest.append(index2name[linker.destination])
+
+        graph.edge_renderer.data_source.data = dict(start=source, end=dest)
+
+        graph.layout_provider = StaticLayoutProvider(graph_layout=nodes)
+        plot.renderers.append(graph)
+        output_notebook()
+        show(plot)
+
+    def graph_with_plotly(self):
+        import plotly.graph_objects as go
+
+        labels, times = self.__get_label_time()
+
+        all_y_pos = []
+        all_x_pos = []
+        all_labels = []
+        n_label = 0
+        dict_label = {}
+
+        hover_info =[]
+        pos_dict = {}
+
+        for index_x, label in enumerate(labels):
+            for index_y, time in enumerate(times):
+                if self.phases.phases.has_id(f"{label}-{time}"):
+                    phase:Phase = self.get_phase_by_id(f"{label}-{time}")
+
+                    if label in dict_label:
+                        x = dict_label[label]
+                    else:
+                        dict_label[label]= n_label
+                        x = n_label
+                        n_label += 1
+
+                    all_x_pos.append(x)
+                    all_y_pos.append(time)
+                    all_labels.append(f"{label}-{time}")
+                    hover_info.append(
+                        (phase.timeframe,
+                         phase.volume,
+                         len(phase.reaction_settings),
+                         getattr(phase.model, "id", "None"),
+                         )
+                    )
+                    pos_dict[f"{label}-{time}"] = (x, time)
+
+        fig = go.Figure(data=go.Scatter(
+            x= all_x_pos,
+            y= all_y_pos,
+            text= all_labels,
+            mode='markers',
+            marker={"size":12},
+            customdata=hover_info,
+            hovertemplate='Phase: %{text}'
+                          '<br>Duration: %{customdata[0]}'
+                          '<br>Volume: %{customdata[1]}'
+                          '<br>Reactions: %{customdata[2]}'
+                          '<br>Associated model: %{customdata[3]}'
+        ))
+
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+        all_y_pos = []
+        all_x_pos = []
+        edges = []
+        show_legend = True
+
+        for key, value in edge_dict_reverse.items():
+            source, destintaion = key
+            x_end, y_end = pos_dict[destintaion]
+            x_start, y_start = pos_dict[source]
+
+            line = go.Scatter(
+                x=[x_start,x_end],
+                y=[y_start,y_end],
+                mode="lines",
+                line=dict(color="Crimson"),
+                name= "Linker",
+                legendgroup='Linker',
+                showlegend = show_legend,
+            )
+            show_legend = False
+
+            y_end = int(y_end)
+            y_start = int(y_start)
+
+            x = min(x_start,x_end) + abs(x_end-x_start) / 2
+            y = min(y_start, y_end) + abs(y_end-y_start) /2
+
+            hover = go.Scatter(
+                x = [x],
+                y = [y],
+                mode="markers",
+                marker={
+                    "opacity": 0,
+                    "color": "Crimson",
+                },
+                text = "\n".join(value),
+                name= "Linker",
+                legendgroup='Linker',
+                showlegend=show_legend,
+                hoverinfo='text',
+            )
+            print(f"x: {x}, y: {y}, label = {value}")
+
+            fig.add_trace(line)
+            fig.add_trace(hover)
+
+        fig.update_yaxes(
+            title = "Number of Timeframe",
+            range = (-.5, len(times) -.5),
+            type = "linear",
+        )
+
+        fig.update_xaxes(
+            title = "Sub model",
+            range = (-.5, len(labels) - .5),
+            type = "linear",
+        )
+
+        fig.update_layout(title = {
+            "text":"Title",
+
+        }
+        )
+        fig.show()
+        edge_dict = {}
+        edge_dict_reverse = {}
+
+    def _constraint2networkx(self):
+        graph = nx.DiGraph()
+
+        for phase in self.phases.phases:
+            graph.add_node(phase.id,
+                           Timeframe = phase.timeframe,
+                           Volume = phase.volume,
+                           Model = getattr(phase,"model", "None"),
+                           Number_of_Reactions = len(phase.reaction_settings),
+                           )
+
+        for linker in self.linker.linker:
+            graph.add_edge(
+                linker.source,
+                linker.destination,
+                label = linker.id,
+
+            )
+
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+        for key, value in edge_dict_reverse.items():
+            source, destintaion = key
+            graph.add_edge(
+                source,
+                destintaion,
+                Metabolite = "\n".join(value)
+            )
+
+        return graph
+
+    def _con2json(self):
+        nodes = []
+        edges = []
+        sub_models, times = self.__get_label_time()
+
+        for sub_model in sub_models:
+            nodes.append({
+                "data": {
+                    "id": sub_model,
+                    "type": "sub_model",
+                }
+            })
+
+
+
+
+        for phase in self.phases.phases:
+            sub_model, time = phase.id.split('-', maxsplit= 1)
+            nodes.append({
+                "data": {
+                    "type": "phase",
+                    "parent": sub_model,
+                    "time": time,
+                    "id": phase.id,
+                    "Volume": phase.volume,
+                    "Timeframe":phase.timeframe,
+                    "Number of Reactions": phase.reaction_settings,
+                    "Model Name": getattr(phase, "model", "Undefined"),
+                }
+            })
+
+        edge_dict = {}
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+            if linker.id in edge_dict:
+                edge_dict[linker.id].append(value)
+            else:
+                edge_dict[linker.id] = [value]
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+            # g.edge(linker.source, linker.destination, label=linker.id, dir="backward")
+
+        size = len(edge_dict_reverse)
+        metabolites_existing_between_all_phases = []
+        for key, value in edge_dict.items():
+            if len(value) == size:
+                metabolites_existing_between_all_phases.append(key)
+                for metabolite_ids in edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key, value in edge_dict_reverse.items():
+            source, destination = key
+            edges.append({
+                "data": {
+                    "id": f"Linker from {source} to {destination}",
+                    "source": source,
+                    "target": destination,
+                    "Metabolite": "\n".join(value),
+                    "isdirected": "true",
+                }
+            })
+
+        return {"nodes": nodes, "edges": edges}, metabolites_existing_between_all_phases
+
+    def cytoscape(self):
+        cytoscapeobj = ipycytoscape.CytoscapeWidget()
+        graph, met_betw_all_phases = self._con2json()
+        cytoscapeobj.graph.add_graph_from_json(graph, directed=True)
+        cytoscapeobj.set_layout(name='dagre', nodeSpacing=50, edgeLengthVal=10)
+        cytoscapeobj.set_style([{
+                'selector': 'node[type="phase"]',
+                'css': {
+                    'content': 'data(id)',
+                    'text-valign': 'center',
+                    'text-halign': 'left',
+                    'color': 'black',
+                    'background-color': '#11479e',
+                    "text-wrap": "none"
+                }
+            },
+            {
+                'selector': 'edge',
+                'style': {
+                    'line-color': '#9dbaea',
+                    'curve-style': 'haystack',
+                    "text-wrap": "wrap"
+                }
+            },
+            {
+                "selector": "edge.directed",
+                "style": {
+                    "curve-style": "bezier",
+                    "target-arrow-shape": "triangle",
+                    "target-arrow-color": "#9dbaea",
+                },
+            },
+            {
+                "selector": 'node[type="legend"]',
+                "style": {
+                    'shape': 'square',
+                    'background-color': 'red',
+                    'text-valign': 'center',
+                    'content': 'data(text)',
+                    'text-wrap': 'wrap'
+                }
+            },
+            {
+                'selector': ':selected',
+                'css': {
+                    'background-color': 'black',
+                    'line-color': 'black',
+                    'target-arrow-color': 'black',
+                    'source-arrow-color': 'black',
+                    'text-outline-color': 'black'
+                }
+            },
+            {
+                'selector': ':parent',
+                'css': {
+                    'content': 'data(id)',
+                    'text-valign': 'top',
+                    'text-halign': 'center',
+                    'background-opacity': 0.333
+                }
+            },
+        ])
+
+        out = Output()
+        met_betw_all_phases = "\n".join(met_betw_all_phases)
+
+        def log_mouseovers(edge):
+            with out:
+                out.clear_output()
+                id = edge["data"]["id"]
+                metabolites = edge["data"]["Metabolite"]
+                print(f"{id}\n"
+                      f"=========================\n\n"
+                      f"Metabolites/Linker existing between all Phases:\n"
+                      f"-------------------------\n"
+                      f"{met_betw_all_phases}\n\n"
+                      
+                      f"Additional metabolites:\n"
+                      f"-------------------------\n"
+                      f"{metabolites}")
+
+
+        display(cytoscapeobj)
+
+        cytoscapeobj.on('edge', 'click', log_mouseovers)
+        display(out)

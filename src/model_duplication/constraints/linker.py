@@ -28,14 +28,17 @@ class Linker(Metabolite):
     transition between two such phases.
 
     Attributes:
+        id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
         lower_bound (int): The 'lower_bound' to be used for the reaction.
-            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+            For more information see 'lower_bound' in :py:func:`cobra.Reaction`.
         upper_bound (int): The 'upper_bound' to be used for the reaction.
-            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+            For more information see 'lower_bound' in :py:func:`cobra.Reaction`.
     """
 
+    id: str
     source: str
     destination: str
     lower_bound: int
@@ -62,7 +65,7 @@ class Linker(Metabolite):
             source: The ID of the source phase or the source
                 phase itself.
             destination: The ID of the source phase or the
-                source phase itself..
+                source phase itself.
             lower_bound: The 'lower_bound' to be used for the reaction.
                 For more information see :py:attr:`cobra.Reaction.lower_bound`
                 in :py:func:`cobra.Reaction`.
