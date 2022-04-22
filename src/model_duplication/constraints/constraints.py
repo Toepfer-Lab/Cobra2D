@@ -367,7 +367,7 @@ class Constraints:
                 )
                 self.add_linker(linker)
 
-    def apply_to_model(self, model: Optional[Model] = None):
+    def apply_to_model(self, model: Optional[Model] = None) -> Model:
         """
         Method to apply all defined adjustments to a :py:class:`Model`.
 
@@ -379,6 +379,7 @@ class Constraints:
         """
 
         new_model = self.phases.apply_phases(model)
+        # TODO: verify if transfers should be apply before linker
         new_model = self.linker.apply_linkage(new_model, phases=self.phases)
 
         return new_model

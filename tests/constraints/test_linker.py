@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 from xml.etree.ElementTree import Element
 
 from cobra import Model, Reaction
@@ -320,3 +320,7 @@ class TestLinkage(TestCase):
         self.assertEqual(linker.upper_bound, 500)
         self.assertEqual(linker.destination, "destination")
         self.assertEqual(linker.source, "source")
+
+
+if __name__ == "__main__":
+    main(verbosity=2, failfast=True)

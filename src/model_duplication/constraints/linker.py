@@ -22,10 +22,11 @@ logger.level = 20
 class Linker(Metabolite):
     """
     Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended with
-    information representing the source and target for a metabolite. Phases are
-    used for this purpose. These define a fixed time period in a fixed organ.
-    Using this information, a pseudo reaction can be created representing the
-    transition between two such phases.
+    information representing the source and target for a metabolite. Source
+    and destination represent the same metabolite defined at a fixed time
+    period in a fixed organ. Phases are used for this purpose. Using this
+    information, a pseudo reaction can be created representing the transition
+    between two such phases.
 
     Attributes:
         source (str): The ID of the source phase.
@@ -191,6 +192,8 @@ class Linkage:
     """
 
     # ToDo change to Set? or to DictList
+    # COMMENT:So far, the behavior of DictList works flawlessly. This would
+    # remove the check for duplicates as long the identifiers are not the same
     linker: List[Linker]
 
     def __init__(self):
@@ -304,6 +307,10 @@ class Linkage:
 
         model.add_reactions(reactions2add)
 
+        # COMMENT: can exceptions be raised? link.id is None? Or maybe the
+        # name of the phase does not exist.
+        # Returning a model with not all the reactions might bring wrong
+        # results
         return model
 
     def to_xml(self) -> Element:

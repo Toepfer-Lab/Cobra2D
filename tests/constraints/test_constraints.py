@@ -2,7 +2,7 @@ import io
 from importlib.resources import open_text
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
+from unittest import TestCase, main
 from xml.etree.ElementTree import Element
 
 from cobra import Model, Reaction, Configuration
@@ -442,3 +442,7 @@ class TestConstraints(TestCase):
 
         # compare linker
         self.assertCountEqual(con_exp.linker.linker, con_load.linker.linker)
+
+
+if __name__ == "__main__":
+    main(verbosity=2, failfast=True)

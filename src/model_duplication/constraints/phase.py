@@ -3,16 +3,15 @@ Implementation of the phase and Phases classes.
 
 """
 from __future__ import annotations
-
-import logging
 from inspect import isclass
-from typing import List, Union, Optional
-
-from cobra.core import Group
+import logging
+from typing import List, Optional, Union
 from typing_extensions import Literal
+from warnings import warn
 from xml.etree.ElementTree import Element
 
 from cobra import DictList, Model, Reaction
+from cobra.core import Group
 from prettytable import PrettyTable
 
 from model_duplication.duplication.duplication import (
@@ -61,6 +60,7 @@ class Phase:
     def __init__(
         self,
         id: str,
+        # COMMENT: this might be fixed if using tags
         light_dark: Literal["light", "dark"],
         timeframe: int = 1,
         volume: int = 1,
@@ -234,6 +234,7 @@ class Phases:
         del self.phases
         self.phases = DictList()
 
+    # TODO: maybe ability to add Iterators?
     def add_phase(self, phase: Phase):
         """
         Method to add a phase to the Phases object.
