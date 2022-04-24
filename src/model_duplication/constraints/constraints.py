@@ -3,7 +3,6 @@ Implementation of the Constraints class.
 """
 from __future__ import annotations
 
-import json
 import logging
 from collections import OrderedDict
 from importlib.resources import open_text
@@ -17,9 +16,8 @@ from xml.etree.ElementTree import Element
 
 import ipycytoscape
 import networkx as nx
-import plotly.io
-from IPython.core.display_functions import display, clear_output
-from bokeh.io import output_file, show, output_notebook
+from IPython.core.display_functions import display
+from bokeh.io import show, output_notebook
 from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
 from cobra import Model, Reaction
 from graphviz import Digraph
@@ -829,16 +827,24 @@ class Constraints:
 
         for phase in self.phases.phases:
             sub_model, time = phase.id.split('-', maxsplit= 1)
+            model = getattr(phase, "model", None)
+            model_name:str
+
+            if model is None:
+                model_name = "Undefined"
+            else:
+                model_name = model.id
+
             nodes.append({
                 "data": {
                     "type": "phase",
-                    "parent": sub_model,
                     "time": time,
+                    "parent": sub_model,
                     "id": phase.id,
                     "Volume": phase.volume,
                     "Timeframe":phase.timeframe,
                     "Number of Reactions": phase.reaction_settings,
-                    "Model Name": getattr(phase, "model", "Undefined"),
+                    "Model Name": model_name,
                 }
             })
 
@@ -886,17 +892,18 @@ class Constraints:
         graph, met_betw_all_phases = self._con2json()
         cytoscapeobj.graph.add_graph_from_json(graph, directed=True)
         cytoscapeobj.set_layout(name='dagre', nodeSpacing=50, edgeLengthVal=10)
+
         cytoscapeobj.set_style([{
-                'selector': 'node[type="phase"]',
-                'css': {
-                    'content': 'data(id)',
-                    'text-valign': 'center',
-                    'text-halign': 'left',
-                    'color': 'black',
-                    'background-color': '#11479e',
-                    "text-wrap": "none"
-                }
-            },
+            'selector': 'node[type="phase"]',
+            'css': {
+                'content': 'data(id)',
+                'text-valign': 'center',
+                'text-halign': 'left',
+                'color': 'black',
+                'background-color': '#11479e',
+                "text-wrap": "none"
+            }
+        },
             {
                 'selector': 'edge',
                 'style': {
@@ -947,23 +954,53 @@ class Constraints:
         out = Output()
         met_betw_all_phases = "\n".join(met_betw_all_phases)
 
-        def log_mouseovers(edge):
+        def log_mouseovers_edge(edge):
             with out:
                 out.clear_output()
                 id = edge["data"]["id"]
                 metabolites = edge["data"]["Metabolite"]
+
+                # ToDo change to HTML output instead of str
                 print(f"{id}\n"
                       f"=========================\n\n"
                       f"Metabolites/Linker existing between all Phases:\n"
                       f"-------------------------\n"
                       f"{met_betw_all_phases}\n\n"
-                      
                       f"Additional metabolites:\n"
                       f"-------------------------\n"
                       f"{metabolites}")
 
+        def log_mouseovers_node(node):
+            with out:
+                out.clear_output()
+                phase_id = node["data"]["id"]
+                sub_model = node["data"]["parent"]
+                time = node["data"]["time"]
+                model_name = node["data"]["Model Name"]
+                phase = self.get_phase_by_id(phase_id)
+
+                reactions = "\n             ".join(reaction.id for reaction in phase.reaction_settings)
+
+                # ToDo change to HTML output instead of str
+                print(f"Phase id: {phase_id}\n"
+                      f"=========================\n\n"
+                      
+                      f"Phase affiliation:\n"
+                      f"-------------------------\n"
+                      f"Time: {time}\n"
+                      f"SubModel: {sub_model}\n\n"
+
+                      f"Phase settings:\n"
+                      f"-------------------------\n"
+                      f" -Name: {phase.name}\n"
+                      f" -Volume: {phase.volume}\n"
+                      f" -Timeframe: {phase.timeframe}\n"
+                      f" -Model: {model_name}\n"
+                      f" -Reactions: {reactions}")
+
+        cytoscapeobj.on('edge', 'click', log_mouseovers_edge)
+        cytoscapeobj.on('node', 'click', log_mouseovers_node)
 
         display(cytoscapeobj)
-
-        cytoscapeobj.on('edge', 'click', log_mouseovers)
         display(out)
+
