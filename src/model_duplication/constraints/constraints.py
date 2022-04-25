@@ -21,7 +21,7 @@ from bokeh.io import show, output_notebook
 from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
 from cobra import Model, Reaction
 from graphviz import Digraph
-from ipywidgets import Output
+from ipywidgets import Output, HTML
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -358,7 +358,7 @@ class Constraints:
                     linker = Linker(
                         id=id,
                         source=f"{label}-{time}",
-                        destination=f"{label}-{times[n+1]}",
+                        destination=f"{label}-{times[n + 1]}",
                         upper_bound=upper_bound,
                         lower_bound=lower_bound,
                     )
@@ -367,7 +367,7 @@ class Constraints:
                 except KeyError:
                     logging.warning(
                         f"Linker from {label}-{time} to "
-                        f"{label}-{times[n+1]} could not be "
+                        f"{label}-{times[n + 1]} could not be "
                         f"created."
                     )
 
@@ -432,8 +432,7 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
+            parents=True, exist_ok=True,
         )
 
         data = self.to_xml()
@@ -602,8 +601,8 @@ class Constraints:
         labels, times = self.__get_label_time()
         plot = figure(
             title="Graph layout demonstration",
-            x_range=(-0.5, len(labels) -0.5),
-            y_range=(-0.5, len(times) -0.5),
+            x_range=(-0.5, len(labels) - 0.5),
+            y_range=(-0.5, len(times) - 0.5),
         )
 
         graph = GraphRenderer()
@@ -652,18 +651,18 @@ class Constraints:
         n_label = 0
         dict_label = {}
 
-        hover_info =[]
+        hover_info = []
         pos_dict = {}
 
         for index_x, label in enumerate(labels):
             for index_y, time in enumerate(times):
                 if self.phases.phases.has_id(f"{label}-{time}"):
-                    phase:Phase = self.get_phase_by_id(f"{label}-{time}")
+                    phase: Phase = self.get_phase_by_id(f"{label}-{time}")
 
                     if label in dict_label:
                         x = dict_label[label]
                     else:
-                        dict_label[label]= n_label
+                        dict_label[label] = n_label
                         x = n_label
                         n_label += 1
 
@@ -671,27 +670,30 @@ class Constraints:
                     all_y_pos.append(time)
                     all_labels.append(f"{label}-{time}")
                     hover_info.append(
-                        (phase.timeframe,
-                         phase.volume,
-                         len(phase.reaction_settings),
-                         getattr(phase.model, "id", "None"),
-                         )
+                        (
+                            phase.timeframe,
+                            phase.volume,
+                            len(phase.reaction_settings),
+                            getattr(phase.model, "id", "None"),
+                        )
                     )
                     pos_dict[f"{label}-{time}"] = (x, time)
 
-        fig = go.Figure(data=go.Scatter(
-            x= all_x_pos,
-            y= all_y_pos,
-            text= all_labels,
-            mode='markers',
-            marker={"size":12},
-            customdata=hover_info,
-            hovertemplate='Phase: %{text}'
-                          '<br>Duration: %{customdata[0]}'
-                          '<br>Volume: %{customdata[1]}'
-                          '<br>Reactions: %{customdata[2]}'
-                          '<br>Associated model: %{customdata[3]}'
-        ))
+        fig = go.Figure(
+            data=go.Scatter(
+                x=all_x_pos,
+                y=all_y_pos,
+                text=all_labels,
+                mode="markers",
+                marker={"size": 12},
+                customdata=hover_info,
+                hovertemplate="Phase: %{text}"
+                "<br>Duration: %{customdata[0]}"
+                "<br>Volume: %{customdata[1]}"
+                "<br>Reactions: %{customdata[2]}"
+                "<br>Associated model: %{customdata[3]}",
+            )
+        )
 
         edge_dict_reverse = {}
 
@@ -714,35 +716,32 @@ class Constraints:
             x_start, y_start = pos_dict[source]
 
             line = go.Scatter(
-                x=[x_start,x_end],
-                y=[y_start,y_end],
+                x=[x_start, x_end],
+                y=[y_start, y_end],
                 mode="lines",
                 line=dict(color="Crimson"),
-                name= "Linker",
-                legendgroup='Linker',
-                showlegend = show_legend,
+                name="Linker",
+                legendgroup="Linker",
+                showlegend=show_legend,
             )
             show_legend = False
 
             y_end = int(y_end)
             y_start = int(y_start)
 
-            x = min(x_start,x_end) + abs(x_end-x_start) / 2
-            y = min(y_start, y_end) + abs(y_end-y_start) /2
+            x = min(x_start, x_end) + abs(x_end - x_start) / 2
+            y = min(y_start, y_end) + abs(y_end - y_start) / 2
 
             hover = go.Scatter(
-                x = [x],
-                y = [y],
+                x=[x],
+                y=[y],
                 mode="markers",
-                marker={
-                    "opacity": 0,
-                    "color": "Crimson",
-                },
-                text = "\n".join(value),
-                name= "Linker",
-                legendgroup='Linker',
+                marker={"opacity": 0, "color": "Crimson",},
+                text="\n".join(value),
+                name="Linker",
+                legendgroup="Linker",
                 showlegend=show_legend,
-                hoverinfo='text',
+                hoverinfo="text",
             )
             print(f"x: {x}, y: {y}, label = {value}")
 
@@ -750,21 +749,17 @@ class Constraints:
             fig.add_trace(hover)
 
         fig.update_yaxes(
-            title = "Number of Timeframe",
-            range = (-.5, len(times) -.5),
-            type = "linear",
+            title="Number of Timeframe",
+            range=(-0.5, len(times) - 0.5),
+            type="linear",
         )
 
         fig.update_xaxes(
-            title = "Sub model",
-            range = (-.5, len(labels) - .5),
-            type = "linear",
+            title="Sub model", range=(-0.5, len(labels) - 0.5), type="linear",
         )
 
-        fig.update_layout(title = {
-            "text":"Title",
-
-        }
+        fig.update_layout(
+            title={"text": "Title",}
         )
         fig.show()
         edge_dict = {}
@@ -774,19 +769,17 @@ class Constraints:
         graph = nx.DiGraph()
 
         for phase in self.phases.phases:
-            graph.add_node(phase.id,
-                           Timeframe = phase.timeframe,
-                           Volume = phase.volume,
-                           Model = getattr(phase,"model", "None"),
-                           Number_of_Reactions = len(phase.reaction_settings),
-                           )
+            graph.add_node(
+                phase.id,
+                Timeframe=phase.timeframe,
+                Volume=phase.volume,
+                Model=getattr(phase, "model", "None"),
+                Number_of_Reactions=len(phase.reaction_settings),
+            )
 
         for linker in self.linker.linker:
             graph.add_edge(
-                linker.source,
-                linker.destination,
-                label = linker.id,
-
+                linker.source, linker.destination, label=linker.id,
             )
 
         edge_dict_reverse = {}
@@ -801,11 +794,7 @@ class Constraints:
 
         for key, value in edge_dict_reverse.items():
             source, destintaion = key
-            graph.add_edge(
-                source,
-                destintaion,
-                Metabolite = "\n".join(value)
-            )
+            graph.add_edge(source, destintaion, Metabolite="\n".join(value))
 
         return graph
 
@@ -815,38 +804,32 @@ class Constraints:
         sub_models, times = self.__get_label_time()
 
         for sub_model in sub_models:
-            nodes.append({
-                "data": {
-                    "id": sub_model,
-                    "type": "sub_model",
-                }
-            })
-
-
-
+            nodes.append({"data": {"id": sub_model, "type": "sub_model",}})
 
         for phase in self.phases.phases:
-            sub_model, time = phase.id.split('-', maxsplit= 1)
+            sub_model, time = phase.id.split("-", maxsplit=1)
             model = getattr(phase, "model", None)
-            model_name:str
+            model_name: str
 
             if model is None:
                 model_name = "Undefined"
             else:
                 model_name = model.id
 
-            nodes.append({
-                "data": {
-                    "type": "phase",
-                    "time": time,
-                    "parent": sub_model,
-                    "id": phase.id,
-                    "Volume": phase.volume,
-                    "Timeframe":phase.timeframe,
-                    "Number of Reactions": phase.reaction_settings,
-                    "Model Name": model_name,
+            nodes.append(
+                {
+                    "data": {
+                        "type": "phase",
+                        "time": time,
+                        "parent": sub_model,
+                        "id": phase.id,
+                        "Volume": phase.volume,
+                        "Timeframe": phase.timeframe,
+                        "Number of Reactions": phase.reaction_settings,
+                        "Model Name": model_name,
+                    }
                 }
-            })
+            )
 
         edge_dict = {}
         edge_dict_reverse = {}
@@ -875,132 +858,174 @@ class Constraints:
 
         for key, value in edge_dict_reverse.items():
             source, destination = key
-            edges.append({
-                "data": {
-                    "id": f"Linker from {source} to {destination}",
-                    "source": source,
-                    "target": destination,
-                    "Metabolite": "\n".join(value),
-                    "isdirected": "true",
+            edges.append(
+                {
+                    "data": {
+                        "id": f"Linker from {source} to {destination}",
+                        "source": source,
+                        "target": destination,
+                        "Metabolite": value,
+                        "isdirected": "true",
+                    }
                 }
-            })
+            )
 
-        return {"nodes": nodes, "edges": edges}, metabolites_existing_between_all_phases
+        return (
+            {"nodes": nodes, "edges": edges},
+            metabolites_existing_between_all_phases,
+        )
 
     def cytoscape(self):
+        tab = "&nbsp;&nbsp;&nbsp;&nbsp;"
+
         cytoscapeobj = ipycytoscape.CytoscapeWidget()
         graph, met_betw_all_phases = self._con2json()
         cytoscapeobj.graph.add_graph_from_json(graph, directed=True)
-        cytoscapeobj.set_layout(name='dagre', nodeSpacing=50, edgeLengthVal=10)
+        cytoscapeobj.set_layout(name="dagre", nodeSpacing=50, edgeLengthVal=10)
 
-        cytoscapeobj.set_style([{
-            'selector': 'node[type="phase"]',
-            'css': {
-                'content': 'data(id)',
-                'text-valign': 'center',
-                'text-halign': 'left',
-                'color': 'black',
-                'background-color': '#11479e',
-                "text-wrap": "none"
-            }
-        },
-            {
-                'selector': 'edge',
-                'style': {
-                    'line-color': '#9dbaea',
-                    'curve-style': 'haystack',
-                    "text-wrap": "wrap"
-                }
-            },
-            {
-                "selector": "edge.directed",
-                "style": {
-                    "curve-style": "bezier",
-                    "target-arrow-shape": "triangle",
-                    "target-arrow-color": "#9dbaea",
+        cytoscapeobj.set_style(
+            [
+                {
+                    "selector": 'node[type="phase"]',
+                    "css": {
+                        "content": "data(id)",
+                        "text-valign": "center",
+                        "text-halign": "left",
+                        "color": "black",
+                        "background-color": "#11479e",
+                        "text-wrap": "none",
+                    },
                 },
-            },
-            {
-                "selector": 'node[type="legend"]',
-                "style": {
-                    'shape': 'square',
-                    'background-color': 'red',
-                    'text-valign': 'center',
-                    'content': 'data(text)',
-                    'text-wrap': 'wrap'
-                }
-            },
-            {
-                'selector': ':selected',
-                'css': {
-                    'background-color': 'black',
-                    'line-color': 'black',
-                    'target-arrow-color': 'black',
-                    'source-arrow-color': 'black',
-                    'text-outline-color': 'black'
-                }
-            },
-            {
-                'selector': ':parent',
-                'css': {
-                    'content': 'data(id)',
-                    'text-valign': 'top',
-                    'text-halign': 'center',
-                    'background-opacity': 0.333
-                }
-            },
-        ])
+                {
+                    "selector": "edge",
+                    "style": {
+                        "line-color": "#9dbaea",
+                        "curve-style": "haystack",
+                        "text-wrap": "wrap",
+                    },
+                },
+                {
+                    "selector": "edge.directed",
+                    "style": {
+                        "curve-style": "bezier",
+                        "target-arrow-shape": "triangle",
+                        "target-arrow-color": "#9dbaea",
+                    },
+                },
+                {
+                    "selector": 'node[type="legend"]',
+                    "style": {
+                        "shape": "square",
+                        "background-color": "red",
+                        "text-valign": "center",
+                        "content": "data(text)",
+                        "text-wrap": "wrap",
+                    },
+                },
+                {
+                    "selector": ":selected",
+                    "css": {
+                        "background-color": "black",
+                        "line-color": "black",
+                        "target-arrow-color": "black",
+                        "source-arrow-color": "black",
+                        "text-outline-color": "black",
+                    },
+                },
+                {
+                    "selector": ":parent",
+                    "css": {
+                        "content": "data(id)",
+                        "text-valign": "top",
+                        "text-halign": "center",
+                        "background-opacity": 0.333,
+                    },
+                },
+            ]
+        )
 
         out = Output()
-        met_betw_all_phases = "\n".join(met_betw_all_phases)
+        all_met_betw_all_phases = iter(met_betw_all_phases)
+        try:
+            met_betw_all_phases_html = (
+                f"{tab}&bull; {next(all_met_betw_all_phases)}<br>"
+            )
+            if len(met_betw_all_phases) > 1:
+                met_betw_all_phases_html += f"{tab}&bull; "
+        except StopIteration:
+            met_betw_all_phases_html = f"{tab}None"
+
+        met_betw_all_phases_html += (f"<br>{tab}&bull; ").join(
+            all_met_betw_all_phases
+        )
 
         def log_mouseovers_edge(edge):
             with out:
-                out.clear_output()
+                out.clear_output(wait=True)
                 id = edge["data"]["id"]
-                metabolites = edge["data"]["Metabolite"]
+                all_metabolites = edge["data"]["Metabolite"]
+                metabolites = iter(all_metabolites)
 
-                # ToDo change to HTML output instead of str
-                print(f"{id}\n"
-                      f"=========================\n\n"
-                      f"Metabolites/Linker existing between all Phases:\n"
-                      f"-------------------------\n"
-                      f"{met_betw_all_phases}\n\n"
-                      f"Additional metabolites:\n"
-                      f"-------------------------\n"
-                      f"{metabolites}")
+                try:
+                    metabolites_html = f"{tab}&bull; {next(metabolites)}"
+                except StopIteration:
+                    metabolites_html = f"{tab}None"
+
+                metabolites_html += (f"<br>{tab}&bull; ").join(metabolites)
+
+                display(
+                    HTML(
+                        f"<h4>{id}</h4>"
+                        f"<h5>Metabolites/Linker existing between all Phases:</h5>"
+                        f"{met_betw_all_phases_html}<br>"
+                        f"<h5>Additional metabolites:</h5>"
+                        f"{metabolites_html}"
+                    )
+                )
 
         def log_mouseovers_node(node):
             with out:
-                out.clear_output()
+                try:
+                    #  If sub_model does not exist, it's a parent node
+                    #  where we don't want to show anything
+                    sub_model = node["data"]["parent"]
+                except KeyError:
+                    return
                 phase_id = node["data"]["id"]
-                sub_model = node["data"]["parent"]
                 time = node["data"]["time"]
                 model_name = node["data"]["Model Name"]
                 phase = self.get_phase_by_id(phase_id)
 
-                reactions = "\n             ".join(reaction.id for reaction in phase.reaction_settings)
+                all_reactions = iter(phase.reaction_settings)
+                try:
+                    reactions_html_str = (
+                        f"{tab}&bull; {next(all_reactions).id}<br>"
+                    )
+                except StopIteration:
+                    reactions_html_str = f"{tab}None"
 
-                # ToDo change to HTML output instead of str
-                print(f"Phase id: {phase_id}\n"
-                      f"=========================\n\n"
-                      
-                      f"Phase affiliation:\n"
-                      f"-------------------------\n"
-                      f"Time: {time}\n"
-                      f"SubModel: {sub_model}\n\n"
+                reactions_html_str += "&nbsp;" * 16 + (
+                    "<br>" + "&nbsp;" * 16
+                ).join(reaction.id for reaction in all_reactions)
 
-                      f"Phase settings:\n"
-                      f"-------------------------\n"
-                      f" -Name: {phase.name}\n"
-                      f" -Volume: {phase.volume}\n"
-                      f" -Timeframe: {phase.timeframe}\n"
-                      f" -Model: {model_name}\n"
-                      f" -Reactions: {reactions}")
+                out.clear_output(wait=True)
+                display(
+                    HTML(
+                        f"<h4>Phase id: {phase_id}</h4>"
+                        f"<h5>Phase affiliation:</h5>"
+                        f"{tab}&bull; Time: {time}<br>"
+                        f"{tab}&bull; SubModel: {sub_model}<br>"
+                        f"<h5>Phase settings:</h5>"
+                        f"{tab}&bull; Name: {phase.name}<br>"
+                        f"{tab}&bull; Volume: {phase.volume}<br>"
+                        f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
+                        f"{tab}&bull; Model: {model_name}<br>"
+                        f"{tab}&bull; Reactions: {reactions_html_str}"
+                    )
+                )
 
-        cytoscapeobj.on('edge', 'click', log_mouseovers_edge)
-        cytoscapeobj.on('node', 'click', log_mouseovers_node)
+        cytoscapeobj.on("edge", "click", log_mouseovers_edge)
+        cytoscapeobj.on("node", "click", log_mouseovers_node)
 
         display(cytoscapeobj)
         display(out)
-
