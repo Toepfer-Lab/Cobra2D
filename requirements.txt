@@ -25,7 +25,7 @@ optlang==1.5.2            # via cobra
 pandas==1.4.1             # via cobra
 prettytable==3.2.0        # via model-duplication (./setup.cfg)
 pydantic==1.9.0           # via cobra
-pygments==2.11.2          # via rich
+pygments==2.12.0          # via rich
 python-dateutil==2.8.2    # via pandas
 python-libsbml==5.19.2    # via cobra
 pytz==2022.1              # via pandas
