@@ -37,6 +37,6 @@ six==1.16.0               # via optlang, python-dateutil
 sniffio==1.2.0            # via anyio, httpcore, httpx
 swiglpk==5.0.5            # via cobra, optlang
 sympy==1.10.1             # via optlang
-typing-extensions==4.1.1  # via model-duplication (./setup.cfg), pydantic
+typing-extensions==4.2.0  # via model-duplication (./setup.cfg), pydantic
 wcwidth==0.2.5            # via prettytable
 xmlschema==1.10.0         # via model-duplication (./setup.cfg)
