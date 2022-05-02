@@ -27,7 +27,7 @@ prettytable==3.2.0        # via model-duplication (./setup.cfg)
 pydantic==1.9.0           # via cobra
 pygments==2.12.0          # via rich
 python-dateutil==2.8.2    # via pandas
-python-libsbml==5.19.2    # via cobra
+python-libsbml==5.19.5    # via cobra
 pytz==2022.1              # via pandas
 rfc3986[idna2008]==1.5.0  # via httpx
 rich==12.3.0              # via cobra, model-duplication (./setup.cfg)
