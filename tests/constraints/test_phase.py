@@ -10,12 +10,7 @@ from model_duplication.constraints.phase import Phase, Phases
 
 class TestPhase(TestCase):
     def test_create(self):
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         self.assertEqual(phase.id, "test_id")
         self.assertEqual(phase.light_dark, "light")
@@ -69,12 +64,7 @@ class TestPhases(TestCase):
 
     def test_toString(self):
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         phases.add_phase(phase)
 
@@ -92,12 +82,7 @@ class TestPhases(TestCase):
 
     def test_clear_phases(self):
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         phases.add_phase(phase)
 
@@ -108,12 +93,7 @@ class TestPhases(TestCase):
 
     def test_add_phase(self):
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         self.assertEqual(0, len(phases.phases))
         phases.add_phase(phase)
@@ -122,12 +102,7 @@ class TestPhases(TestCase):
 
     def test_remove_phase(self):
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         phases.add_phase(phase)
         self.assertEqual(1, len(phases.phases))
@@ -142,12 +117,7 @@ class TestPhases(TestCase):
     def test_apply_phases(self):
         model: Model = create_test_model(model_name="textbook")
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         phases.add_phase(phase)
         new_model = phases.apply_phases(model)
@@ -222,12 +192,7 @@ class TestPhases(TestCase):
 
     def test_to_xml(self):
         phases = Phases()
-        phase = Phase(
-            id="test_id",
-            light_dark="light",
-            timeframe=7,
-            volume=3,
-        )
+        phase = Phase(id="test_id", light_dark="light", timeframe=7, volume=3,)
 
         xml = phases.to_xml()
 

@@ -12,9 +12,7 @@ from model_duplication.constraints.phase import Phase, Phases
 class TestLinker(TestCase):
     def test_create(self):
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         self.assertIsInstance(linker, Linker)
@@ -25,9 +23,7 @@ class TestLinker(TestCase):
 
     def test_toString(self):
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         string = str(linker)
@@ -48,9 +44,7 @@ class TestLinker(TestCase):
 
     def test_to_xml(self):
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         xml = linker.to_xml()
@@ -116,9 +110,7 @@ class TestLinkage(TestCase):
         linkage = Linkage()
 
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         linkage.add_linker(linker)
@@ -142,15 +134,11 @@ class TestLinkage(TestCase):
     def test_add_linker(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         linker2 = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         self.assertTrue(len(linkage.linker) == 0)
@@ -168,9 +156,7 @@ class TestLinkage(TestCase):
     def test_remove_linker(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
 
         linkage.add_linker(linker)
@@ -190,9 +176,7 @@ class TestLinkage(TestCase):
 
         linkage = Linkage()
         linker_default = Linker(
-            id="gln__L_c",
-            source="test_phase",
-            destination="test_phase",
+            id="gln__L_c", source="test_phase", destination="test_phase",
         )
 
         linker_non_default = Linker(
@@ -207,12 +191,7 @@ class TestLinkage(TestCase):
         linkage.add_linker(linker_non_default)
         phases = Phases()
         phases.add_phase(
-            Phase(
-                id="test_phase",
-                light_dark="light",
-                timeframe=3,
-                volume=5,
-            )
+            Phase(id="test_phase", light_dark="light", timeframe=3, volume=5,)
         )
 
         model = phases.apply_phases(model)
@@ -263,9 +242,7 @@ class TestLinkage(TestCase):
     def test_to_xml(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
-            source="source",
-            destination="destination",
+            id="test_id", source="source", destination="destination",
         )
         xml = linkage.to_xml()
 

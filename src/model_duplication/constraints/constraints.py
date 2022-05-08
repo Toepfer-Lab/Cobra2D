@@ -432,8 +432,7 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
+            parents=True, exist_ok=True,
         )
 
         data = self.to_xml()
@@ -732,10 +731,7 @@ class Constraints:
                 x=[x],
                 y=[y],
                 mode="markers",
-                marker={
-                    "opacity": 0,
-                    "color": "Crimson",
-                },
+                marker={"opacity": 0, "color": "Crimson"},
                 text="\n".join(value),
                 name="Linker",
                 legendgroup="Linker",
@@ -754,16 +750,10 @@ class Constraints:
         )
 
         fig.update_xaxes(
-            title="Sub model",
-            range=(-0.5, len(labels) - 0.5),
-            type="linear",
+            title="Sub model", range=(-0.5, len(labels) - 0.5), type="linear",
         )
 
-        fig.update_layout(
-            title={
-                "text": "Title",
-            }
-        )
+        fig.update_layout(title={"text": "Title"})
         fig.show()
 
     def _constraint2networkx(self):
@@ -780,9 +770,7 @@ class Constraints:
 
         for linker in self.linker.linker:
             graph.add_edge(
-                linker.source,
-                linker.destination,
-                label=linker.id,
+                linker.source, linker.destination, label=linker.id,
             )
 
         edge_dict_reverse = {}
@@ -807,14 +795,7 @@ class Constraints:
         sub_models, times = self.__get_label_time()
 
         for sub_model in sub_models:
-            nodes.append(
-                {
-                    "data": {
-                        "id": sub_model,
-                        "type": "sub_model",
-                    }
-                }
-            )
+            nodes.append({"data": {"id": sub_model, "type": "sub_model"}})
 
         for phase in self.phases.phases:
             sub_model, time = phase.id.split("-", maxsplit=1)
