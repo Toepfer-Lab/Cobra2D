@@ -347,7 +347,7 @@ class Constraints:
             | ATP |      | default-1 |  default-2  |      0       |     1000     |
             | ATP |      | default-2 |  default-3  |      0       |     1000     |
             +-----+------+-----------+-------------+--------------+--------------+
-        """
+        """  # noqa: E501
 
         labels, times = self.__get_label_time(reverse=reverse)
 
@@ -432,7 +432,8 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True, exist_ok=True,
+            parents=True,
+            exist_ok=True,
         )
 
         data = self.to_xml()
@@ -450,7 +451,7 @@ class Constraints:
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
         https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
-        
+
         Args:
             path: The path to the XML file to be used for creating a
                 :py:class:`Constraints` object.
@@ -569,8 +570,6 @@ class Constraints:
                 edge_dict_reverse[value].append(linker.id)
             else:
                 edge_dict_reverse[value] = [linker.id]
-
-            # g.edge(linker.source, linker.destination, label=linker.id, dir="backward")
 
         size = len(times) * len(labels)
         linker_str = "linker existing in all connections:"
@@ -705,9 +704,6 @@ class Constraints:
             else:
                 edge_dict_reverse[value] = [linker.id]
 
-        all_y_pos = []
-        all_x_pos = []
-        edges = []
         show_legend = True
 
         for key, value in edge_dict_reverse.items():
@@ -736,7 +732,10 @@ class Constraints:
                 x=[x],
                 y=[y],
                 mode="markers",
-                marker={"opacity": 0, "color": "Crimson",},
+                marker={
+                    "opacity": 0,
+                    "color": "Crimson",
+                },
                 text="\n".join(value),
                 name="Linker",
                 legendgroup="Linker",
@@ -755,15 +754,17 @@ class Constraints:
         )
 
         fig.update_xaxes(
-            title="Sub model", range=(-0.5, len(labels) - 0.5), type="linear",
+            title="Sub model",
+            range=(-0.5, len(labels) - 0.5),
+            type="linear",
         )
 
         fig.update_layout(
-            title={"text": "Title",}
+            title={
+                "text": "Title",
+            }
         )
         fig.show()
-        edge_dict = {}
-        edge_dict_reverse = {}
 
     def _constraint2networkx(self):
         graph = nx.DiGraph()
@@ -779,7 +780,9 @@ class Constraints:
 
         for linker in self.linker.linker:
             graph.add_edge(
-                linker.source, linker.destination, label=linker.id,
+                linker.source,
+                linker.destination,
+                label=linker.id,
             )
 
         edge_dict_reverse = {}
@@ -804,7 +807,14 @@ class Constraints:
         sub_models, times = self.__get_label_time()
 
         for sub_model in sub_models:
-            nodes.append({"data": {"id": sub_model, "type": "sub_model",}})
+            nodes.append(
+                {
+                    "data": {
+                        "id": sub_model,
+                        "type": "sub_model",
+                    }
+                }
+            )
 
         for phase in self.phases.phases:
             sub_model, time = phase.id.split("-", maxsplit=1)
@@ -845,8 +855,6 @@ class Constraints:
                 edge_dict_reverse[value].append(linker.id)
             else:
                 edge_dict_reverse[value] = [linker.id]
-
-            # g.edge(linker.source, linker.destination, label=linker.id, dir="backward")
 
         size = len(edge_dict_reverse)
         metabolites_existing_between_all_phases = []
@@ -976,7 +984,8 @@ class Constraints:
                 display(
                     HTML(
                         f"<h4>{id}</h4>"
-                        f"<h5>Metabolites/Linker existing between all Phases:</h5>"
+                        f"<h5>Metabolites/Linker existing between all "
+                        f"Phases:</h5>"
                         f"{met_betw_all_phases_html}<br>"
                         f"<h5>Additional metabolites:</h5>"
                         f"{metabolites_html}"

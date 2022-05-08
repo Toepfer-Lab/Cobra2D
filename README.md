@@ -34,8 +34,21 @@ After cloning the repository, the package can be installed in the current Python
 So, in a terminal, the package can be installed with the following commands.
 
 
-    git clone https://github.com/Toepfer-Lab/model_duplication
-  
-    cd model_duplication
-  
-    pip install .
+### Visualization
+The package also provides the possibility to get an overview of the created settings with the help of an animated or unanimated graphic.
+
+<object data="../../assets/media/ConInteractive.gif" type="image/gif">
+      <object data="https://github.com/Toepfer-Lab/model_duplication/blob/c42dfdac52524a93323e78e1f3d996aef5e01714/assets/media/ConInteractive.gif" type="image/gif">
+        <img src="./assets/media/ConInteractive.gif" alt="ConInteractive.gif">
+      </object>
+</object>
+
+
+
+```
+git clone https://github.com/Toepfer-Lab/model_duplication
+
+cd model_duplication
+
+pip install .
+```

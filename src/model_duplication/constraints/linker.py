@@ -21,11 +21,11 @@ logger.level = 20
 
 class Linker(Metabolite):
     """
-    Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended with
-    information representing the source and target for a metabolite. Phases are
-    used for this purpose. These define a fixed time period in a fixed organ.
-    Using this information, a pseudo reaction can be created representing the
-    transition between two such phases.
+    Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended
+    with information representing the source and target for a metabolite.
+    Phases are used for this purpose. These define a fixed time period in
+    a fixed organ. Using this information, a pseudo reaction can be created
+    representing the transition between two such phases.
 
     Attributes:
         id: The ID to be used for the metabolite. This should match
@@ -33,9 +33,11 @@ class Linker(Metabolite):
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
         lower_bound (int): The 'lower_bound' to be used for the reaction.
-            For more information see 'lower_bound' in :py:func:`cobra.Reaction`.
+            For more information see 'lower_bound' in
+            :py:func:`cobra.Reaction`.
         upper_bound (int): The 'upper_bound' to be used for the reaction.
-            For more information see 'lower_bound' in :py:func:`cobra.Reaction`.
+            For more information see 'lower_bound' in
+            :py:func:`cobra.Reaction`.
     """
 
     id: str
