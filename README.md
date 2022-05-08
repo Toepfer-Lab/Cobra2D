@@ -29,11 +29,6 @@ constraints or you create an XML file that can be read in and used to create a n
 Examples of the use of this package can be found in the examples folder. There are examples that demonstrate the
 functions but also an XML file that shows how the parameters are stored.
 
-### Installation
-After cloning the repository, the package can be installed in the current Python environment using pip.
-So, in a terminal, the package can be installed with the following commands.
-
-
 ### Visualization
 The package also provides the possibility to get an overview of the created settings with the help of an animated or unanimated graphic.
 
@@ -43,8 +38,9 @@ The package also provides the possibility to get an overview of the created sett
       </object>
 </object>
 
-
-
+### Installation
+After cloning the repository, the package can be installed in the current Python environment using pip.
+So, in a terminal, the package can be installed with the following commands.
 ```
 git clone https://github.com/Toepfer-Lab/model_duplication
 
