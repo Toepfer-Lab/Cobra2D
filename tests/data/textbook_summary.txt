@@ -1,6 +1,6 @@
 Objective
 =========
-1.0 Biomass_Ecoli_core = 0.8739215069684306
+1.0 Biomass_Ecoli_core = 0.8739215069684272
 
 Uptake
 ------

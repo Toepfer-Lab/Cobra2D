@@ -5,8 +5,10 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from xml.etree.ElementTree import Element
 
+import cobra
 from cobra import Model, Reaction, Configuration
-from cobra.test import create_test_model
+from cobra.io import read_sbml_model
+from importlib_resources import files, as_file
 
 from model_duplication.constraints.constraints import Constraints
 from model_duplication.constraints.linker import Linkage, Linker
@@ -19,6 +21,14 @@ class TestConstraints(TestCase):
     def setUpClass(cls):
         cobra_config = Configuration()
         cobra_config.solver = "glpk"
+
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
+        ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
+        with as_file(ecoli_raw) as ecoliXML:
+            cls.ecoli = read_sbml_model(str(ecoliXML))
 
     def test_create(self):
         con = Constraints()
@@ -59,7 +69,11 @@ class TestConstraints(TestCase):
 
     def test_add_reaction_to_phase(self):
         con = Constraints()
-        reaction = Reaction(id="test", lower_bound=4, upper_bound=541,)
+        reaction = Reaction(
+            id="test",
+            lower_bound=4,
+            upper_bound=541,
+        )
         con.add_reaction_to_phase(reaction, "default-0")
         phase = con.get_phase_by_id("default-0")
 
@@ -109,7 +123,9 @@ class TestConstraints(TestCase):
         con.add_time_slots(2, 1, "light")
 
         linker = Linker(
-            id="test_id", source="default-0", destination="default-1",
+            id="test_id",
+            source="default-0",
+            destination="default-1",
         )
 
         self.assertEqual(0, len(con.linker.linker))
@@ -120,7 +136,9 @@ class TestConstraints(TestCase):
         # Raise error if source or destination are not known
 
         linker = Linker(
-            id="test_id", source="unknown", destination="default-1",
+            id="test_id",
+            source="unknown",
+            destination="default-1",
         )
 
         with self.assertRaisesRegex(
@@ -129,7 +147,9 @@ class TestConstraints(TestCase):
             con.add_linker(linker)
 
         linker = Linker(
-            id="test_id", source="default-0", destination="unknown",
+            id="test_id",
+            source="default-0",
+            destination="unknown",
         )
 
         with self.assertRaisesRegex(
@@ -146,7 +166,11 @@ class TestConstraints(TestCase):
             source = f"default-{n}"
             destination = f"default-{n + 1}"
             linker.append(
-                Linker(id="test_id", source=source, destination=destination,)
+                Linker(
+                    id="test_id",
+                    source=source,
+                    destination=destination,
+                )
             )
 
         # last2first: bool = False reverse: bool = False
@@ -175,7 +199,11 @@ class TestConstraints(TestCase):
             destination = f"default-{n}"
             source = f"default-{n + 1}"
             linker.append(
-                Linker(id="test_id", source=source, destination=destination,)
+                Linker(
+                    id="test_id",
+                    source=source,
+                    destination=destination,
+                )
             )
 
         self.assertEqual(0, len(con.linker.linker))
@@ -216,10 +244,14 @@ class TestConstraints(TestCase):
 
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(id="amp_c", source="model0-0", destination="model0-1",)
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
         con.add_linker(linker)
 
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
         new_model = con.apply_to_model(model)
 
         created_linker: Reaction = new_model.reactions.get_by_id(
@@ -267,9 +299,9 @@ class TestConstraints(TestCase):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
         phase = con.get_phase_by_id("default-0")
-        phase_model: Model = create_test_model(model_name="ecoli")
+        phase_model: Model = self.textbook.copy()
         phase.model = phase_model
-        model = create_test_model(model_name="textbook")
+        model = self.textbook.copy()
 
         new_model = con.apply_to_model(model)
         self.assertEqual(
@@ -283,7 +315,7 @@ class TestConstraints(TestCase):
 
         # simulation
 
-        model: Model = create_test_model("ecoli")
+        model: Model = self.ecoli.copy()
         con = Constraints()
         con.add_time_slots(3, 1, "light")
         con.add_sub_models(["root", "leaf"], [2, 4])
@@ -296,7 +328,7 @@ class TestConstraints(TestCase):
             summary = str(model.summary())
             self.assertEqual(expected.read(), summary)
 
-        textbook_model: Model = create_test_model(model_name="textbook")
+        textbook_model: Model = self.textbook.copy()
 
         with open_text(
             data, "textbook_summary.txt", encoding="UTF-8"
@@ -331,7 +363,11 @@ class TestConstraints(TestCase):
 
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(id="amp_c", source="model0-0", destination="model0-1",)
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
         con.add_linker(linker)
 
         xml = con.to_xml()
@@ -357,7 +393,11 @@ class TestConstraints(TestCase):
 
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(id="amp_c", source="model0-0", destination="model0-1",)
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
         con.add_linker(linker)
 
         with TemporaryDirectory() as temp_dir:
@@ -367,7 +407,8 @@ class TestConstraints(TestCase):
             with io.open(path) as save:
                 with open_text(data, "out.xml", encoding="UTF-8") as expected:
                     self.assertListEqual(
-                        list(expected), list(save),
+                        list(expected),
+                        list(save),
                     )
 
     def test_load_from_xml(self):
@@ -376,7 +417,11 @@ class TestConstraints(TestCase):
 
         con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(id="amp_c", source="model0-0", destination="model0-1",)
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
         con_exp.add_linker(linker)
         con_exp.save_as_xml("out.xml")
 

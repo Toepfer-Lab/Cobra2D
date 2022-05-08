@@ -16,9 +16,7 @@ from xml.etree.ElementTree import Element
 
 import ipycytoscape
 import networkx as nx
-from IPython.core.display_functions import display
-from bokeh.io import show, output_notebook
-from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
+from IPython.display import display
 from cobra import Model, Reaction
 from graphviz import Digraph
 from ipywidgets import Output, HTML
@@ -432,7 +430,8 @@ class Constraints:
             path = Path(path)
 
         path.parent.mkdir(
-            parents=True, exist_ok=True,
+            parents=True,
+            exist_ok=True,
         )
 
         data = self.to_xml()
@@ -593,169 +592,6 @@ class Constraints:
         # g.attr(size='6,6')
         return g
 
-    def graph_with_bokeh(self):
-        from bokeh.plotting import figure
-
-        labels, times = self.__get_label_time()
-        plot = figure(
-            title="Graph layout demonstration",
-            x_range=(-0.5, len(labels) - 0.5),
-            y_range=(-0.5, len(times) - 0.5),
-        )
-
-        graph = GraphRenderer()
-        nodes = {}
-        node_label = []
-        index2name = {}
-        index = 0
-
-        for x in range(len(labels)):
-            for y in range(len(times)):
-                index2name[f"{labels[x]}-{times[y]}"] = index
-                node_label.append(index)
-                nodes[index] = (x, y)
-                index += 1
-
-        graph.node_renderer.glyph = Ellipse(
-            height=0.1, width=0.2, fill_color="fill_color"
-        )
-
-        graph.node_renderer.data_source.data = dict(
-            index=list(range(index)), fill_color=["#3288bd"] * index
-        )
-
-        source = []
-        dest = []
-
-        for linker in self.linker.linker:
-            source.append(index2name[linker.source])
-            dest.append(index2name[linker.destination])
-
-        graph.edge_renderer.data_source.data = dict(start=source, end=dest)
-
-        graph.layout_provider = StaticLayoutProvider(graph_layout=nodes)
-        plot.renderers.append(graph)
-        output_notebook()
-        show(plot)
-
-    def graph_with_plotly(self):
-        import plotly.graph_objects as go
-
-        labels, times = self.__get_label_time()
-
-        all_y_pos = []
-        all_x_pos = []
-        all_labels = []
-        n_label = 0
-        dict_label = {}
-
-        hover_info = []
-        pos_dict = {}
-
-        for index_x, label in enumerate(labels):
-            for index_y, time in enumerate(times):
-                if self.phases.phases.has_id(f"{label}-{time}"):
-                    phase: Phase = self.get_phase_by_id(f"{label}-{time}")
-
-                    if label in dict_label:
-                        x = dict_label[label]
-                    else:
-                        dict_label[label] = n_label
-                        x = n_label
-                        n_label += 1
-
-                    all_x_pos.append(x)
-                    all_y_pos.append(time)
-                    all_labels.append(f"{label}-{time}")
-                    hover_info.append(
-                        (
-                            phase.timeframe,
-                            phase.volume,
-                            len(phase.reaction_settings),
-                            getattr(phase.model, "id", "None"),
-                        )
-                    )
-                    pos_dict[f"{label}-{time}"] = (x, time)
-
-        fig = go.Figure(
-            data=go.Scatter(
-                x=all_x_pos,
-                y=all_y_pos,
-                text=all_labels,
-                mode="markers",
-                marker={"size": 12},
-                customdata=hover_info,
-                hovertemplate="Phase: %{text}"
-                "<br>Duration: %{customdata[0]}"
-                "<br>Volume: %{customdata[1]}"
-                "<br>Reactions: %{customdata[2]}"
-                "<br>Associated model: %{customdata[3]}",
-            )
-        )
-
-        edge_dict_reverse = {}
-
-        for linker in self.linker.linker:
-            value: Tuple[str, str] = (linker.source, linker.destination)
-
-            if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.id)
-            else:
-                edge_dict_reverse[value] = [linker.id]
-
-        show_legend = True
-
-        for key, value in edge_dict_reverse.items():
-            source, destintaion = key
-            x_end, y_end = pos_dict[destintaion]
-            x_start, y_start = pos_dict[source]
-
-            line = go.Scatter(
-                x=[x_start, x_end],
-                y=[y_start, y_end],
-                mode="lines",
-                line=dict(color="Crimson"),
-                name="Linker",
-                legendgroup="Linker",
-                showlegend=show_legend,
-            )
-            show_legend = False
-
-            y_end = int(y_end)
-            y_start = int(y_start)
-
-            x = min(x_start, x_end) + abs(x_end - x_start) / 2
-            y = min(y_start, y_end) + abs(y_end - y_start) / 2
-
-            hover = go.Scatter(
-                x=[x],
-                y=[y],
-                mode="markers",
-                marker={"opacity": 0, "color": "Crimson"},
-                text="\n".join(value),
-                name="Linker",
-                legendgroup="Linker",
-                showlegend=show_legend,
-                hoverinfo="text",
-            )
-            print(f"x: {x}, y: {y}, label = {value}")
-
-            fig.add_trace(line)
-            fig.add_trace(hover)
-
-        fig.update_yaxes(
-            title="Number of Timeframe",
-            range=(-0.5, len(times) - 0.5),
-            type="linear",
-        )
-
-        fig.update_xaxes(
-            title="Sub model", range=(-0.5, len(labels) - 0.5), type="linear",
-        )
-
-        fig.update_layout(title={"text": "Title"})
-        fig.show()
-
     def _constraint2networkx(self):
         graph = nx.DiGraph()
 
@@ -770,7 +606,9 @@ class Constraints:
 
         for linker in self.linker.linker:
             graph.add_edge(
-                linker.source, linker.destination, label=linker.id,
+                linker.source,
+                linker.destination,
+                label=linker.id,
             )
 
         edge_dict_reverse = {}
