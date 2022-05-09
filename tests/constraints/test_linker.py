@@ -1,9 +1,10 @@
 from unittest import TestCase
 from xml.etree.ElementTree import Element
 
+import cobra
 from cobra import Model, Reaction
-from cobra.test import create_test_model
-
+from cobra.io import read_sbml_model
+from importlib_resources import files, as_file
 
 from model_duplication.constraints.linker import Linker, Linkage
 from model_duplication.constraints.phase import Phase, Phases
@@ -106,6 +107,12 @@ class TestLinker(TestCase):
 
 
 class TestLinkage(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
     def test_create(self):
         linkage = Linkage()
 
@@ -186,7 +193,7 @@ class TestLinkage(TestCase):
     def test_apply_linkage(self):
         # ToDo use 2 Phases
 
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
 
         linkage = Linkage()
         linker_default = Linker(

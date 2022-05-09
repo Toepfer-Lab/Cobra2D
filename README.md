@@ -29,13 +29,22 @@ constraints or you create an XML file that can be read in and used to create a n
 Examples of the use of this package can be found in the examples folder. There are examples that demonstrate the
 functions but also an XML file that shows how the parameters are stored.
 
+### Visualization
+The package also provides the possibility to get an overview of the created settings with the help of an animated or unanimated graphic.
+
+<object data="../../assets/media/ConInteractive.gif" type="image/gif">
+      <object data="https://github.com/Toepfer-Lab/model_duplication/blob/c42dfdac52524a93323e78e1f3d996aef5e01714/assets/media/ConInteractive.gif" type="image/gif">
+        <img src="./assets/media/ConInteractive.gif" alt="ConInteractive.gif">
+      </object>
+</object>
+
 ### Installation
 After cloning the repository, the package can be installed in the current Python environment using pip.
 So, in a terminal, the package can be installed with the following commands.
+```
+git clone https://github.com/Toepfer-Lab/model_duplication
 
+cd model_duplication
 
-    git clone https://github.com/Toepfer-Lab/model_duplication
-  
-    cd model_duplication
-  
-    pip install .
+pip install .
+```

@@ -1,9 +1,10 @@
 from unittest import TestCase
 from xml.etree.ElementTree import Element
-from cobra.test import create_test_model
 
-
+import cobra
 from cobra import DictList, Metabolite, Model, Reaction
+from cobra.io import read_sbml_model
+from importlib_resources import files, as_file
 
 from model_duplication.constraints.phase import Phase, Phases
 
@@ -61,6 +62,12 @@ class TestPhase(TestCase):
 
 
 class TestPhases(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
     def test_create(self):
         phases = Phases()
 
@@ -140,7 +147,7 @@ class TestPhases(TestCase):
         self.assertEqual(0, len(phases.phases))
 
     def test_apply_phases(self):
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
         phases = Phases()
         phase = Phase(
             id="test_id",
@@ -181,9 +188,9 @@ class TestPhases(TestCase):
             self.assertEqual(reaction.upper_bound, new_reaction.upper_bound)
 
             self.assertEqual(
-                str(reaction.forward_variable)
-                .replace(reaction.id, f"{reaction.id}_" f"{phase.id}")
-                .replace("0 ", "0.0 "),
+                str(reaction.forward_variable).replace(
+                    reaction.id, f"{reaction.id}_" f"{phase.id}"
+                ),
                 str(new_reaction.forward_variable),
             )
             self.assertEqual(

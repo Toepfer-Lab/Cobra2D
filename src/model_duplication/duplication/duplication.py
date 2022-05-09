@@ -38,7 +38,7 @@ def _rename(model: Model, suffix: str):
             logger.debug(msg=f"Item renamed to {item.id}")
 
         else:
-            logger.warn(
+            logger.warning(
                 msg=f"Item {id(item)} has a problem with its id. No suffix"
                 + "was added"
             )
