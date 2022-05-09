@@ -83,6 +83,6 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: 'refs/tags/$(python setup.py --version)',
+              ref: refs/tags/${{ python setup.py --version) }},
               sha: context.sha
             })
