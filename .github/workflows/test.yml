@@ -75,12 +75,12 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.1.0
+      - uses: actions/checkout@v2
       - run: |
           output=$(python setup.py --version)
           echo "::set-output name=version::$output"
-      id: version
-        -
+        id: version
+        
       - name: Create tag
         uses: actions/github-script@v5
         with:
