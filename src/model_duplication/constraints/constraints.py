@@ -558,7 +558,7 @@ class Constraints:
                         sub.node(f"{label}-{time}")
 
                         if last_label is not None:
-                            connection = (last_label,new_label)
+                            connection = (last_label, new_label)
                             invis_connections.append(connection)
 
                         last_label = new_label
