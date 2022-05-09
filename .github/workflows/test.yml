@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [ 3.7, 3.8, 3.9 ]
+        python: [ 3.7 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -57,7 +57,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ 3.7, 3.8, 3.9 ]
+        python-version: [ 3.7 ]
     runs-on: ${{ matrix.os}}
 
     steps:
@@ -80,7 +80,7 @@ jobs:
           output=$(python setup.py --version)
           echo "::set-output name=version::$output"
         id: version
-        
+
       - name: Create tag
         uses: actions/github-script@v5
         with:
@@ -88,6 +88,6 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: refs/tags/${{ steps.version.outputs.version }},
+              ref: "refs/tags/v${{ steps.version.outputs.version }}",
               sha: context.sha
             })
