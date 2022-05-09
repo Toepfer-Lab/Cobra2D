@@ -75,6 +75,12 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - run: |
+          output=$(python setup.py --version)
+          echo "::set-output name=version::$output"
+        id: version
+
       - name: Create tag
         if: github.event.pull_request.merged == true
         uses: actions/github-script@v5
@@ -83,6 +89,6 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: refs/tags/${{ python setup.py --version) }},
+              ref: "refs/tags/v${{ steps.version.outputs.version }}",
               sha: context.sha
             })
