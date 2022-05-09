@@ -76,7 +76,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create tag
-        if: github.event.pull_request.merged == true
         uses: actions/github-script@v5
         with:
           script: |
