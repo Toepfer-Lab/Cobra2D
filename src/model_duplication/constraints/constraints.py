@@ -546,13 +546,22 @@ class Constraints:
     def create_graph(self):
         g = Digraph(engine="dot")
         labels, times = self.__get_label_time()
+        invis_connections = []
 
         for label in labels:
             with g.subgraph(name=f"cluster_{label}") as sub:
                 sub.attr(label=label)
+                last_label = None
                 for time in times:
-                    if self.phases.phases.has_id(f"{label}-{time}"):
+                    new_label = f"{label}-{time}"
+                    if self.phases.phases.has_id(new_label):
                         sub.node(f"{label}-{time}")
+
+                        if last_label is not None:
+                            connection = (last_label,new_label)
+                            invis_connections.append(connection)
+
+                        last_label = new_label
 
         edge_dict = {}
         edge_dict_reverse = {}
@@ -569,7 +578,7 @@ class Constraints:
             else:
                 edge_dict_reverse[value] = [linker.id]
 
-        size = len(times) * len(labels)
+        size = len(edge_dict_reverse)
         linker_str = "linker existing in all connections:"
         for key, value in edge_dict.items():
             if len(value) == size:
@@ -586,6 +595,15 @@ class Constraints:
                 labeldistance="6",
                 labelangle="75",
             )
+
+        for source, destintaion in invis_connections:
+            if (source, destintaion) not in edge_dict_reverse.keys():
+                g.edge(
+                    source,
+                    destintaion,
+                    style="invis",
+                    dir="none",
+                )
 
         g.node(linker_str, shape="rectangle")
 
