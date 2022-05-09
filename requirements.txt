@@ -79,7 +79,7 @@ python-libsbml==5.19.5    # via cobra
 pytz==2022.1              # via pandas
 pyzmq==22.3.0             # via jupyter-client, notebook
 rfc3986[idna2008]==1.5.0  # via httpx
-rich==12.3.0              # via cobra, model-duplication (./setup.cfg)
+rich==12.4.1              # via cobra, model-duplication (./setup.cfg)
 ruamel-yaml==0.17.21      # via cobra
 ruamel-yaml-clib==0.2.6   # via ruamel-yaml
 send2trash==1.8.0         # via notebook
