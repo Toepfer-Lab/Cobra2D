@@ -1,6 +1,11 @@
+import json
+from pathlib import Path
+from typing import Union
+
 import igraph as ig
 import networkx as nx
 from cobra import Model, Metabolite, Reaction
+from cobra.core import Group
 
 
 def cobra2igraph(model: Model):
@@ -46,3 +51,90 @@ def cobra2networkx(model: Model):
                 )
 
     return graph
+
+
+def cobra2MetExplorer(model: Model) -> str:
+    dic = {}
+
+    metabolite: Metabolite
+    nodes = []
+    links = []
+    nodes2id = {}
+    id = 0
+
+    for metabolite in model.metabolites:
+        nodes.append(
+            {
+                "name": metabolite.name,
+                "id": metabolite.id,
+                "compartment": metabolite.compartment,
+                "biologicalType": "metabolite",
+                "pathways": [],
+            }
+        )
+
+        nodes2id[metabolite.id] = id
+        id += 1
+
+    reaction: Reaction
+    for reaction in model.reactions:
+        reversibility = reaction.reversibility
+        compartments = list(reaction.compartments)
+
+        nodes.append(
+            {
+                "name": reaction.name,
+                "id": reaction.id,
+                "reactionReversibility": reversibility,
+                "biologicalType": "reaction",
+                "compartment": compartments,
+                "pathways": [],
+            }
+        )
+
+        nodes2id[reaction.id] = id
+        id += 1
+
+        for metabolite, coeff in reaction.metabolites.items():
+            if coeff > 0:
+                links.append({
+                    "source": nodes2id[reaction.id],
+                    "target": nodes2id[metabolite.id],
+                    "interaction": "out",
+                    "reversible": reversibility,
+                    "id": f"{reaction.id} -- {metabolite.id}"
+                })
+            else:
+                links.append({
+                    "source": nodes2id[metabolite.id],
+                    "target": nodes2id[reaction.id],
+                    "interaction": "in",
+                    "reversible": reversibility,
+                    "id": f"{metabolite.id} -- {reaction.id}"
+                })
+
+    group: Group
+    for group in model.groups:
+        for member in group.members:
+            if isinstance(member, Reaction) or isinstance(member, Metabolite):
+                pos = nodes2id[member.id]
+                node = nodes[pos]
+                node["pathways"].append(group.id)
+                nodes[pos] = node
+
+    dic["nodes"] = nodes
+    dic["links"] = links
+
+    return json.dumps(dic, indent=4)
+
+
+def cobra2MetExplorerFile(model: Model, file:Union[Path,str]):
+    out = cobra2MetExplorer(model)
+    if isinstance(file, str):
+        file = Path(file)
+
+    file = file.with_suffix(".json")
+    file.parent.mkdir(exist_ok=True)
+
+    with open(file, "w") as out_file:
+        out_file.write(out)
