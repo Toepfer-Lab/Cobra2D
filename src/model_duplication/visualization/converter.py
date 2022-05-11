@@ -2,9 +2,10 @@ import json
 from pathlib import Path
 from typing import Union
 
+import cobra.core
 import igraph as ig
 import networkx as nx
-from cobra import Model, Metabolite, Reaction
+from cobra import Model, Metabolite, Reaction, Solution
 from cobra.core import Group
 
 
@@ -53,7 +54,26 @@ def cobra2networkx(model: Model):
     return graph
 
 
-def cobra2MetExplorer(model: Model) -> str:
+def cobra2metexplore(model: Model) -> str:
+    """
+    It creates a JSON string that corresponds to the format that MetExploreViz
+    needs to read in. It contains all reactions, metabolites and groups.
+    The cobra groups are displayed in MetExploreViz as pathways.
+
+    Note:
+        Not all :py:class:`cobra.core.Group` have to correspond to pathways.
+        Therefore, combinations of metabolites and reactions that do not
+        correspond to any pathways may be displayed as pathways in
+        MetExploreViz.
+
+    Args:
+        model: The :py:class:`cobra.model` to be translated into the
+            JSON representation.
+
+    Returns:
+        The :py:class:`cobra.model` encoded in JSON.
+
+    """
     dic = {}
 
     metabolite: Metabolite
@@ -128,8 +148,54 @@ def cobra2MetExplorer(model: Model) -> str:
     return json.dumps(dic, indent=4)
 
 
-def cobra2MetExplorerFile(model: Model, file:Union[Path,str]):
-    out = cobra2MetExplorer(model)
+def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
+    """
+    Converts a cobra solution into a tsv that can be read by MetExploreViz
+    to integrate Flux data into the visualization.
+
+    Args:
+        solution: The solution of the :py:class:`cobra.model`.
+        file: A string or :py:class:`Path` containing the location and file name
+            under which the tsv containing the flux values should be created.
+
+    """
+    if isinstance(file, str):
+        file = Path(file)
+
+    fluxes = solution.fluxes
+
+    buffer = ("Identifier\tflux_values\n")
+    for id, flux_value in fluxes.items():
+        flux_value = round(flux_value, 4)
+        flux_value = str(flux_value).replace('.', ',')
+        buffer += f"{id}\t{flux_value}\n"
+
+    with open(file, "w") as out:
+        out.write(buffer)
+
+
+def cobra2metexplore_file(model: Model, file: Union[Path, str]):
+    """
+    Function that creates a JSON file corresponding to a
+    :py:class:`cobra.model` that can be read by MetExploreViz.
+
+    The created file contains the information of the :py:class:`cobra.model`
+    regarding all metabolites, reactions and groups.
+
+    Note:
+        The groups in the :py:class:`cobra.model` are displayed as pathways in
+        MetExploreViz. However, the :py:class:`cobra.core.Group` do not
+        necessarily correspond to pathways.
+
+    Args:
+        model: The :py:class:`cobra.model` to be translated into the
+            JSON representation.
+
+    Returns:
+        The :py:class:`cobra.model` encoded in JSON.
+
+    """
+    out = cobra2metexplore(model)
     if isinstance(file, str):
         file = Path(file)
 
