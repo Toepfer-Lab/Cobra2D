@@ -19,7 +19,7 @@ import networkx as nx
 from IPython.display import display
 from cobra import Model, Reaction
 from graphviz import Digraph
-from ipywidgets import Output, HTML
+from ipywidgets import Output, HTML, Button
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -31,6 +31,7 @@ from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
+from model_duplication.visualization.converter import metexplore
 
 
 class Constraints:
@@ -855,6 +856,13 @@ class Constraints:
                 ).join(reaction.id for reaction in all_reactions)
 
                 out.clear_output(wait=True)
+
+                def on_button_clicked(button):
+                    metexplore(model= self.get_phase_by_id(phase_id).model)
+
+                button = Button(description="Open Phase in MetExplore")
+                button.on_click(on_button_clicked)
+
                 display(
                     HTML(
                         f"<h4>Phase id: {phase_id}</h4>"
@@ -867,7 +875,8 @@ class Constraints:
                         f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
                         f"{tab}&bull; Model: {model_name}<br>"
                         f"{tab}&bull; Reactions: {reactions_html_str}"
-                    )
+                    ),
+                    button
                 )
 
         cytoscapeobj.on("edge", "click", log_mouseovers_edge)

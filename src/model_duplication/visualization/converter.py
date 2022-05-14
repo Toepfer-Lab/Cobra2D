@@ -1,12 +1,20 @@
 import json
+import logging
+from importlib.resources import open_text
+from io import BytesIO
 from pathlib import Path
-from typing import Union
+from typing import Union, List, Set
+from urllib.request import urlopen
+from zipfile import ZipFile
 
-import cobra.core
 import igraph as ig
 import networkx as nx
+import requests
 from cobra import Model, Metabolite, Reaction, Solution
 from cobra.core import Group
+from tqdm import tqdm
+
+from model_duplication import resources
 
 
 def cobra2igraph(model: Model):
@@ -54,7 +62,56 @@ def cobra2networkx(model: Model):
     return graph
 
 
-def cobra2metexplore(model: Model) -> str:
+def __group2lists(
+    group: Group,
+) -> (Set[Metabolite], Set[Reaction], Set[Group]):
+    """
+    Function that locates all elements belonging to a group.
+    The potential types of elements are metabolites, reactions and groups.
+    Hereby all potential elements are searched recursively and also
+    elements which do not belong to the group itself but for example to a
+    reaction or group of said group. This is continued recursively.
+
+    Args:
+        group: The Cobrapy group whose elements should be returned
+
+    Returns: A triplet consisting of all metabolites, reactions and
+        groups that have said association to the given group.
+        The sequence is as follows: (Metabolites, Reactions, Groups).
+    """
+
+    logging.info(f"Create list of all metabolites, reactions, groups contained in group {group.id}.")
+    metabolites2use = set()
+    reactions2use = set()
+    groups2use = set()
+
+    groups2use.add(group)
+
+    for item in group.members:
+        if isinstance(item, Metabolite):
+            logging.info(f"Metabolite {item.id} is included in group {group.id}.")
+            metabolites2use.add(item)
+
+        elif isinstance(item, Reaction):
+            logging.info(f"Reaction {item.id} is included in group {group.id}.")
+            reactions2use.add(item)
+            logging.info(f"The following metabolites are present "
+                         f"in reaction {item.id}.\n "
+                         f"{item.metabolites}")
+            metabolites2use.update(item.metabolites)
+
+        else:
+            logging.info(f"Group {group.id} contains another group {item.id}.")
+            met, rec, gr = __group2lists(item)
+
+            metabolites2use.update(met)
+            reactions2use.update(rec)
+            groups2use.update(gr)
+
+    return metabolites2use, reactions2use, groups2use
+
+
+def cobra2metexplore(model: Model, groups: [str, List[str]] = None) -> str:
     """
     It creates a JSON string that corresponds to the format that MetExploreViz
     needs to read in. It contains all reactions, metabolites and groups.
@@ -82,7 +139,30 @@ def cobra2metexplore(model: Model) -> str:
     nodes2id = {}
     id = 0
 
-    for metabolite in model.metabolites:
+    # Determine the elements defined by means of the groups parameter.
+    metabolites2use = set()
+    reactions2use = set()
+    groups2use = set()
+
+    if isinstance(groups, str):
+        groups = [groups]
+
+    logging.info(f"Identifying all the components of the model to be used.")
+    if groups is not None:
+        for group in groups:
+            met, rec, gr = __group2lists(model.groups.get_by_id(group))
+            metabolites2use.update(met)
+            reactions2use.update(rec)
+            groups2use.update(gr)
+    else:
+        logging.info(f"No restrictions specified. Using the entire model.")
+        metabolites2use = model.metabolites
+        reactions2use = model.reactions
+        groups2use = model.groups
+
+    # Create the nodes for metabolites and reactions.
+    for metabolite in metabolites2use:
+        logging.info(f"Creating Node for Metabolite {metabolite.id}. With node number {id}.")
         nodes.append(
             {
                 "name": metabolite.name,
@@ -97,7 +177,8 @@ def cobra2metexplore(model: Model) -> str:
         id += 1
 
     reaction: Reaction
-    for reaction in model.reactions:
+    for reaction in reactions2use:
+        logging.info(f"Creating Node for Metabolite {reaction.id}. With node number {id}.")
         reversibility = reaction.reversibility
         compartments = list(reaction.compartments)
 
@@ -115,33 +196,55 @@ def cobra2metexplore(model: Model) -> str:
         nodes2id[reaction.id] = id
         id += 1
 
+        # Create the connections within the network.
         for metabolite, coeff in reaction.metabolites.items():
+            reaction_id = nodes2id[reaction.id]
+            metabolite_id = nodes2id[metabolite.id]
             if coeff > 0:
-                links.append({
-                    "source": nodes2id[reaction.id],
-                    "target": nodes2id[metabolite.id],
-                    "interaction": "out",
-                    "reversible": reversibility,
-                    "id": f"{reaction.id} -- {metabolite.id}"
-                })
-            else:
-                links.append({
-                    "source": nodes2id[metabolite.id],
-                    "target": nodes2id[reaction.id],
-                    "interaction": "in",
-                    "reversible": reversibility,
-                    "id": f"{metabolite.id} -- {reaction.id}"
-                })
+                logging.info(f"Create connection from {reaction.id} to "
+                             f"{metabolite.id}. With node IDs {reaction_id} "
+                             f"and {metabolite_id}. Reversibility "
+                             f"{reversibility} and with the direction 'out'.")
 
+                links.append(
+                    {
+                        "source": reaction_id,
+                        "target": metabolite_id,
+                        "interaction": "out",
+                        "reversible": reversibility,
+                        "id": f"{reaction.id} -- {metabolite.id}",
+                    }
+                )
+            else:
+                logging.info(f"Create connection from {metabolite.id} to "
+                             f"{reaction.id}. With node IDs  {metabolite_id}"
+                             f"and {reaction_id}. Reversibility "
+                             f"{reversibility} and with the direction 'in'.")
+
+                links.append(
+                    {
+                        "source": metabolite_id,
+                        "target": reaction_id,
+                        "interaction": "in",
+                        "reversible": reversibility,
+                        "id": f"{metabolite.id} -- {reaction.id}",
+                    }
+                )
+
+    # Define all groups as pathway so that they can be interpreted
+    # correctly by MetExplore.
     group: Group
-    for group in model.groups:
+    for group in groups2use:
         for member in group.members:
             if isinstance(member, Reaction) or isinstance(member, Metabolite):
+                logging.info(f"Adding Node {member.id} to Pathway {group.id}.")
                 pos = nodes2id[member.id]
                 node = nodes[pos]
                 node["pathways"].append(group.id)
                 nodes[pos] = node
 
+    # Add created nodes and connections to the dictionary and
+    # return them as JSON string.
     dic["nodes"] = nodes
     dic["links"] = links
 
@@ -164,17 +267,22 @@ def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
 
     fluxes = solution.fluxes
 
-    buffer = ("Identifier\tflux_values\n")
+    buffer = "Identifier\tflux_values\n"
     for id, flux_value in fluxes.items():
         flux_value = round(flux_value, 4)
-        flux_value = str(flux_value).replace('.', ',')
+        flux_value = str(flux_value).replace(".", ",")
         buffer += f"{id}\t{flux_value}\n"
 
     with open(file, "w") as out:
         out.write(buffer)
 
+    logging.info(f"Create file with flux values for the usage with "
+                 f"MetExploreViz at location {file}.")
 
-def cobra2metexplore_file(model: Model, file: Union[Path, str]):
+
+def cobra2metexplore_file(
+    model: Model, file: Union[Path, str], groups: [str, List[str]] = None
+):
     """
     Function that creates a JSON file corresponding to a
     :py:class:`cobra.model` that can be read by MetExploreViz.
@@ -195,7 +303,10 @@ def cobra2metexplore_file(model: Model, file: Union[Path, str]):
         The :py:class:`cobra.model` encoded in JSON.
 
     """
-    out = cobra2metexplore(model)
+
+    logging.info("")
+
+    out = cobra2metexplore(model=model, groups=groups)
     if isinstance(file, str):
         file = Path(file)
 
@@ -204,3 +315,85 @@ def cobra2metexplore_file(model: Model, file: Union[Path, str]):
 
     with open(file, "w") as out_file:
         out_file.write(out)
+
+    logging.info(f"JSON representation stored at location '{file}'.")
+
+
+def metexplore(
+    model: Model,
+    dir: Union[Path, str] = Path.cwd() / "MetExplore",
+    solution: Solution = None,
+    groups: [str, List[str]] = None,
+):
+    """
+    This function creates all the necessary files to visualize a cobra model
+    using MetExploreViz. Furthermore, all data necessary for MetExploreViz
+    will be downloaded if they do not already exist in the specified folder.
+    Furthermore, a local web server is started, which makes all files in the
+    specified folder available. This is accessible at '127.0.0.1' and is
+    automatically stopped when the IPython kernel is stopped.
+
+    A web browser is automatically opened and the created JSON file
+    is read in. The flux values must be read in manually via the interface.
+
+    Args:
+        model: The Cobra model to be visualized.
+        dir: The directory in which all files are to be created.
+            By default, a MetExplore folder is created and used in the
+            current working directory.
+        solution: The Cobra Solution belonging to the model. If none is
+            passed, the model is automatically optimized to obtain a solution.
+        groups: The IDs of the groups of the Cobra model to be
+            visualized. By default, the whole model is used.
+    """
+    import subprocess
+    import webbrowser
+
+    if isinstance(dir, str):
+        dir = Path(dir)
+
+    dir.mkdir(exist_ok=True)
+    cobra2metexplore_file(model=model, file=dir / "model.json", groups=groups)
+
+    if solution is None:
+        logging.info("No solution passed. Calculating one.")
+        solution = model.optimize()
+    cobra2metexplore_flux_file(solution, dir / "model_flux.csv")
+
+    # Define URL and the Context. The context is necessary to verify
+    # the SSL certificate.
+
+    if not (dir / "metExploreViz").exists():
+        url = "http://metexplore.toulouse.inrae.fr/metexploreViz/doc/files/metExploreViz_3.2.zip"
+
+        r = requests.get(url, stream=True, allow_redirects= True)
+
+        total_size = int(r.headers.get('content-length', 0))
+        block_size = 5* 1024
+
+        pbar = tqdm(total=total_size, unit_scale=True, unit="B", unit_divisor=1024)
+        zip: BytesIO
+        with BytesIO() as f:
+            for data in r.iter_content(block_size ):
+                f.write(data)
+                pbar.update(n = block_size)
+            with ZipFile(f) as zip:
+                zip.extractall(path=dir)
+
+        with open_text(resources, "index.html", encoding="UTF-8") as file:
+            with open(dir / "index.html", 'w') as index:
+                index.write(file.read())
+
+    subprocess.Popen(
+        [
+            "python",
+            "-m",
+            "http.server",
+            "8000",
+            "--bind",
+            "127.0.0.1",
+            "--directory",
+            "MetExplore",
+        ]
+    )
+    webbrowser.open("127.0.0.1:8000/index.html")
