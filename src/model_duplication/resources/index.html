@@ -1,20 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" style="height:100%">
     <head>
-        <script type="text/javascript" src="js/metExploreViz/metexploreviz.js" charset="utf-8">  </script>
+        <script type="text/javascript" src="metExploreViz/metexploreviz.js" charset="utf-8">  </script>
         <script type="text/javascript">
 
             MetExploreViz.onloadMetExploreViz(function(){
 
                 fetch('http://127.0.0.1:8000/model.json').then(response => {
-                    console.log(response
-                    )
-
-
                   return response.text();
                 }).then(data => {
-                  // Work with JSON data here
-                    console.log(data)
                     metExploreViz.GraphPanel.refreshPanel(data, function() {
                         metExploreViz.onloadSession(function () {
                             
@@ -22,9 +16,7 @@
                         });
                     });
 
-                }).catch(err => {
-                  // Do something for an error here
-                });
+                })
             });
         </script>
     </head>

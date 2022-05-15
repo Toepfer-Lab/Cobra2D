@@ -360,9 +360,6 @@ def metexplore(
         solution = model.optimize()
     cobra2metexplore_flux_file(solution, dir / "model_flux.csv")
 
-    # Define URL and the Context. The context is necessary to verify
-    # the SSL certificate.
-
     if not (dir / "metExploreViz").exists():
         url = "http://metexplore.toulouse.inrae.fr/metexploreViz/doc/files/metExploreViz_3.2.zip"
 
@@ -384,7 +381,14 @@ def metexplore(
             with open(dir / "index.html", 'w') as index:
                 index.write(file.read())
 
-    subprocess.Popen(
+    global webserver_process
+
+    try:
+        webserver_process.kill()
+    except NameError:
+        pass
+
+    webserver_process = subprocess.Popen(
         [
             "python",
             "-m",
@@ -393,7 +397,7 @@ def metexplore(
             "--bind",
             "127.0.0.1",
             "--directory",
-            "MetExplore",
+            dir,
         ]
     )
     webbrowser.open("127.0.0.1:8000/index.html")

@@ -19,7 +19,7 @@ import networkx as nx
 from IPython.display import display
 from cobra import Model, Reaction
 from graphviz import Digraph
-from ipywidgets import Output, HTML, Button
+from ipywidgets import Output, HTML, Button, HBox, Layout, SelectMultiple, VBox, GridspecLayout
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -31,7 +31,9 @@ from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
+from model_duplication.visualization import helper
 from model_duplication.visualization.converter import metexplore
+from model_duplication.visualization.helper import metexplore_select_groups
 
 
 class Constraints:
@@ -857,14 +859,7 @@ class Constraints:
 
                 out.clear_output(wait=True)
 
-                def on_button_clicked(button):
-                    metexplore(model= self.get_phase_by_id(phase_id).model)
-
-                button = Button(description="Open Phase in MetExplore")
-                button.on_click(on_button_clicked)
-
-                display(
-                    HTML(
+                phase_description = HTML(
                         f"<h4>Phase id: {phase_id}</h4>"
                         f"<h5>Phase affiliation:</h5>"
                         f"{tab}&bull; Time: {time}<br>"
@@ -875,9 +870,21 @@ class Constraints:
                         f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
                         f"{tab}&bull; Model: {model_name}<br>"
                         f"{tab}&bull; Reactions: {reactions_html_str}"
-                    ),
-                    button
-                )
+                    )
+                if phase.model is not None:
+
+                    select = metexplore_select_groups(phase.model)
+
+                    box = HBox([
+                        phase_description,
+                        select
+                    ])
+
+                    box.layout = Layout(display="flex", justify_content="space-between")
+                else:
+                    box = phase_description
+
+                display(box)
 
         cytoscapeobj.on("edge", "click", log_mouseovers_edge)
         cytoscapeobj.on("node", "click", log_mouseovers_node)
