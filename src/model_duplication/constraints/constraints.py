@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
+from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, List, Tuple, Union, TextIO, Optional
 from xml.dom import minidom
@@ -19,7 +22,7 @@ import networkx as nx
 from IPython.display import display
 from cobra import Model, Reaction
 from graphviz import Digraph
-from ipywidgets import Output, HTML, Button, HBox, Layout, SelectMultiple, VBox, GridspecLayout
+from ipywidgets import Output, HTML, HBox, Layout, Tab
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -31,8 +34,6 @@ from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
-from model_duplication.visualization import helper
-from model_duplication.visualization.converter import metexplore
 from model_duplication.visualization.helper import metexplore_select_groups
 
 
@@ -832,6 +833,7 @@ class Constraints:
                     )
                 )
 
+        model2viz = {}
         def log_mouseovers_node(node):
             with out:
                 try:
@@ -841,9 +843,10 @@ class Constraints:
                 except KeyError:
                     return
                 phase_id = node["data"]["id"]
+                phase = self.get_phase_by_id(phase_id)
+
                 time = node["data"]["time"]
                 model_name = node["data"]["Model Name"]
-                phase = self.get_phase_by_id(phase_id)
 
                 all_reactions = iter(phase.reaction_settings)
                 try:
@@ -872,18 +875,22 @@ class Constraints:
                         f"{tab}&bull; Reactions: {reactions_html_str}"
                     )
                 if phase.model is not None:
+                    try:
+                        viz_selection = model2viz[phase.model]
+                    except KeyError:
+                        viz_selection = metexplore_select_groups(phase.model)
+                        model2viz[phase.model] = viz_selection
 
-                    select = metexplore_select_groups(phase.model)
+                    box = Tab()
+                    box.children = [phase_description, viz_selection]
+                    box.set_title(0, "Phase")
+                    box.set_title(1, "Visualization")
 
-                    box = HBox([
-                        phase_description,
-                        select
-                    ])
-
-                    box.layout = Layout(display="flex", justify_content="space-between")
+                    # box.layout = Layout(display="flex", justify_content="space-between")
                 else:
-                    box = phase_description
-
+                    box = Tab()
+                    box.children = [phase_description]
+                    box.set_title(0, "Phase")
                 display(box)
 
         cytoscapeobj.on("edge", "click", log_mouseovers_edge)
@@ -891,3 +898,6 @@ class Constraints:
 
         display(cytoscapeobj)
         display(out)
+        for phase in self.phases.phases:
+            if phase.model is not None:
+                model2viz[phase.model] = metexplore_select_groups(phase.model)

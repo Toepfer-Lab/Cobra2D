@@ -1,7 +1,6 @@
 import logging
-from difflib import get_close_matches
-
-from cobra import Model
+from datetime import datetime
+from cobra import Model, Solution
 from ipywidgets import widgets, Text, Layout, Button, VBox, GridspecLayout
 
 from model_duplication.visualization.converter import metexplore
@@ -9,8 +8,14 @@ from model_duplication.visualization.converter import metexplore
 
 def multi_checkbox_widget(descriptions):
     search_widget = Text()
-    options_dict = {description: widgets.Checkbox(description=description,indent=False, value=False) for description in descriptions}
-    options = [options_dict[description] for description in descriptions]
+    options_dict = {}
+    options = []
+
+    for description in descriptions:
+        widget = widgets.Checkbox(description=description,indent=False, value=False)
+        options_dict[description] = widget
+        options.append(widget)
+
     options_widget = VBox(options,
                           layout=Layout(
                               overflow="hidden scroll",
@@ -38,7 +43,7 @@ def multi_checkbox_widget(descriptions):
     return multi_select
 
 
-def metexplore_select_groups(model: Model):
+def metexplore_select_groups(model: Model, solution:Solution= None):
     groups = [group.id for group in model.groups]
     group_selection = multi_checkbox_widget(groups)
 
@@ -48,6 +53,7 @@ def metexplore_select_groups(model: Model):
         metexplore(
             model=model,
             groups=selected_options,
+            solution=solution
         )
 
     button = Button(description="Open selected in MetExploreViz")

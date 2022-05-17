@@ -377,8 +377,11 @@ def metexplore(
             with ZipFile(f) as zip:
                 zip.extractall(path=dir)
 
+        index = Path(dir / "metExploreViz/index.html")
+        index.rename(index.parent / "original_index.html")
+
         with open_text(resources, "index.html", encoding="UTF-8") as file:
-            with open(dir / "index.html", 'w') as index:
+            with open(dir / "metExploreViz/index.html", 'w') as index:
                 index.write(file.read())
 
     global webserver_process
@@ -400,4 +403,4 @@ def metexplore(
             dir,
         ]
     )
-    webbrowser.open("127.0.0.1:8000/index.html")
+    webbrowser.open("http://127.0.0.1:8000/metExploreViz/index.html")
