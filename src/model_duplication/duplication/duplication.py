@@ -109,7 +109,6 @@ def _test(main: Model, submodel: Model) -> bool:
     return passed
 
 
-# TODO: deprecate
 def _main_placeholder(
     model: Model, labels: List[str], file: Path = None, genes: bool = False
 ) -> Model:

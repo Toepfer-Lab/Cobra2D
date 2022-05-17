@@ -1,4 +1,5 @@
 from typing import List, Union
+from typing_extensions import Self
 from warnings import warn
 from xml.etree.ElementTree import Element, SubElement
 
@@ -12,13 +13,12 @@ from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import NameWarning, PhaseNotFound
 
 
-# TODO: is cobra.Metabolite necessary?
 class Transfer:
     """
-    Additionally, Transfer includes the attribute 'metabolite', which refers
-    to the metabolite that is transferred. Changing this attribute, it changes
-    the corresponding internal identifier. It is recommended to use Phases
-    when creating the Transfer to avoid KeyErrors
+    Representation of a Transfer. It includes the attribute 'metabolite',
+    which refers to the metabolite that is transferred. Changing this
+    attribute, it changes the corresponding internal identifier. It is
+    recommended to use Phases when creating the Transfer to avoid KeyErrors
 
     Attributes:
         id (str): Internal identifier of the Transfer
@@ -70,8 +70,8 @@ class Transfer:
 
         self._id = f"TR_{metabolite}_{self.source}_{self.destination}"
         self._name = (
-            f"Transfer for {metabolite} from {self.source} to"
-            "{self.destination}"
+            f"Transfer for {metabolite} from {self.source} to "
+            f"{self.destination}"
         )
         self._metabolite = metabolite
         self._reaction = Reaction(
@@ -187,12 +187,26 @@ class Transfer:
 
     @classmethod
     def from_dict(cls, data: dict):
+        """
+        Creates an an object from given dictionary
+        Examples:
+            .. code-block:: python
+
+                input = {
+                    "metabolite": "id",
+                    "lower_bound": "4",
+                    "upper_bound": "500",
+                    "destination": {"refid": "destination"},
+                    "source": {"refid": "source"}
+                }
+                transfers = Transfers.from_dict(input)
+        """
         return cls(
             data["metabolite"],
-            data["source"],
-            data["destination"],
-            int(data["lower_bound"]["refid"]),
-            int(data["upper_bound"]["refid"]),
+            data["source"]["refid"],
+            data["destination"]["refid"],
+            int(data["lower_bound"]),
+            int(data["upper_bound"]),
         )
 
     def __str__(self) -> str:
@@ -220,16 +234,19 @@ class Transfer:
         return output.get_string()
 
 
-class Conveyance(DictList):
+class Transfers(DictList):
     """
     DictList with the Transfers. Refer to :py:class:`cobra.DictList`
     for its methods.
+
+    Additionally it includes the following methods: apply, from_dict
+    and to_xml
     """
 
     def apply(self, model: Model, phases: Phases) -> Model:
         """
         Returns a :py:class:`cobra.Model` including transfers reactions in the
-        Conveyance.
+        Transfers object.
 
         Args:
             model: The model to include the transfer reactions.
@@ -280,10 +297,88 @@ class Conveyance(DictList):
 
         except PhaseNotFound:
             warn(
-                "One of the Phases in the Conveyance could not be found. "
+                "One of the Phases in the Transfers could not be found. "
                 "Please revise that the source and destination of the "
                 "transfers have existing phase identifiers",
                 PhaseNotFound,
             )
 
             return model
+
+    def __str__(self):
+        """
+        The toString method of the Transfer class.
+
+        Returns:
+            The ID, name, source, destination, lower bound and upper
+            bound of all linker objects as a formatted string.
+        """
+        output = PrettyTable(
+            [
+                "ID",
+                "Name",
+                "Source",
+                "Destination",
+                "Lower Bounds",
+                "Upper Bounds",
+            ]
+        )
+
+        item: Transfer
+        for item in self:
+            output.add_row(
+                [
+                    item.id,
+                    item.name,
+                    item.source,
+                    item.destination,
+                    item.lower_bound,
+                    item.upper_bound,
+                ]
+            )
+        return output.get_string()
+
+    @classmethod
+    def from_dict(cls, data: List[dict]) -> Self:
+        """
+        Creates a Transfers object based on the data encoded in a dict.
+
+        Args:
+            data: A list of dicts that contain the necessary data to create a
+                transfer object.
+
+        Returns:
+            A transfers-container created based on the data from the dict.
+
+        Examples:
+            .. code-block:: python
+
+                input = [{
+                    "metabolite": "id",
+                    "lower_bound": "4",
+                    "upper_bound": "500",
+                    "destination": {"refid": "destination"},
+                    "source": {"refid": "source"}
+                }]
+                transfers = Transfers.from_dict(input)
+        """
+        container = Transfers()
+
+        for dictionary in data:
+            transfer = Transfer.from_dict(dictionary)
+            container.append(transfer)
+
+        return container
+
+    def to_xml(self) -> Element:
+        """
+        Converts Transfers to an :py:class:`xml.etree.ElementTree.Element`.
+        """
+
+        root = Element("Transfers")
+
+        item: Transfer
+        for item in self:
+            root.append(item.to_xml())
+
+        return root
