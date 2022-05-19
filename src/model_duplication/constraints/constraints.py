@@ -34,7 +34,7 @@ from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
-from model_duplication.visualization.helper import metexplore_select_groups
+from model_duplication.visualization.helper import metexplore_interface
 
 
 class Constraints:
@@ -878,7 +878,7 @@ class Constraints:
                     try:
                         viz_selection = model2viz[phase.model]
                     except KeyError:
-                        viz_selection = metexplore_select_groups(phase.model)
+                        viz_selection = metexplore_interface(phase.model)
                         model2viz[phase.model] = viz_selection
 
                     box = Tab()
@@ -900,4 +900,4 @@ class Constraints:
         display(out)
         for phase in self.phases.phases:
             if phase.model is not None:
-                model2viz[phase.model] = metexplore_select_groups(phase.model)
+                model2viz[phase.model] = metexplore_interface(phase.model)

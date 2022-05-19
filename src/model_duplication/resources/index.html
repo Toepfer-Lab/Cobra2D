@@ -88,7 +88,7 @@
                             let flux_tmp = new Flux(
                                 "Flux",
                                 ["Flux"],
-                                "Identifier",
+                                "reactionId",
                                 [],
                             );
 
@@ -106,6 +106,17 @@
                 }).then(data => {
                     metExploreViz.GraphPanel.refreshPanel(data, function() {
                     });
+
+                })
+
+                fetch('http://127.0.0.1:8000/sideMetabolites.txt').then(response => {
+                  return response.text();
+                }).then(data => {
+                    let sideCompounds = tabTxt.split('\n');
+                    let success = metExploreD3.GraphNode.loadSideCompounds(
+                        sideCompounds
+                    )
+                    console.log(`Loading of sideCompounds: ${success}`)
 
                 })
 

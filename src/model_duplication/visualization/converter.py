@@ -3,7 +3,7 @@ import logging
 from importlib.resources import open_text
 from io import BytesIO
 from pathlib import Path
-from typing import Union, List, Set
+from typing import Union, List, Set, Dict
 from urllib.request import urlopen
 from zipfile import ZipFile
 
@@ -111,7 +111,47 @@ def __group2lists(
     return metabolites2use, reactions2use, groups2use
 
 
-def cobra2metexplore(model: Model, groups: [str, List[str]] = None) -> str:
+def __create_and_append_links(reaction:Reaction, nodes2id:Dict, reversibility:bool, links: []):
+    for metabolite, coeff in reaction.metabolites.items():
+        reaction_id = nodes2id[reaction.id]
+        metabolite_id = nodes2id[metabolite.id]
+
+        if coeff > 0:
+            logging.info(f"Create connection from {reaction.id} to "
+                         f"{metabolite.id}. With node IDs {reaction_id} "
+                         f"and {metabolite_id}. Reversibility "
+                         f"{reversibility} and with the direction 'out'.")
+
+            links.append(
+                {
+                    "source": reaction_id,
+                    "target": metabolite_id,
+                    "interaction": "out",
+                    "reversible": reversibility,
+                    "id": f"{reaction.id} -- {metabolite.id}",
+                }
+            )
+        else:
+            logging.info(f"Create connection from {metabolite.id} to "
+                         f"{reaction.id}. With node IDs  {metabolite_id}"
+                         f"and {reaction_id}. Reversibility "
+                         f"{reversibility} and with the direction 'in'.")
+
+            links.append(
+                {
+                    "source": metabolite_id,
+                    "target": reaction_id,
+                    "interaction": "in",
+                    "reversible": reversibility,
+                    "id": f"{metabolite.id} -- {reaction.id}",
+                }
+            )
+
+def cobra2metexplore(model: Model,
+                     groups: [str, List[str]] = None,
+                     side_metabolites: [str] = None,
+                     removeUnselectedGroups = False
+                     ) -> str:
     """
     It creates a JSON string that corresponds to the format that MetExploreViz
     needs to read in. It contains all reactions, metabolites and groups.
@@ -139,6 +179,9 @@ def cobra2metexplore(model: Model, groups: [str, List[str]] = None) -> str:
     nodes2id = {}
     id = 0
 
+    if side_metabolites is None:
+        side_metabolites = []
+
     # Determine the elements defined by means of the groups parameter.
     metabolites2use = set()
     reactions2use = set()
@@ -160,76 +203,119 @@ def cobra2metexplore(model: Model, groups: [str, List[str]] = None) -> str:
         reactions2use = model.reactions
         groups2use = model.groups
 
-    # Create the nodes for metabolites and reactions.
-    for metabolite in metabolites2use:
-        logging.info(f"Creating Node for Metabolite {metabolite.id}. With node number {id}.")
-        nodes.append(
-            {
-                "name": metabolite.name,
-                "id": metabolite.id,
-                "compartment": metabolite.compartment,
-                "biologicalType": "metabolite",
-                "pathways": [],
-            }
-        )
+    metabolites2use = [metabolite.id for metabolite in metabolites2use]
+    reactions2use = [reaction.id for reaction in reactions2use]
 
-        nodes2id[metabolite.id] = id
-        id += 1
+    # Create the nodes for metabolites and reactions.
+    if removeUnselectedGroups:
+        for metabolite in metabolites2use:
+            logging.info(f"Creating Node for Metabolite {metabolite.id}. With node number {id}.")
+            side_metabolite = False
+            if metabolite.id in side_metabolites:
+                side_metabolite = True
+
+            nodes.append(
+                {
+                    "name": metabolite.name,
+                    "id": metabolite.id,
+                    "compartment": metabolite.compartment,
+                    "biologicalType": "metabolite",
+                    "pathways": [],
+                    "isSideCompound": side_metabolite,
+                }
+            )
+
+            nodes2id[metabolite.id] = id
+            id += 1
+    else:
+        for metabolite in model.metabolites:
+            logging.info(f"Creating Node for Metabolite {metabolite.id}. With node number {id}.")
+            side_metabolite = False
+            if metabolite.id in side_metabolites:
+                side_metabolite = True
+
+            hidden = True
+            if metabolite.id in metabolites2use:
+                hidden = False
+
+            nodes.append(
+                {
+                    "name": metabolite.name,
+                    "id": metabolite.id,
+                    "dbIdentifier": metabolite.id,
+                    "compartment": metabolite.compartment,
+                    "biologicalType": "metabolite",
+                    "pathways": [],
+                    "hidden": hidden,
+                    "isSideCompound": side_metabolite,
+                }
+            )
+
+            nodes2id[metabolite.id] = id
+            id += 1
 
     reaction: Reaction
-    for reaction in reactions2use:
-        logging.info(f"Creating Node for Metabolite {reaction.id}. With node number {id}.")
-        reversibility = reaction.reversibility
-        compartments = list(reaction.compartments)
+    if removeUnselectedGroups:
+        for reaction in reactions2use:
+            logging.info(f"Creating Node for Metabolite {reaction.id}. With node number {id}.")
+            reversibility = reaction.reversibility
+            compartments = list(reaction.compartments)
 
-        nodes.append(
-            {
-                "name": reaction.name,
-                "id": reaction.id,
-                "reactionReversibility": reversibility,
-                "biologicalType": "reaction",
-                "compartment": compartments,
-                "pathways": [],
-            }
-        )
+            nodes.append(
+                {
+                    "name": reaction.name,
+                    "id": reaction.id,
+                    "dbIdentifier": reaction.id,
+                    "reactionReversibility": reversibility,
+                    "biologicalType": "reaction",
+                    "compartment": compartments,
+                    "pathways": [],
+                }
+            )
 
-        nodes2id[reaction.id] = id
-        id += 1
+            nodes2id[reaction.id] = id
+            id += 1
 
-        # Create the connections within the network.
-        for metabolite, coeff in reaction.metabolites.items():
-            reaction_id = nodes2id[reaction.id]
-            metabolite_id = nodes2id[metabolite.id]
-            if coeff > 0:
-                logging.info(f"Create connection from {reaction.id} to "
-                             f"{metabolite.id}. With node IDs {reaction_id} "
-                             f"and {metabolite_id}. Reversibility "
-                             f"{reversibility} and with the direction 'out'.")
+            # Create the connections within the network.
+            __create_and_append_links(
+                reaction=reaction,
+                nodes2id=nodes2id,
+                reversibility=reversibility,
+                links=links,
+            )
 
-                links.append(
-                    {
-                        "source": reaction_id,
-                        "target": metabolite_id,
-                        "interaction": "out",
-                        "reversible": reversibility,
-                        "id": f"{reaction.id} -- {metabolite.id}",
-                    }
-                )
-            else:
-                logging.info(f"Create connection from {metabolite.id} to "
-                             f"{reaction.id}. With node IDs  {metabolite_id}"
-                             f"and {reaction_id}. Reversibility "
-                             f"{reversibility} and with the direction 'in'.")
+    else:
+        for reaction in model.reactions:
+            logging.info(f"Creating Node for Metabolite {reaction.id}. With node number {id}.")
+            reversibility = reaction.reversibility
+            compartments = list(reaction.compartments)
 
-                links.append(
-                    {
-                        "source": metabolite_id,
-                        "target": reaction_id,
-                        "interaction": "in",
-                        "reversible": reversibility,
-                        "id": f"{metabolite.id} -- {reaction.id}",
-                    }
-                )
+            hidden = True
+            if reaction.id in reactions2use:
+                hidden = False
+
+            nodes.append(
+                {
+                    "name": reaction.name,
+                    "id": reaction.id,
+                    "reactionReversibility": reversibility,
+                    "biologicalType": "reaction",
+                    "compartment": compartments,
+                    "pathways": [],
+                    "hidden": hidden,
+                }
+            )
+
+            nodes2id[reaction.id] = id
+            id += 1
+
+            # Create the connections within the network.
+            __create_and_append_links(
+                reaction=reaction,
+                nodes2id=nodes2id,
+                reversibility=reversibility,
+                links=links,
+            )
 
     # Define all groups as pathway so that they can be interpreted
     # correctly by MetExplore.
@@ -267,7 +353,7 @@ def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
 
     fluxes = solution.fluxes
 
-    buffer = "Identifier\tflux_values\n"
+    buffer = "reactionId\tflux_values\n"
     for id, flux_value in fluxes.items():
         flux_value = round(flux_value, 4)
         flux_value = str(flux_value).replace(".", ",")
@@ -281,7 +367,11 @@ def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
 
 
 def cobra2metexplore_file(
-    model: Model, file: Union[Path, str], groups: [str, List[str]] = None
+        model: Model,
+        file: Union[Path, str],
+        groups: [str, List[str]] = None,
+        side_metabolites: [str] = None,
+        removeUnselectedGroups = True,
 ):
     """
     Function that creates a JSON file corresponding to a
@@ -319,11 +409,25 @@ def cobra2metexplore_file(
     logging.info(f"JSON representation stored at location '{file}'.")
 
 
+def list2side_metabolite_file(side_metabolites:[str], file: Union[Path, str]):
+
+    if isinstance(file, str):
+        file = Path(file)
+
+    file = file.with_suffix(".txt")
+    file.parent.mkdir(exist_ok=True)
+
+    with open(file, "w") as out_file:
+        out_file.write("\n".join(side_metabolites))
+
+
 def metexplore(
     model: Model,
     dir: Union[Path, str] = Path.cwd() / "MetExplore",
     solution: Solution = None,
     groups: [str, List[str]] = None,
+    side_metabolites: [str] = None,
+    removeUnselectedGroups = True,
 ):
     """
     This function creates all the necessary files to visualize a cobra model
@@ -352,8 +456,16 @@ def metexplore(
     if isinstance(dir, str):
         dir = Path(dir)
 
+    if side_metabolites is None:
+        side_metabolites = [""]
+
     dir.mkdir(exist_ok=True)
-    cobra2metexplore_file(model=model, file=dir / "model.json", groups=groups)
+    cobra2metexplore_file(model=model,
+                          file=dir / "model.json",
+                          groups=groups,
+                          removeUnselectedGroups = True,
+                          )
+    list2side_metabolite_file(side_metabolites, file= dir / "side_metabolites.txt")
 
     if solution is None:
         logging.info("No solution passed. Calculating one.")

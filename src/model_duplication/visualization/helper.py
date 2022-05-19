@@ -1,7 +1,9 @@
 import logging
 from datetime import datetime
-from cobra import Model, Solution
-from ipywidgets import widgets, Text, Layout, Button, VBox, GridspecLayout
+from re import sub
+
+from cobra import Model, Solution, Metabolite
+from ipywidgets import widgets, Text, Layout, Button, VBox, GridspecLayout, HTML
 
 from model_duplication.visualization.converter import metexplore
 
@@ -11,8 +13,8 @@ def multi_checkbox_widget(descriptions):
     options_dict = {}
     options = []
 
-    for description in descriptions:
-        widget = widgets.Checkbox(description=description,indent=False, value=False)
+    for description, selected in descriptions:
+        widget = widgets.Checkbox(description=description, indent=False, value=selected)
         options_dict[description] = widget
         options.append(widget)
 
@@ -21,7 +23,7 @@ def multi_checkbox_widget(descriptions):
                               overflow="hidden scroll",
                               height="auto",
                               max_height='250px',
-                              margin = "0 0 0 0"
+                              margin="0 0 0 0"
                           ))
     multi_select = GridspecLayout(4, 1)
     multi_select[0, 0] = search_widget
@@ -43,24 +45,54 @@ def multi_checkbox_widget(descriptions):
     return multi_select
 
 
-def metexplore_select_groups(model: Model, solution:Solution= None):
-    groups = [group.id for group in model.groups]
+def select_side_metabolites(side_metabolites: [str] = None, model: Model = None):
+    #ToDo read File
+
+    metabolites = []
+    if side_metabolites is None:
+        side_metabolites = []
+
+    metabolite: Metabolite
+    for metabolite in model.metabolites:
+        is_side_metabolite = metabolite.id in side_metabolites
+        n_reactions = len(metabolite.reactions)
+
+        metabolites.append((f"{metabolite.id} ({n_reactions})", is_side_metabolite, n_reactions))
+
+    metabolites = sorted(metabolites, key=lambda x: x[2], reverse=True)
+
+    metabolites = [(m[0],m[1]) for m in metabolites]
+    side_selection = multi_checkbox_widget(metabolites)
+
+    return side_selection
+
+
+def metexplore_interface(model: Model, solution: Solution = None, side_metabolites: [str]= None):
+    groups = [(group.id, False) for group in model.groups]
     group_selection = multi_checkbox_widget(groups)
+    side_metabolite_selection = select_side_metabolites(side_metabolites,model=model)
 
     def on_button_clicked(button):
-        selected_options = [w.description for w in group_selection.children[1].children if w.value]
+        selected_groups = [w.description for w in group_selection.children[1].children if w.value]
+        selected_side_metabolites = [sub(r" (.*)$", "", w.description) for w in side_metabolite_selection.children[1].children if w.value]
 
         metexplore(
             model=model,
-            groups=selected_options,
-            solution=solution
+            groups=selected_groups,
+            solution=solution,
+            side_metabolites=selected_side_metabolites,
+            removeUnselectedGroups = True,
         )
 
     button = Button(description="Open selected in MetExploreViz")
     button.on_click(on_button_clicked)
 
-    grid = GridspecLayout(5, 1)
-    grid[0:3, 0] = group_selection
-    grid[4, 0] = button
+    grid = GridspecLayout(10, 3)
+    grid.layout = Layout(grid_gap = '5px 5px', margin='0px 0px 0px 0px')
+    grid[0,0] = HTML("<h2> Groups</h2>")
+    grid[1:8, 0] = group_selection
+    grid[9, 0] = button
+    grid[0,2] = HTML("<h2> Side metabolites</h2>")
+    grid[1:8, 2] = side_metabolite_selection
 
     return grid
