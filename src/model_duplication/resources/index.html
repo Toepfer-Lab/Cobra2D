@@ -99,26 +99,35 @@
                             _metExploreViz.addFlux(flux_tmp);
                             metExploreD3.fireEvent("fluxMapping","fileParse");
                             metExploreD3.fireEvent("fluxMapping","fileLoad");
+                            console.log("Loading flux finished")
                         });
 
                 fetch('http://127.0.0.1:8000/model.json').then(response => {
                   return response.text();
                 }).then(data => {
                     metExploreViz.GraphPanel.refreshPanel(data, function() {
+                        metExploreViz.onloadSession(function(){
+                           fetch('http://127.0.0.1:8000/side_metabolites.txt').then(response => {
+                              return response.text();
+                            }).then(data => {
+                                data = data.replace(/\r/g, "")
+                                let sideCompounds = data.split('\n');
+                                console.log(sideCompounds);
+                                let success = metExploreD3.GraphNode.loadSideCompounds(
+                                    sideCompounds
+                                );
+                                console.log(`Loading of sideCompounds: ${success}`);
+
+                            })
+                        });
                     });
-
+                    console.log("Loading data finished")
                 })
+                console.log("Loading data finished 2")
 
-                fetch('http://127.0.0.1:8000/sideMetabolites.txt').then(response => {
-                  return response.text();
-                }).then(data => {
-                    let sideCompounds = tabTxt.split('\n');
-                    let success = metExploreD3.GraphNode.loadSideCompounds(
-                        sideCompounds
-                    )
-                    console.log(`Loading of sideCompounds: ${success}`)
 
-                })
+
+
 
             }
             document.addEventListener("DOMContentLoaded", init, false);
