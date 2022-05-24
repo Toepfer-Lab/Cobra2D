@@ -62,7 +62,7 @@ def cobra2networkx(model: Model):
     return graph
 
 
-def __group2lists(
+def _group2lists(
     group: Group,
 ) -> (Set[Metabolite], Set[Reaction], Set[Group]):
     """
@@ -102,7 +102,7 @@ def __group2lists(
 
         else:
             logging.info(f"Group {group.id} contains another group {item.id}.")
-            met, rec, gr = __group2lists(item)
+            met, rec, gr = _group2lists(item)
 
             metabolites2use.update(met)
             reactions2use.update(rec)
@@ -193,7 +193,7 @@ def cobra2metexplore(model: Model,
     logging.info(f"Identifying all the components of the model to be used.")
     if groups is not None:
         for group in groups:
-            met, rec, gr = __group2lists(model.groups.get_by_id(group))
+            met, rec, gr = _group2lists(model.groups.get_by_id(group))
             metabolites2use.update(met)
             reactions2use.update(rec)
             groups2use.update(gr)

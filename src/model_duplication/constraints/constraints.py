@@ -547,7 +547,7 @@ class Constraints:
 
         return constraints
 
-    def create_graph(self):
+    def create_graph(self) -> Digraph:
         g = Digraph(engine="dot")
         labels, times = self.__get_label_time()
         invis_connections = []

@@ -33,10 +33,10 @@ def multi_checkbox_widget(descriptions):
         search_input = change['new']
         if search_input == '':
             # Reset search field
-            new_options = [options_dict[description] for description in descriptions]
+            new_options = [options_dict[description] for description, _ in descriptions]
         else:
             # Filter by search field using difflib.
-            close_matches = [v for v in descriptions if search_input in v]
+            close_matches = [v for v, _ in descriptions if search_input in v]
 
             new_options = [options_dict[description] for description in close_matches]
         options_widget.children = new_options
@@ -67,10 +67,15 @@ def select_side_metabolites(side_metabolites: [str] = None, model: Model = None)
     return side_selection
 
 
-def metexplore_interface(model: Model, solution: Solution = None, side_metabolites: [str]= None):
+def metexplore_interface(model: Model,
+                         solution: Solution = None,
+                         side_metabolites: [str]= None,
+                         remove_unselected_groups = True,
+                         ):
     groups = [(group.id, False) for group in model.groups]
     group_selection = multi_checkbox_widget(groups)
-    side_metabolite_selection = select_side_metabolites(side_metabolites,model=model)
+    side_metabolite_selection = select_side_metabolites(side_metabolites,
+                                                        model=model)
 
     def on_button_clicked(button):
         selected_groups = [w.description for w in group_selection.children[1].children if w.value]
@@ -81,7 +86,7 @@ def metexplore_interface(model: Model, solution: Solution = None, side_metabolit
             groups=selected_groups,
             solution=solution,
             side_metabolites=selected_side_metabolites,
-            removeUnselectedGroups = True,
+            removeUnselectedGroups = remove_unselected_groups,
         )
 
     button = Button(description="Open selected in MetExploreViz")

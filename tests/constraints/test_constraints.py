@@ -1,5 +1,4 @@
 import io
-from importlib.resources import open_text
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -8,7 +7,8 @@ from xml.etree.ElementTree import Element
 import cobra
 from cobra import Model, Reaction, Configuration
 from cobra.io import read_sbml_model
-from importlib_resources import files, as_file
+from graphviz import Digraph
+from importlib_resources import files, as_file, open_text
 
 from model_duplication.constraints.constraints import Constraints
 from model_duplication.constraints.linker import Linkage, Linker
@@ -452,3 +452,24 @@ class TestConstraints(TestCase):
 
         # compare linker
         self.assertCountEqual(con_exp.linker.linker, con_load.linker.linker)
+
+    def test_create_graph(self):
+        con_exp = Constraints()
+        con_exp.add_time_slots(2, 1, "light")
+
+        con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
+
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
+        con_exp.add_linker(linker)
+
+        g = con_exp.create_graph()
+        self.assertIsInstance(g, Digraph)
+        with open_text(
+                data, "graphviz_Digraph_JSON.txt", encoding="UTF-8"
+        ) as expected:
+            self.assertEqual(str(g), expected.read())
+
