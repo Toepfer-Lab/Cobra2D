@@ -203,9 +203,6 @@ def cobra2metexplore(model: Model,
         reactions2use = model.reactions
         groups2use = model.groups
 
-    metabolites2use = [metabolite.id for metabolite in metabolites2use]
-    reactions2use = [reaction.id for reaction in reactions2use]
-
     # Create the nodes for metabolites and reactions.
     if removeUnselectedGroups:
         for metabolite in metabolites2use:
@@ -228,6 +225,8 @@ def cobra2metexplore(model: Model,
             nodes2id[metabolite.id] = id
             id += 1
     else:
+        metabolites2useIDs = [metabolite.id for metabolite in metabolites2use]
+
         for metabolite in model.metabolites:
             logging.info(f"Creating Node for Metabolite {metabolite.id}. With node number {id}.")
             side_metabolite = False
@@ -285,13 +284,15 @@ def cobra2metexplore(model: Model,
             )
 
     else:
+        reactions2useIDs = [reaction.id for reaction in reactions2use]
+
         for reaction in model.reactions:
             logging.info(f"Creating Node for Metabolite {reaction.id}. With node number {id}.")
             reversibility = reaction.reversibility
             compartments = list(reaction.compartments)
 
             hidden = True
-            if reaction.id in reactions2use:
+            if reaction.id in reactions2useIDs:
                 hidden = False
 
             nodes.append(

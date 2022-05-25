@@ -120,19 +120,25 @@ class TestConverter(TestCase):
             json_dict = json.loads(json_string)
             expected_dict = json.loads(expected.read())
 
-            for dic in json_dict["nodes"]:
-                compartment = dic["compartment"]
-                if isinstance(compartment, list):
-                    dic["compartment"].sort()
+        self.assertCountEqual(json_dict, expected_dict)
 
-                dic["pathways"].sort()
+        # with remove parameter
+        json_string = cobra2metexplore(model, removeUnselectedGroups= True)
+        json_dict = json.loads(json_string)
 
-            for dic in expected_dict["nodes"]:
-                compartment = dic["compartment"]
-                if isinstance(compartment, list):
-                    dic["compartment"].sort()
+        self.assertCountEqual(json_dict, expected_dict)
 
-            self.assertEqual(json_dict, expected_dict)
+        with open_text(
+                data, "ecoli_metexplore_g27.JSON", encoding="UTF-8"
+        ) as expected:
+            expected_dict = json.loads(expected.read())
+
+        model = self.ecoli.copy()
+        json_string = cobra2metexplore(model, removeUnselectedGroups= True, groups="g27")
+
+        json_dict = json.loads(json_string)
+
+        self.assertCountEqual(expected_dict, json_dict)
 
 #    def test_cobra2metexplore_flux_file(self):
 

@@ -1,0 +1,142 @@
+{
+    "nodes": [
+        {
+            "name": "H2O H2O",
+            "id": "h2o_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "isSideCompound": false
+        },
+        {
+            "name": "H+",
+            "id": "h_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "isSideCompound": false
+        },
+        {
+            "name": "ADP C10H12N5O10P2",
+            "id": "adp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "isSideCompound": false
+        },
+        {
+            "name": "ATP C10H12N5O13P3",
+            "id": "atp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "isSideCompound": false
+        },
+        {
+            "name": "Phosphate",
+            "id": "pi_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "isSideCompound": false
+        },
+        {
+            "name": "Nucleoside-triphosphatase (ATP)",
+            "id": "NTP1",
+            "dbIdentifier": "NTP1",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [
+                "g27"
+            ]
+        },
+        {
+            "name": "ATP maintenance requirement",
+            "id": "ATPM",
+            "dbIdentifier": "ATPM",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [
+                "g27"
+            ]
+        }
+    ],
+    "links": [
+        {
+            "source": 3,
+            "target": 5,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- NTP1"
+        },
+        {
+            "source": 0,
+            "target": 5,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- NTP1"
+        },
+        {
+            "source": 5,
+            "target": 2,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NTP1 -- adp_c"
+        },
+        {
+            "source": 5,
+            "target": 1,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NTP1 -- h_c"
+        },
+        {
+            "source": 5,
+            "target": 4,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NTP1 -- pi_c"
+        },
+        {
+            "source": 3,
+            "target": 6,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- ATPM"
+        },
+        {
+            "source": 0,
+            "target": 6,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- ATPM"
+        },
+        {
+            "source": 6,
+            "target": 2,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- adp_c"
+        },
+        {
+            "source": 6,
+            "target": 1,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- h_c"
+        },
+        {
+            "source": 6,
+            "target": 4,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- pi_c"
+        }
+    ]
+}

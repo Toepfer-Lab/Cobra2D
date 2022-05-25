@@ -724,7 +724,8 @@ class Constraints:
             metabolites_existing_between_all_phases,
         )
 
-    def cytoscape(self):
+    def cytoscape(self):  # pragma: no cover
+        # is covered in ui-tests
         tab = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
         cytoscapeobj = ipycytoscape.CytoscapeWidget()
