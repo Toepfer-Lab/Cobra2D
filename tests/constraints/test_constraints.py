@@ -143,7 +143,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-                KeyError, "The source: 'unknown' is unknown."
+            KeyError, "The source: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -154,7 +154,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-                KeyError, "The destination: 'unknown' is unknown."
+            KeyError, "The destination: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -323,7 +323,7 @@ class TestConstraints(TestCase):
 
         # check that base model results in expected summary
         with open_text(
-                data, "ecoli_summary.txt", encoding="UTF-8"
+            data, "ecoli_summary.txt", encoding="UTF-8"
         ) as expected:
             model.optimize()
             summary = str(model.summary())
@@ -332,7 +332,7 @@ class TestConstraints(TestCase):
         textbook_model: Model = self.textbook.copy()
 
         with open_text(
-                data, "textbook_summary.txt", encoding="UTF-8"
+            data, "textbook_summary.txt", encoding="UTF-8"
         ) as expected:
             textbook_model.optimize()
             summary = str(textbook_model.summary())
@@ -343,8 +343,8 @@ class TestConstraints(TestCase):
 
         # no model given => Error
         with self.assertRaisesRegex(
-                ValueError,
-                "Model was None although there were phases without model.",
+            ValueError,
+            "Model was None although there were phases without model.",
         ):
             con.apply_to_model()
 
@@ -379,7 +379,7 @@ class TestConstraints(TestCase):
         self.assertEqual(
             {
                 "xmlns": "https://github.com/Toepfer-Lab/model_duplication/"
-                         "blob/main/src/resources/schema.xsd"
+                "blob/main/src/resources/schema.xsd"
             },
             xml.attrib,
         )
@@ -470,7 +470,7 @@ class TestConstraints(TestCase):
         g = con_exp.create_graph()
         self.assertIsInstance(g, Digraph)
         with open_text(
-                data, "graphviz_Digraph_JSON.txt", encoding="UTF-8"
+            data, "graphviz_Digraph_JSON.txt", encoding="UTF-8"
         ) as expected:
             self.assertEqual(str(g), expected.read())
 
@@ -489,12 +489,18 @@ class TestConstraints(TestCase):
         con.add_linker_series("atp_c", last2first=True)
 
         g = con._constraint2networkx()
-        exp_edges = [('leaf-0', 'leaf-1', {'label': 'atp_c', 'Metabolite': 'amp_c\natp_c'}),
-                     ('leaf-1', 'leaf-0', {'label': 'atp_c', 'Metabolite': 'atp_c'}),
-                     ('root-0', 'root-1', {'label': 'atp_c', 'Metabolite': 'atp_c'}),
-                     ('root-1', 'root-0', {'label': 'atp_c', 'Metabolite': 'atp_c'}), ]
+        exp_edges = [
+            (
+                "leaf-0",
+                "leaf-1",
+                {"label": "atp_c", "Metabolite": "amp_c\natp_c"},
+            ),
+            ("leaf-1", "leaf-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root-0", "root-1", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root-1", "root-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+        ]
 
-        exp_nodes = ['leaf-0', 'leaf-1', 'root-0', 'root-1']
+        exp_nodes = ["leaf-0", "leaf-1", "root-0", "root-1"]
 
         self.assertCountEqual(exp_edges, list(g.edges.data()))
         self.assertCountEqual(exp_nodes, g.nodes)
@@ -515,6 +521,6 @@ class TestConstraints(TestCase):
 
         json_string, metabolites_existing_between_all_phases = con._con2json()
         with open_text(
-                data, "con2json_result.JSON", encoding="UTF-8"
+            data, "con2json_result.JSON", encoding="UTF-8"
         ) as expected:
-            self.assertEqual(json_string,json.load(expected))
+            self.assertEqual(json_string, json.load(expected))

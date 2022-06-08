@@ -5,14 +5,11 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, List, Tuple, Union, TextIO, Optional
+from typing import Any, List, Tuple, Union, TextIO, Optional, Dict
 from xml.dom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -22,7 +19,7 @@ import networkx as nx
 from IPython.display import display
 from cobra import Model, Reaction
 from graphviz import Digraph
-from ipywidgets import Output, HTML, HBox, Layout, Tab
+from ipywidgets import Output, HTML, Tab
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -77,15 +74,15 @@ class Constraints:
 
     def __get_label_time(
         self, reverse: bool = False
-    ) -> Tuple[List[str], List[str]]:
+    ) -> Tuple[List[str], List[int]]:
         labels: List[str] = []
-        times: List[str] = []
+        times: List[int] = []
 
         for phase in self.phases.phases:
             label_time = phase.id.split("-")
 
             labels.append(label_time[0])
-            times.append(label_time[1])
+            times.append(int(label_time[1]))
 
         labels = list(set(labels))
         times = list(set(times))
@@ -550,7 +547,7 @@ class Constraints:
     def create_graph(self) -> Digraph:
         g = Digraph(engine="dot")
         labels, times = self.__get_label_time()
-        invis_connections = []
+        invis_connections: List[Tuple[str, str]] = []
 
         for label in labels:
             with g.subgraph(name=f"cluster_{label}") as sub:
@@ -567,20 +564,20 @@ class Constraints:
 
                         last_label = new_label
 
-        edge_dict = {}
-        edge_dict_reverse = {}
+        edge_dict: Dict[str, List[Tuple[str, str]]] = {}
+        edge_dict_reverse: Dict[Tuple[str, str], list[str]] = {}
 
         for linker in self.linker.linker:
-            value: Tuple[str, str] = (linker.source, linker.destination)
+            edge_value: Tuple[str, str] = (linker.source, linker.destination)
             if linker.id in edge_dict:
-                edge_dict[linker.id].append(value)
+                edge_dict[linker.id].append(edge_value)
             else:
-                edge_dict[linker.id] = [value]
+                edge_dict[linker.id] = [edge_value]
 
-            if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.id)
+            if edge_value in edge_dict_reverse:
+                edge_dict_reverse[edge_value].append(linker.id)
             else:
-                edge_dict_reverse[value] = [linker.id]
+                edge_dict_reverse[edge_value] = [linker.id]
 
         size = len(edge_dict_reverse)
         linker_str = "linker existing in all connections:"
@@ -590,12 +587,12 @@ class Constraints:
                 for metabolite_ids in edge_dict_reverse.values():
                     metabolite_ids.remove(key)
 
-        for key, value in edge_dict_reverse.items():
-            source, destintaion = key
+        for key_r, value_r in edge_dict_reverse.items():
+            source, destintaion = key_r
             g.edge(
                 source,
                 destintaion,
-                label="\t\n".join(value),
+                label="\t\n".join(value_r),
                 labeldistance="6",
                 labelangle="75",
             )
@@ -835,6 +832,7 @@ class Constraints:
                 )
 
         model2viz = {}
+
         def log_mouseovers_node(node):
             with out:
                 try:
@@ -864,17 +862,17 @@ class Constraints:
                 out.clear_output(wait=True)
 
                 phase_description = HTML(
-                        f"<h4>Phase id: {phase_id}</h4>"
-                        f"<h5>Phase affiliation:</h5>"
-                        f"{tab}&bull; Time: {time}<br>"
-                        f"{tab}&bull; SubModel: {sub_model}<br>"
-                        f"<h5>Phase settings:</h5>"
-                        f"{tab}&bull; Name: {phase.name}<br>"
-                        f"{tab}&bull; Volume: {phase.volume}<br>"
-                        f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
-                        f"{tab}&bull; Model: {model_name}<br>"
-                        f"{tab}&bull; Reactions: {reactions_html_str}"
-                    )
+                    f"<h4>Phase id: {phase_id}</h4>"
+                    f"<h5>Phase affiliation:</h5>"
+                    f"{tab}&bull; Time: {time}<br>"
+                    f"{tab}&bull; SubModel: {sub_model}<br>"
+                    f"<h5>Phase settings:</h5>"
+                    f"{tab}&bull; Name: {phase.name}<br>"
+                    f"{tab}&bull; Volume: {phase.volume}<br>"
+                    f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
+                    f"{tab}&bull; Model: {model_name}<br>"
+                    f"{tab}&bull; Reactions: {reactions_html_str}"
+                )
                 if phase.model is not None:
                     try:
                         viz_selection = model2viz[phase.model]
@@ -887,7 +885,10 @@ class Constraints:
                     box.set_title(0, "Phase")
                     box.set_title(1, "Visualization")
 
-                    # box.layout = Layout(display="flex", justify_content="space-between")
+                    # box.layout = Layout(
+                    #     display="flex",
+                    #     justify_content="space-between"
+                    # )
                 else:
                     box = Tab()
                     box.children = [phase_description]
