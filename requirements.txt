@@ -41,7 +41,7 @@ ipywidgets==7.7.0         # via ipycytoscape
 jedi==0.18.1              # via ipython
 jinja2==3.1.2             # via nbconvert, notebook
 jsonschema==4.5.1         # via nbformat
-jupyter-client==7.3.0     # via ipykernel, nbclient, notebook
+jupyter-client==7.3.4     # via ipykernel, nbclient, notebook
 jupyter-core==4.10.0      # via jupyter-client, nbconvert, nbformat, notebook
 jupyterlab-pygments==0.2.2  # via nbconvert
 jupyterlab-widgets==1.1.0  # via ipywidgets
