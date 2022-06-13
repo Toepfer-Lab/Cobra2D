@@ -61,9 +61,7 @@ def multi_checkbox_widget(descriptions):
     return multi_select
 
 
-def select_side_metabolites(
-    model: Model, side_metabolites: List[str] = None
-):
+def select_side_metabolites(model: Model, side_metabolites: List[str] = None):
 
     # ToDo read File
 
