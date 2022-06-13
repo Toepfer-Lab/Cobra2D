@@ -72,7 +72,7 @@ pure-eval==0.2.2          # via stack-data
 pycparser==2.21           # via cffi
 pydantic==1.9.0           # via cobra
 pygments==2.12.0          # via ipython, nbconvert, rich
-pyparsing==3.0.8          # via packaging
+pyparsing==3.0.9          # via packaging
 pyrsistent==0.18.1        # via jsonschema
 python-dateutil==2.8.2    # via jupyter-client, pandas
 python-libsbml==5.19.5    # via cobra
