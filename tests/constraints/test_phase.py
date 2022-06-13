@@ -23,6 +23,24 @@ class TestPhase(TestCase):
         self.assertEqual(phase.timeframe, 7)
         self.assertEqual(phase.volume, 3)
 
+    def test_toString(self):
+        phase = Phase(
+            id="test_id",
+            light_dark="light",
+            timeframe=7,
+            volume=3,
+        )
+
+        string = str(phase)
+        expected = (
+            "+---------+------+--------+-----------+\n"
+            "|  Phase  | Name | Volume | Timeframe |\n"
+            "+---------+------+--------+-----------+\n"
+            "| test_id |      |   3    |     7     |\n"
+            "+---------+------+--------+-----------+"
+        )
+        self.assertEqual(string, expected)
+
     def test_to_xml(self):
         phase = Phase(id="test_id", light_dark="light")
 

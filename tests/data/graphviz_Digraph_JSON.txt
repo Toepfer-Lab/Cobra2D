@@ -1,0 +1,16 @@
+digraph {
+	subgraph cluster_model0 {
+		label=model0
+		"model0-0"
+		"model0-1"
+	}
+	subgraph cluster_model1 {
+		label=model1
+		"model1-0"
+		"model1-1"
+	}
+	"model0-0" -> "model0-1" [label="" labelangle=75 labeldistance=6]
+	"model1-0" -> "model1-1" [dir=none style=invis]
+	"linker existing in all connections:
+ amp_c" [shape=rectangle]
+}
