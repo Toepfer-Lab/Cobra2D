@@ -310,6 +310,8 @@ class Constraints:
         upper_bound: int = 1000,
         last2first: bool = False,
         reverse: bool = False,
+        timeframes: Optional[List[str]] = None,
+        sub_models: Optional[List[str]] = None,
     ):
         """
         Method to create linkers across all existing time periods.
@@ -331,7 +333,8 @@ class Constraints:
             reverse: Bool that specifies the orientation of the linkers.
                 If True, the linkers are created starting from the last to the
                 first time period and not from the first to the last as usual.
-
+            sub_models:
+            timeframes:
         Examples:
             Application to a four phase model:
 
@@ -349,6 +352,12 @@ class Constraints:
         """  # noqa: E501
 
         labels, times = self.__get_label_time(reverse=reverse)
+
+        if sub_models is not None:
+            labels = [label for label in labels if label in sub_models]
+
+        if timeframes is not None:
+            times = [time for time in times if time in timeframes]
 
         for label in labels:
             for n in range(len(times) - 1):

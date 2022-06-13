@@ -62,7 +62,7 @@ def multi_checkbox_widget(descriptions):
 
 
 def select_side_metabolites(
-    side_metabolites: List[str] = None, model: Model = None
+    model: Model, side_metabolites: List[str] = None
 ):
 
     # ToDo read File
@@ -86,8 +86,8 @@ def select_side_metabolites(
 
     metabolites = sorted(metabolites, key=lambda x: x[2], reverse=True)
 
-    metabolites = [(m[0], m[1]) for m in metabolites]
-    side_selection = multi_checkbox_widget(metabolites)
+    metabolites_without_n_reactions = [(m[0], m[1]) for m in metabolites]
+    side_selection = multi_checkbox_widget(metabolites_without_n_reactions)
 
     return side_selection
 
@@ -101,7 +101,7 @@ def metexplore_interface(
     groups = [(group.id, False) for group in model.groups]
     group_selection = multi_checkbox_widget(groups)
     side_metabolite_selection = select_side_metabolites(
-        side_metabolites, model=model
+        model=model, side_metabolites=side_metabolites
     )
 
     def on_button_clicked(button):
