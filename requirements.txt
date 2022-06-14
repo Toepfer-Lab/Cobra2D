@@ -34,7 +34,7 @@ httpx==0.22.0             # via cobra
 idna==3.3                 # via anyio, rfc3986
 importlib-resources==5.7.1  # via cobra
 ipycytoscape==1.3.3       # via model-duplication (./setup.cfg)
-ipykernel==6.13.0         # via ipywidgets, notebook
+ipykernel==6.14.0         # via ipywidgets, notebook
 ipython==8.3.0            # via ipykernel, ipywidgets, model-duplication (./setup.cfg)
 ipython-genutils==0.2.0   # via ipywidgets, notebook
 ipywidgets==7.7.0         # via ipycytoscape
