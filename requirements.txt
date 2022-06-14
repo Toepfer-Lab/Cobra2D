@@ -34,7 +34,7 @@ httpx==0.22.0             # via cobra
 idna==3.3                 # via anyio, rfc3986
 importlib-resources==5.7.1  # via cobra
 ipycytoscape==1.3.3       # via model-duplication (./setup.cfg)
-ipykernel==6.13.0         # via ipywidgets, notebook
+ipykernel==6.14.0         # via ipywidgets, notebook
 ipython==8.3.0            # via ipykernel, ipywidgets, model-duplication (./setup.cfg)
 ipython-genutils==0.2.0   # via ipywidgets, notebook
 ipywidgets==7.7.0         # via ipycytoscape
@@ -98,7 +98,7 @@ typing-extensions==4.2.0  # via model-duplication (./setup.cfg), pydantic
 wcwidth==0.2.5            # via prettytable, prompt-toolkit
 webencodings==0.5.1       # via bleach, tinycss2
 widgetsnbextension==3.6.0  # via ipywidgets
-xmlschema==1.10.0         # via model-duplication (./setup.cfg)
+xmlschema==1.11.2         # via model-duplication (./setup.cfg)
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
