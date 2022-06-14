@@ -54,7 +54,7 @@ nbconvert==6.5.0          # via notebook
 nbformat==5.4.0           # via ipywidgets, nbclient, nbconvert, notebook
 nest-asyncio==1.5.5       # via ipykernel, jupyter-client, nbclient, notebook
 networkx==2.8             # via model-duplication (./setup.cfg)
-notebook==6.4.11          # via widgetsnbextension
+notebook==6.4.12          # via widgetsnbextension
 numpy==1.22.3             # via cobra, pandas
 optlang==1.5.2            # via cobra
 packaging==21.3           # via ipykernel, nbconvert
