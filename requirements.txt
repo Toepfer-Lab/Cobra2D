@@ -23,7 +23,7 @@ decorator==5.1.1          # via ipython
 defusedxml==0.7.1         # via nbconvert
 depinfo==1.7.0            # via cobra
 diskcache==5.4.0          # via cobra
-elementpath==2.5.1        # via xmlschema
+elementpath==3.0.2        # via xmlschema
 entrypoints==0.4          # via jupyter-client, nbconvert
 executing==0.8.3          # via stack-data
 fastjsonschema==2.15.3    # via nbformat
