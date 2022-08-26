@@ -21,13 +21,22 @@ def adjusted_pfba(
 ) -> Solution:
 
     """
+    A customized version of the pFBA provided by COBRApy.
+    It differs in that it takes into account the time periods and
+    volumes defined through a Constraints object.
 
     Args:
-        constraints:
-        model:
-        fraction_of_optimum:
-        objective:
-        reactions:
+        constraints: The Constraints object that defines the entire model.
+        model: The COBRApy model created by the constraints object.
+        fraction_of_optimum: The accuracy that the solution must have.
+            More precisely, a constraint is defined that the original
+            objective function must be greater than the product of
+            fraction_of_optimum and flux of the original objective.
+        objective: Additional objectives that can be defined in addition to
+            minimizing the flux values.
+        reactions: Reactions that should be minimized. The default are
+            all "real" reactions. This means that transports and
+            linkers are not minimized.
 
     Returns:
 

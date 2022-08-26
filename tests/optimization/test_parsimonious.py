@@ -11,7 +11,7 @@ from model_duplication import Constraints
 from model_duplication.optimization.parsimonious import add_adjusted_pfba_objective
 
 
-class Test(TestCase):
+class TestParsimonious(TestCase):
     @classmethod
     def setUpClass(cls):
         cobra_config = Configuration()
