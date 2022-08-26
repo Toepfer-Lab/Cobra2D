@@ -1,8 +1,10 @@
 """Module for merging of COBRApy models
 """
+from copy import deepcopy
 from logging import getLogger
 from typing import List
 
+from cobra import DictList
 from cobra.core import Group, Metabolite, Model, Reaction
 
 logger = getLogger(__name__)
@@ -12,6 +14,20 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
 
     model.merge(right=right, prefix_existing="failed_", objective="sum")
 
+    # add unused metabolites and check if duplicates are created
+    inactive_metabolites: DictList = DictList()
+
+    for metabolite in right.metabolites:
+        if len(metabolite.reactions) == 0:
+            inactive_metabolites.append(deepcopy(metabolite))
+
+    existing = inactive_metabolites.query(lambda met: met.id in model.metabolites)
+    for metabolite in existing:
+        metabolite.id = "{}{}".format("failed_", metabolite.id)
+
+    model.add_metabolites(inactive_metabolites)
+
+    # check that there are no duplicates marked with 'failed_'
     assert len(model.metabolites.query("failed_")) == 0
     assert len(model.reactions.query("failed_")) == 0
 

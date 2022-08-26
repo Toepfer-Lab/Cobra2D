@@ -53,6 +53,7 @@ def adjusted_pfba(
         solution = get_solution(copy, reactions=reactions)
     return solution
 
+
 def add_adjusted_pfba_objective(
         constraints: Constraints,
         model: Model,
@@ -68,10 +69,6 @@ def add_adjusted_pfba_objective(
 
     fix_objective_as_constraint(model, fraction=fraction_of_optimum)
 
-    reaction_variables = (
-        (rxn.forward_variable, rxn.reverse_variable) for rxn in model.reactions
-    )
-    variables = chain(*reaction_variables)
     model.objective = model.problem.Objective(
         Zero, direction="min", sloppy=True, name="_pfba_objective"
     )
