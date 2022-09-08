@@ -21,7 +21,7 @@ commonmark==0.9.1         # via rich
 debugpy==1.6.0            # via ipykernel
 decorator==5.1.1          # via ipython
 defusedxml==0.7.1         # via nbconvert
-depinfo==1.7.0            # via cobra
+depinfo==2.2.0            # via cobra
 diskcache==5.4.0          # via cobra
 elementpath==2.5.1        # via xmlschema
 entrypoints==0.4          # via jupyter-client, nbconvert
