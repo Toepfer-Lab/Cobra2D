@@ -98,7 +98,7 @@ typing-extensions==4.2.0  # via model-duplication (./setup.cfg), pydantic
 wcwidth==0.2.5            # via prettytable, prompt-toolkit
 webencodings==0.5.1       # via bleach, tinycss2
 widgetsnbextension==3.6.0  # via ipywidgets
-xmlschema==1.10.0         # via model-duplication (./setup.cfg)
+xmlschema==2.0.4         # via model-duplication (./setup.cfg)
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
