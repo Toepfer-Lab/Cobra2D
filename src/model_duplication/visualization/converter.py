@@ -260,7 +260,9 @@ def cobra2metexplore(
                 side_metabolite = True
 
             hidden = True
-            if metabolite.id in metabolites2use:
+            metabolites2useIDs = [met.id for met in metabolites2use]
+
+            if metabolite.id in metabolites2useIDs:
                 hidden = False
 
             nodes.append(
