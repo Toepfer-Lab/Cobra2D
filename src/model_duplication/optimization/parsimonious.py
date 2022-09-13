@@ -86,7 +86,7 @@ def add_adjusted_pfba_objective(
                 continue
         except IndexError:
             pass
-        phase_id = reaction.id[reaction.id.rindex("_") + 1:]
+        phase_id = reaction.id[reaction.id.rindex("_") + 1 :]  # noqa: E203
         phase = constraints.phases.phases.get_by_id(phase_id)
         coeff = phase.timeframe * phase.volume
 
