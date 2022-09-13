@@ -70,7 +70,7 @@ class Phase:
         timeframe: int = 1,
         volume: int = 1,
         name: str = "",
-        objective_factor = 1.0,
+        objective_factor=1.0,
     ):
         """
         Initialize a Phase.
@@ -357,7 +357,6 @@ class Phases:
         model_objective = {}
         for reaction, coeff in linear_reaction_coefficients(new_model).items():
             model_objective[reaction.id] = coeff
-
 
         for phase in self.phases:
             for reaction in phase.reaction_settings:

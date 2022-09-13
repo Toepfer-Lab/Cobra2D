@@ -21,7 +21,9 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
         if len(metabolite.reactions) == 0:
             inactive_metabolites.append(deepcopy(metabolite))
 
-    existing = inactive_metabolites.query(lambda met: met.id in model.metabolites)
+    existing = inactive_metabolites.query(
+        lambda met: met.id in model.metabolites
+    )
     for metabolite in existing:
         metabolite.id = "{}{}".format("failed_", metabolite.id)
 

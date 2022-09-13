@@ -109,11 +109,17 @@ def _test(main: Model, submodel: Model) -> bool:
 
 
 def _main_placeholder(
-    model: Model, labels: List[str], objective_factor: List[float], file: Path = None, genes: bool = False
+    model: Model,
+    labels: List[str],
+    objective_factor: List[float],
+    file: Path = None,
+    genes: bool = False,
 ) -> Model:
 
     _model = model.copy()
-    _rename(model=_model, suffix=labels[0], objective_factor= objective_factor[0])
+    _rename(
+        model=_model, suffix=labels[0], objective_factor=objective_factor[0]
+    )
     logger.info(f"New suffix '{labels[0]}' for model added")
 
     if file:
@@ -130,7 +136,11 @@ def _main_placeholder(
 
         # Use copy of original to avoid 2n reactions
         submodel: Model = model.copy()
-        _rename(model=submodel, suffix=f"{label}", objective_factor= objective_factor[i])
+        _rename(
+            model=submodel,
+            suffix=f"{label}",
+            objective_factor=objective_factor[i],
+        )
 
         # Add all objects of the model to a group named after the label
         submodel.add_groups(
