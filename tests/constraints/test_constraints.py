@@ -351,7 +351,7 @@ class TestConstraints(TestCase):
         new_model = con.apply_to_model(model)
         solution = new_model.optimize()
 
-        self.assertRegex(str(solution), r"^<Solution 5\.677.*>$")
+        self.assertRegex(str(solution), r"^<Solution 17\.032.*>$")
 
         summary = str(new_model.summary())
         with open_text(data, "summary.txt", encoding="UTF-8") as expected:
