@@ -46,7 +46,7 @@ def _rename(model: Model, suffix: str, objective_factor: float = 1.0):
     new_objectives = {}
     for reaction_id, coeff in model_objective.items():
         reaction = model.reactions.get_by_id(f"{reaction_id}_{suffix}")
-        new_objectives[reaction] = coeff
+        new_objectives[reaction] = coeff * objective_factor
 
     model.objective = new_objectives
 

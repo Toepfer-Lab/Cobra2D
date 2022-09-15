@@ -7,14 +7,13 @@ from __future__ import annotations
 import logging
 from inspect import isclass
 from typing import List, Union, Optional
-
-from cobra.core import Group
-from cobra.util import linear_reaction_coefficients
-from typing_extensions import Literal
 from xml.etree.ElementTree import Element
 
 from cobra import DictList, Model, Reaction
+from cobra.core import Group
+from cobra.util import linear_reaction_coefficients
 from prettytable import PrettyTable
+from typing_extensions import Literal
 
 from model_duplication.duplication.duplication import (
     _main_placeholder,
@@ -308,7 +307,9 @@ class Phases:
 
         for phase in without_model:
             phase_names.append(phase.id)
-            objective_factor.append(phase.objective_factor)
+            objective_factor.append(
+                phase.objective_factor * phase.timeframe * phase.volume
+            )
 
         if without_model:
             if model is None:
@@ -334,7 +335,11 @@ class Phases:
             copy = phase.model.copy()
 
             # ToDo duplicate code from _main_placeholder should be refactored
-            _rename(copy, phase.id, phase.objective_factor)
+            _rename(
+                copy,
+                phase.id,
+                phase.objective_factor * phase.timeframe * phase.volume,
+            )
 
             # Add all objects of the model to a group named after the label
             copy.add_groups(

@@ -29,3 +29,27 @@ class InvalidLabel(Exception):
 
     def __str__(self):
         return self.message or "A used label is invalid."
+
+
+class PhaseNotFound(Warning):
+    """
+    Raises a Warning in case that a phase is not available
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+
+class NameWarning(Warning):
+    """
+    Warning for cases, in which a name might not be available
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+    def __str__(self) -> str:
+        return super().__str__()

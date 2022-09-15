@@ -4,6 +4,7 @@ from xml.etree.ElementTree import Element
 import cobra
 from cobra import DictList, Metabolite, Model, Reaction
 from cobra.io import read_sbml_model
+from cobra.util import linear_reaction_coefficients
 from importlib_resources import files, as_file
 
 from model_duplication.constraints.phase import Phase, Phases
@@ -211,8 +212,13 @@ class TestPhases(TestCase):
                 ),
                 str(new_reaction.forward_variable),
             )
+
+            objective_factor = phase.objective_factor * (
+                phase.volume * phase.timeframe
+            )
+
             self.assertEqual(
-                reaction.objective_coefficient,
+                reaction.objective_coefficient * objective_factor,
                 new_reaction.objective_coefficient,
             )
             # ToDo compare metabolites
@@ -244,6 +250,51 @@ class TestPhases(TestCase):
                 new_reaction.reaction.replace("_test_id", ""),
             )
             self.assertEqual(reaction.compartments, new_reaction.compartments)
+
+        # Check the creation of objective functions
+        model: Model = self.textbook.copy()
+        phases = Phases()
+        phases.add_phase(
+            Phase(
+                id="phase_1",
+                light_dark="light",
+                timeframe=2,
+                volume=2,
+            )
+        )
+
+        phases.add_phase(
+            Phase(
+                id="phase_2",
+                light_dark="light",
+                timeframe=1,
+                volume=3,
+            )
+        )
+        phases.add_phase(
+            Phase(
+                id="phase_3",
+                light_dark="light",
+                timeframe=1,
+                volume=3,
+                objective_factor=4.5,
+            )
+        )
+
+        new_model = phases.apply_phases(model)
+
+        objectives = str(
+            sorted(
+                linear_reaction_coefficients(new_model).items(),
+                key=lambda x: x[0].id,
+            )
+        )
+        self.assertRegex(
+            objectives,
+            r"\[\(<Reaction Biomass_Ecoli_core_phase_1 at .*>, 4\.0\), "
+            r"\(<Reaction Biomass_Ecoli_core_phase_2 at .*>, 3\.0\), "
+            r"\(<Reaction Biomass_Ecoli_core_phase_3 at .*>, 13\.5\)\]",
+        )
 
     def test_to_xml(self):
         phases = Phases()
