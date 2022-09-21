@@ -9,12 +9,17 @@ from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any, List, Tuple, Union, TextIO, Optional
+from typing import Any, List, Tuple, Union, TextIO, Optional, Dict
 from xml.dom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+import ipycytoscape
+import networkx as nx
+from IPython.display import display
 from cobra import Model, Reaction
+from graphviz import Digraph
+from ipywidgets import Output, HTML, Tab
 from prettytable import PrettyTable
 from rich.console import Console
 from rich.table import Table
@@ -26,6 +31,7 @@ from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.error import InvalidLabel
 from model_duplication.utils import Matrix
+from model_duplication.visualization.helper import metexplore_interface
 
 
 class Constraints:
@@ -68,15 +74,15 @@ class Constraints:
 
     def __get_label_time(
         self, reverse: bool = False
-    ) -> Tuple[List[str], List[str]]:
+    ) -> Tuple[List[str], List[int]]:
         labels: List[str] = []
-        times: List[str] = []
+        times: List[int] = []
 
         for phase in self.phases.phases:
             label_time = phase.id.split("-")
 
             labels.append(label_time[0])
-            times.append(label_time[1])
+            times.append(int(label_time[1]))
 
         labels = list(set(labels))
         times = list(set(times))
@@ -304,16 +310,11 @@ class Constraints:
         upper_bound: int = 1000,
         last2first: bool = False,
         reverse: bool = False,
+        timeframes: Optional[List[str]] = None,
+        sub_models: Optional[List[str]] = None,
     ):
         """
-        Method to create linkers across all existing time periods. As an
-        example, the following linkers would be created for a model that
-        spans 4 time periods:
-
-        .. code-block::
-        Linker from time period 0 to time period 1\n
-        Linker from time period 1 to time period 2\n
-        Linker from time period 2 to time period 3
+        Method to create linkers across all existing time periods.
 
         Args:
             id: The ID to be used for the metabolite. This should match
@@ -332,10 +333,31 @@ class Constraints:
             reverse: Bool that specifies the orientation of the linkers.
                 If True, the linkers are created starting from the last to the
                 first time period and not from the first to the last as usual.
+            sub_models:
+            timeframes:
+        Examples:
+            Application to a four phase model:
 
-        """
+            >>> con = Constraints()
+            >>> con.add_time_slots(4, 1)
+            >>> con.add_linker_series("ATP")
+            >>> print(con.linker)
+            +-----+------+-----------+-------------+--------------+--------------+
+            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
+            +-----+------+-----------+-------------+--------------+--------------+
+            | ATP |      | default-0 |  default-1  |      0       |     1000     |
+            | ATP |      | default-1 |  default-2  |      0       |     1000     |
+            | ATP |      | default-2 |  default-3  |      0       |     1000     |
+            +-----+------+-----------+-------------+--------------+--------------+
+        """  # noqa: E501
 
         labels, times = self.__get_label_time(reverse=reverse)
+
+        if sub_models is not None:
+            labels = [label for label in labels if label in sub_models]
+
+        if timeframes is not None:
+            times = [time for time in times if time in timeframes]
 
         for label in labels:
             for n in range(len(times) - 1):
@@ -344,7 +366,7 @@ class Constraints:
                     linker = Linker(
                         id=id,
                         source=f"{label}-{time}",
-                        destination=f"{label}-{times[n+1]}",
+                        destination=f"{label}-{times[n + 1]}",
                         upper_bound=upper_bound,
                         lower_bound=lower_bound,
                     )
@@ -353,7 +375,7 @@ class Constraints:
                 except KeyError:
                     logging.warning(
                         f"Linker from {label}-{time} to "
-                        f"{label}-{times[n+1]} could not be "
+                        f"{label}-{times[n + 1]} could not be "
                         f"created."
                     )
 
@@ -438,9 +460,10 @@ class Constraints:
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
         https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
+
         Args:
             path: The path to the XML file to be used for creating a
-            :py:class:`Constraints` object.
+                :py:class:`Constraints` object.
 
         Returns:
             The :py:class:`Constraints` object created on the properties in the
@@ -530,3 +553,363 @@ class Constraints:
         constraints.index_time_ranges = max([int(x) for x in times])
 
         return constraints
+
+    def create_graph(self) -> Digraph:
+        g = Digraph(engine="dot")
+        labels, times = self.__get_label_time()
+        invis_connections: List[Tuple[str, str]] = []
+
+        for label in labels:
+            with g.subgraph(name=f"cluster_{label}") as sub:
+                sub.attr(label=label)
+                last_label = None
+                for time in times:
+                    new_label = f"{label}-{time}"
+                    if self.phases.phases.has_id(new_label):
+                        sub.node(f"{label}-{time}")
+
+                        if last_label is not None:
+                            connection = (last_label, new_label)
+                            invis_connections.append(connection)
+
+                        last_label = new_label
+
+        edge_dict: Dict[str, List[Tuple[str, str]]] = {}
+        edge_dict_reverse: Dict[Tuple[str, str], list[str]] = {}
+
+        for linker in self.linker.linker:
+            edge_value: Tuple[str, str] = (linker.source, linker.destination)
+            if linker.id in edge_dict:
+                edge_dict[linker.id].append(edge_value)
+            else:
+                edge_dict[linker.id] = [edge_value]
+
+            if edge_value in edge_dict_reverse:
+                edge_dict_reverse[edge_value].append(linker.id)
+            else:
+                edge_dict_reverse[edge_value] = [linker.id]
+
+        size = len(edge_dict_reverse)
+        linker_str = "linker existing in all connections:"
+        for key, value in edge_dict.items():
+            if len(value) == size:
+                linker_str += f"\n {key}"
+                for metabolite_ids in edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key_r, value_r in edge_dict_reverse.items():
+            source, destintaion = key_r
+            g.edge(
+                source,
+                destintaion,
+                label="\t\n".join(value_r),
+                labeldistance="6",
+                labelangle="75",
+            )
+
+        for source, destintaion in invis_connections:
+            if (source, destintaion) not in edge_dict_reverse.keys():
+                g.edge(
+                    source,
+                    destintaion,
+                    style="invis",
+                    dir="none",
+                )
+
+        g.node(linker_str, shape="rectangle")
+
+        # g.attr(size='6,6')
+        return g
+
+    def _constraint2networkx(self):
+        graph = nx.DiGraph()
+
+        for phase in self.phases.phases:
+            graph.add_node(
+                phase.id,
+                Timeframe=phase.timeframe,
+                Volume=phase.volume,
+                Model=getattr(phase, "model", "None"),
+                Number_of_Reactions=len(phase.reaction_settings),
+            )
+
+        for linker in self.linker.linker:
+            graph.add_edge(
+                linker.source,
+                linker.destination,
+                label=linker.id,
+            )
+
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+        for key, value in edge_dict_reverse.items():
+            source, destintaion = key
+            graph.add_edge(source, destintaion, Metabolite="\n".join(value))
+
+        return graph
+
+    def _con2json(self):
+        nodes = []
+        edges = []
+        sub_models, times = self.__get_label_time()
+
+        for sub_model in sub_models:
+            nodes.append({"data": {"id": sub_model, "type": "sub_model"}})
+
+        for phase in self.phases.phases:
+            sub_model, time = phase.id.split("-", maxsplit=1)
+            model = getattr(phase, "model", None)
+            model_name: str
+
+            if model is None:
+                model_name = "Undefined"
+            else:
+                model_name = model.id
+
+            nodes.append(
+                {
+                    "data": {
+                        "type": "phase",
+                        "time": time,
+                        "parent": sub_model,
+                        "id": phase.id,
+                        "Volume": phase.volume,
+                        "Timeframe": phase.timeframe,
+                        "Number of Reactions": phase.reaction_settings,
+                        "Model Name": model_name,
+                    }
+                }
+            )
+
+        edge_dict = {}
+        edge_dict_reverse = {}
+
+        for linker in self.linker.linker:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+            if linker.id in edge_dict:
+                edge_dict[linker.id].append(value)
+            else:
+                edge_dict[linker.id] = [value]
+
+            if value in edge_dict_reverse:
+                edge_dict_reverse[value].append(linker.id)
+            else:
+                edge_dict_reverse[value] = [linker.id]
+
+        size = len(edge_dict_reverse)
+        metabolites_existing_between_all_phases = []
+        for key, value in edge_dict.items():
+            if len(value) == size:
+                metabolites_existing_between_all_phases.append(key)
+                for metabolite_ids in edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key, value in edge_dict_reverse.items():
+            source, destination = key
+            edges.append(
+                {
+                    "data": {
+                        "id": f"Linker from {source} to {destination}",
+                        "source": source,
+                        "target": destination,
+                        "Metabolite": value,
+                        "isdirected": "true",
+                    }
+                }
+            )
+
+        return (
+            {"nodes": nodes, "edges": edges},
+            metabolites_existing_between_all_phases,
+        )
+
+    def cytoscape(self):  # pragma: no cover
+        # is covered in ui-tests
+        tab = "&nbsp;&nbsp;&nbsp;&nbsp;"
+
+        cytoscapeobj = ipycytoscape.CytoscapeWidget()
+        graph, met_betw_all_phases = self._con2json()
+        cytoscapeobj.graph.add_graph_from_json(graph, directed=True)
+        cytoscapeobj.set_layout(name="dagre", nodeSpacing=50, edgeLengthVal=10)
+
+        cytoscapeobj.set_style(
+            [
+                {
+                    "selector": 'node[type="phase"]',
+                    "css": {
+                        "content": "data(id)",
+                        "text-valign": "center",
+                        "text-halign": "left",
+                        "color": "black",
+                        "background-color": "#11479e",
+                        "text-wrap": "none",
+                    },
+                },
+                {
+                    "selector": "edge",
+                    "style": {
+                        "line-color": "#9dbaea",
+                        "curve-style": "haystack",
+                        "text-wrap": "wrap",
+                    },
+                },
+                {
+                    "selector": "edge.directed",
+                    "style": {
+                        "curve-style": "bezier",
+                        "target-arrow-shape": "triangle",
+                        "target-arrow-color": "#9dbaea",
+                    },
+                },
+                {
+                    "selector": 'node[type="legend"]',
+                    "style": {
+                        "shape": "square",
+                        "background-color": "red",
+                        "text-valign": "center",
+                        "content": "data(text)",
+                        "text-wrap": "wrap",
+                    },
+                },
+                {
+                    "selector": ":selected",
+                    "css": {
+                        "background-color": "black",
+                        "line-color": "black",
+                        "target-arrow-color": "black",
+                        "source-arrow-color": "black",
+                        "text-outline-color": "black",
+                    },
+                },
+                {
+                    "selector": ":parent",
+                    "css": {
+                        "content": "data(id)",
+                        "text-valign": "top",
+                        "text-halign": "center",
+                        "background-opacity": 0.333,
+                    },
+                },
+            ]
+        )
+
+        out = Output()
+        all_met_betw_all_phases = iter(met_betw_all_phases)
+        try:
+            met_betw_all_phases_html = (
+                f"{tab}&bull; {next(all_met_betw_all_phases)}<br>"
+            )
+            if len(met_betw_all_phases) > 1:
+                met_betw_all_phases_html += f"{tab}&bull; "
+        except StopIteration:
+            met_betw_all_phases_html = f"{tab}None"
+
+        met_betw_all_phases_html += (f"<br>{tab}&bull; ").join(
+            all_met_betw_all_phases
+        )
+
+        def log_mouseovers_edge(edge):
+            with out:
+                out.clear_output(wait=True)
+                id = edge["data"]["id"]
+                all_metabolites = edge["data"]["Metabolite"]
+                metabolites = iter(all_metabolites)
+
+                try:
+                    metabolites_html = f"{tab}&bull; {next(metabolites)}"
+                except StopIteration:
+                    metabolites_html = f"{tab}None"
+
+                metabolites_html += (f"<br>{tab}&bull; ").join(metabolites)
+
+                display(
+                    HTML(
+                        f"<h4>{id}</h4>"
+                        f"<h5>Metabolites/Linker existing between all "
+                        f"Phases:</h5>"
+                        f"{met_betw_all_phases_html}<br>"
+                        f"<h5>Additional metabolites:</h5>"
+                        f"{metabolites_html}"
+                    )
+                )
+
+        model2viz = {}
+
+        def log_mouseovers_node(node):
+            with out:
+                try:
+                    #  If sub_model does not exist, it's a parent node
+                    #  where we don't want to show anything
+                    sub_model = node["data"]["parent"]
+                except KeyError:
+                    return
+                phase_id = node["data"]["id"]
+                phase = self.get_phase_by_id(phase_id)
+
+                time = node["data"]["time"]
+                model_name = node["data"]["Model Name"]
+
+                all_reactions = iter(phase.reaction_settings)
+                try:
+                    reactions_html_str = (
+                        f"{tab}&bull; {next(all_reactions).id}<br>"
+                    )
+                except StopIteration:
+                    reactions_html_str = f"{tab}None"
+
+                reactions_html_str += "&nbsp;" * 16 + (
+                    "<br>" + "&nbsp;" * 16
+                ).join(reaction.id for reaction in all_reactions)
+
+                out.clear_output(wait=True)
+
+                phase_description = HTML(
+                    f"<h4>Phase id: {phase_id}</h4>"
+                    f"<h5>Phase affiliation:</h5>"
+                    f"{tab}&bull; Time: {time}<br>"
+                    f"{tab}&bull; SubModel: {sub_model}<br>"
+                    f"<h5>Phase settings:</h5>"
+                    f"{tab}&bull; Name: {phase.name}<br>"
+                    f"{tab}&bull; Volume: {phase.volume}<br>"
+                    f"{tab}&bull; Timeframe: {phase.timeframe}<br>"
+                    f"{tab}&bull; Model: {model_name}<br>"
+                    f"{tab}&bull; Reactions: {reactions_html_str}"
+                )
+                if phase.model is not None:
+                    try:
+                        viz_selection = model2viz[phase.model]
+                    except KeyError:
+                        viz_selection = metexplore_interface(phase.model)
+                        model2viz[phase.model] = viz_selection
+
+                    box = Tab()
+                    box.children = [phase_description, viz_selection]
+                    box.set_title(0, "Phase")
+                    box.set_title(1, "Visualization")
+
+                    # box.layout = Layout(
+                    #     display="flex",
+                    #     justify_content="space-between"
+                    # )
+                else:
+                    box = Tab()
+                    box.children = [phase_description]
+                    box.set_title(0, "Phase")
+                display(box)
+
+        cytoscapeobj.on("edge", "click", log_mouseovers_edge)
+        cytoscapeobj.on("node", "click", log_mouseovers_node)
+
+        display(cytoscapeobj)
+        display(out)
+        for phase in self.phases.phases:
+            if phase.model is not None:
+                model2viz[phase.model] = metexplore_interface(phase.model)

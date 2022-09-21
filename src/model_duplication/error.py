@@ -42,6 +42,7 @@ class PhaseNotFound(Warning):
     def __str__(self) -> str:
         return super().__str__()
 
+
 class NameWarning(Warning):
     """
     Warning for cases, in which a name might not be available

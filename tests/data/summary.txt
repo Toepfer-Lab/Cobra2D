@@ -1,6 +1,6 @@
 Objective
 =========
-1.0 BIOMASS_Ec_iJO1366_core_53p95M_root-0 + 1.0 BIOMASS_Ec_iJO1366_core_53p95M_root-1 + 1.0 BIOMASS_Ec_iJO1366_core_53p95M_leaf-0 + 1.0 BIOMASS_Ec_iJO1366_core_53p95M_leaf-2 + 1.0 Biomass_Ecoli_core_root-2 + 1.0 Biomass_Ecoli_core_leaf-1 = 5.677330264844777
+2.0 BIOMASS_Ec_iJO1366_core_53p95M_root-0 + 2.0 BIOMASS_Ec_iJO1366_core_53p95M_root-1 + 4.0 BIOMASS_Ec_iJO1366_core_53p95M_leaf-0 + 4.0 BIOMASS_Ec_iJO1366_core_53p95M_leaf-2 + 2.0 Biomass_Ecoli_core_root-2 + 4.0 Biomass_Ecoli_core_leaf-1 = 17.031990794534323
 
 Uptake
 ------

@@ -1,0 +1,4316 @@
+{
+    "nodes": [
+        {
+            "name": "3-Phospho-D-glyceroyl phosphate",
+            "id": "13dpg_c",
+            "dbIdentifier": "13dpg_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Glycerate 2-phosphate",
+            "id": "2pg_c",
+            "dbIdentifier": "2pg_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "3-Phospho-D-glycerate",
+            "id": "3pg_c",
+            "dbIdentifier": "3pg_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "6-Phospho-D-gluconate",
+            "id": "6pgc_c",
+            "dbIdentifier": "6pgc_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "6-phospho-D-glucono-1,5-lactone",
+            "id": "6pgl_c",
+            "dbIdentifier": "6pgl_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetate",
+            "id": "ac_c",
+            "dbIdentifier": "ac_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetate",
+            "id": "ac_e",
+            "dbIdentifier": "ac_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetaldehyde",
+            "id": "acald_c",
+            "dbIdentifier": "acald_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetaldehyde",
+            "id": "acald_e",
+            "dbIdentifier": "acald_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetyl-CoA",
+            "id": "accoa_c",
+            "dbIdentifier": "accoa_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "cis-Aconitate",
+            "id": "acon_C_c",
+            "dbIdentifier": "acon_C_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Acetyl phosphate",
+            "id": "actp_c",
+            "dbIdentifier": "actp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "ADP",
+            "id": "adp_c",
+            "dbIdentifier": "adp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "2-Oxoglutarate",
+            "id": "akg_c",
+            "dbIdentifier": "akg_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "2-Oxoglutarate",
+            "id": "akg_e",
+            "dbIdentifier": "akg_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "AMP",
+            "id": "amp_c",
+            "dbIdentifier": "amp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "ATP",
+            "id": "atp_c",
+            "dbIdentifier": "atp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Citrate",
+            "id": "cit_c",
+            "dbIdentifier": "cit_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "CO2",
+            "id": "co2_c",
+            "dbIdentifier": "co2_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "CO2",
+            "id": "co2_e",
+            "dbIdentifier": "co2_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Coenzyme A",
+            "id": "coa_c",
+            "dbIdentifier": "coa_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Dihydroxyacetone phosphate",
+            "id": "dhap_c",
+            "dbIdentifier": "dhap_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Erythrose 4-phosphate",
+            "id": "e4p_c",
+            "dbIdentifier": "e4p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ethanol",
+            "id": "etoh_c",
+            "dbIdentifier": "etoh_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ethanol",
+            "id": "etoh_e",
+            "dbIdentifier": "etoh_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Fructose 6-phosphate",
+            "id": "f6p_c",
+            "dbIdentifier": "f6p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Fructose 1,6-bisphosphate",
+            "id": "fdp_c",
+            "dbIdentifier": "fdp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Formate",
+            "id": "for_c",
+            "dbIdentifier": "for_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Formate",
+            "id": "for_e",
+            "dbIdentifier": "for_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Fructose",
+            "id": "fru_e",
+            "dbIdentifier": "fru_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Fumarate",
+            "id": "fum_c",
+            "dbIdentifier": "fum_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Fumarate",
+            "id": "fum_e",
+            "dbIdentifier": "fum_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Glyceraldehyde 3-phosphate",
+            "id": "g3p_c",
+            "dbIdentifier": "g3p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Glucose 6-phosphate",
+            "id": "g6p_c",
+            "dbIdentifier": "g6p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Glucose",
+            "id": "glc__D_e",
+            "dbIdentifier": "glc__D_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Glutamine",
+            "id": "gln__L_c",
+            "dbIdentifier": "gln__L_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Glutamine",
+            "id": "gln__L_e",
+            "dbIdentifier": "gln__L_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Glutamate",
+            "id": "glu__L_c",
+            "dbIdentifier": "glu__L_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Glutamate",
+            "id": "glu__L_e",
+            "dbIdentifier": "glu__L_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Glyoxylate",
+            "id": "glx_c",
+            "dbIdentifier": "glx_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "H2O",
+            "id": "h2o_c",
+            "dbIdentifier": "h2o_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "H2O",
+            "id": "h2o_e",
+            "dbIdentifier": "h2o_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "H+",
+            "id": "h_c",
+            "dbIdentifier": "h_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "H+",
+            "id": "h_e",
+            "dbIdentifier": "h_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Isocitrate",
+            "id": "icit_c",
+            "dbIdentifier": "icit_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Lactate",
+            "id": "lac__D_c",
+            "dbIdentifier": "lac__D_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Lactate",
+            "id": "lac__D_e",
+            "dbIdentifier": "lac__D_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Malate",
+            "id": "mal__L_c",
+            "dbIdentifier": "mal__L_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "L-Malate",
+            "id": "mal__L_e",
+            "dbIdentifier": "mal__L_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Nicotinamide adenine dinucleotide",
+            "id": "nad_c",
+            "dbIdentifier": "nad_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Nicotinamide adenine dinucleotide - reduced",
+            "id": "nadh_c",
+            "dbIdentifier": "nadh_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Nicotinamide adenine dinucleotide phosphate",
+            "id": "nadp_c",
+            "dbIdentifier": "nadp_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Nicotinamide adenine dinucleotide phosphate - reduced",
+            "id": "nadph_c",
+            "dbIdentifier": "nadph_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ammonium",
+            "id": "nh4_c",
+            "dbIdentifier": "nh4_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ammonium",
+            "id": "nh4_e",
+            "dbIdentifier": "nh4_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "O2",
+            "id": "o2_c",
+            "dbIdentifier": "o2_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "O2",
+            "id": "o2_e",
+            "dbIdentifier": "o2_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Oxaloacetate",
+            "id": "oaa_c",
+            "dbIdentifier": "oaa_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Phosphoenolpyruvate",
+            "id": "pep_c",
+            "dbIdentifier": "pep_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Phosphate",
+            "id": "pi_c",
+            "dbIdentifier": "pi_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Phosphate",
+            "id": "pi_e",
+            "dbIdentifier": "pi_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Pyruvate",
+            "id": "pyr_c",
+            "dbIdentifier": "pyr_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Pyruvate",
+            "id": "pyr_e",
+            "dbIdentifier": "pyr_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ubiquinone-8",
+            "id": "q8_c",
+            "dbIdentifier": "q8_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Ubiquinol-8",
+            "id": "q8h2_c",
+            "dbIdentifier": "q8h2_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "alpha-D-Ribose 5-phosphate",
+            "id": "r5p_c",
+            "dbIdentifier": "r5p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Ribulose 5-phosphate",
+            "id": "ru5p__D_c",
+            "dbIdentifier": "ru5p__D_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Sedoheptulose 7-phosphate",
+            "id": "s7p_c",
+            "dbIdentifier": "s7p_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Succinate",
+            "id": "succ_c",
+            "dbIdentifier": "succ_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Succinate",
+            "id": "succ_e",
+            "dbIdentifier": "succ_e",
+            "compartment": "e",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "Succinyl-CoA",
+            "id": "succoa_c",
+            "dbIdentifier": "succoa_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "D-Xylulose 5-phosphate",
+            "id": "xu5p__D_c",
+            "dbIdentifier": "xu5p__D_c",
+            "compartment": "c",
+            "biologicalType": "metabolite",
+            "pathways": [],
+            "hidden": false,
+            "isSideCompound": false
+        },
+        {
+            "name": "acetaldehyde dehydrogenase (acetylating)",
+            "id": "ACALD",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R acetaldehyde reversible - transport",
+            "id": "ACALDt",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "acetate kinase",
+            "id": "ACKr",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "aconitase (half-reaction A, Citrate hydro-lyase)",
+            "id": "ACONTa",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "aconitase (half-reaction B, Isocitrate hydro-lyase)",
+            "id": "ACONTb",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R acetate reversible transport via proton - symport",
+            "id": "ACt2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "adenylate kinase",
+            "id": "ADK1",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "2-Oxogluterate dehydrogenase",
+            "id": "AKGDH",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R 2 oxoglutarate reversible transport via - symport",
+            "id": "AKGt2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "alcohol dehydrogenase (ethanol)",
+            "id": "ALCD2x",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "ATP maintenance requirement",
+            "id": "ATPM",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "ATP synthase (four protons for one ATP)",
+            "id": "ATPS4r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e",
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Biomass Objective Function with GAM",
+            "id": "Biomass_Ecoli_core",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R CO2 transporter via - diffusion",
+            "id": "CO2t",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "citrate synthase",
+            "id": "CS",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "cytochrome oxidase bd (ubiquinol-8: 2 protons)",
+            "id": "CYTBD",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e",
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R D lactate transport via proton - symport",
+            "id": "D_LACt2",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "enolase",
+            "id": "ENO",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "ETOHt2r",
+            "id": "ETOHt2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Acetate exchange",
+            "id": "EX_ac_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Acetaldehyde exchange",
+            "id": "EX_acald_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "2-Oxoglutarate exchange",
+            "id": "EX_akg_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "CO2 exchange",
+            "id": "EX_co2_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Ethanol exchange",
+            "id": "EX_etoh_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Formate exchange",
+            "id": "EX_for_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "D-Fructose exchange",
+            "id": "EX_fru_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Fumarate exchange",
+            "id": "EX_fum_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "D-Glucose exchange",
+            "id": "EX_glc__D_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "L-Glutamine exchange",
+            "id": "EX_gln__L_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "L-Glutamate exchange",
+            "id": "EX_glu__L_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "H+ exchange",
+            "id": "EX_h_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "H2O exchange",
+            "id": "EX_h2o_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "D-lactate exchange",
+            "id": "EX_lac__D_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "L-Malate exchange",
+            "id": "EX_mal__L_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Ammonia exchange",
+            "id": "EX_nh4_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "O2 exchange",
+            "id": "EX_o2_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Phosphate exchange",
+            "id": "EX_pi_e",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Pyruvate exchange",
+            "id": "EX_pyr_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Succinate exchange",
+            "id": "EX_succ_e",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "fructose-bisphosphate aldolase",
+            "id": "FBA",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "fructose-bisphosphatase",
+            "id": "FBP",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "formate transport in via proton symport",
+            "id": "FORt2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "formate transport via diffusion",
+            "id": "FORti",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e",
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "fumarate reductase",
+            "id": "FRD7",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R Fructose transport via PEPPyr PTS-f6p - generating",
+            "id": "FRUpts2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "fumarase",
+            "id": "FUM",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R Fumarate transport via proton symport-2 - H",
+            "id": "FUMt2_2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glucose 6-phosphate dehydrogenase",
+            "id": "G6PDH2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glyceraldehyde-3-phosphate dehydrogenase",
+            "id": "GAPD",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "D-glucose transport via PEP:Pyr PTS",
+            "id": "GLCpts",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glutamine synthetase",
+            "id": "GLNS",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "GLNabc",
+            "id": "GLNabc",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e",
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glutamate dehydrogenase (NADP)",
+            "id": "GLUDy",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glutaminase",
+            "id": "GLUN",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glutamate synthase (NADPH)",
+            "id": "GLUSy",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R L glutamate transport via proton - symport-reversible",
+            "id": "GLUt2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphogluconate dehydrogenase",
+            "id": "GND",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R H2O transport via - diffusion",
+            "id": "H2Ot",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "isocitrate dehydrogenase (NADP)",
+            "id": "ICDHyr",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "Isocitrate lyase",
+            "id": "ICL",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "D-lactate dehydrogenase",
+            "id": "LDH_D",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "malate synthase",
+            "id": "MALS",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R Malate transport via proton symport-2 - H",
+            "id": "MALt2_2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "malate dehydrogenase",
+            "id": "MDH",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "malic enzyme (NAD)",
+            "id": "ME1",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "malic enzyme (NADP)",
+            "id": "ME2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "NADH dehydrogenase (ubiquinone-8 & 3 protons)",
+            "id": "NADH16",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "e",
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "NAD transhydrogenase",
+            "id": "NADTRHD",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R ammonia reversible - transport",
+            "id": "NH4t",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R o2 - transport-diffusion",
+            "id": "O2t",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "pyruvate dehydrogenase",
+            "id": "PDH",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphofructokinase",
+            "id": "PFK",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "pyruvate formate lyase",
+            "id": "PFL",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "glucose-6-phosphate isomerase",
+            "id": "PGI",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphoglycerate kinase",
+            "id": "PGK",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "6-phosphogluconolactonase",
+            "id": "PGL",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphoglycerate mutase",
+            "id": "PGM",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R phosphate reversible transport via - symport",
+            "id": "PIt2r",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphoenolpyruvate carboxylase",
+            "id": "PPC",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphoenolpyruvate carboxykinase",
+            "id": "PPCK",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphoenolpyruvate synthase",
+            "id": "PPS",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "phosphotransacetylase",
+            "id": "PTAr",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "pyruvate kinase",
+            "id": "PYK",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R pyruvate transport in via proton - symport",
+            "id": "PYRt2",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "ribulose 5-phosphate 3-epimerase",
+            "id": "RPE",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "ribose-5-phosphate isomerase",
+            "id": "RPI",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R succinate transport via proton symport-2 - H",
+            "id": "SUCCt2_2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "succinate transport out via proton antiport",
+            "id": "SUCCt3",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "succinate dehydrogenase (irreversible)",
+            "id": "SUCDi",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "succinyl-CoA synthetase (ADP-forming)",
+            "id": "SUCOAS",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "transaldolase",
+            "id": "TALA",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "R NAD - P-transhydrogenase",
+            "id": "THD2",
+            "reactionReversibility": false,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c",
+                "e"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "transketolase",
+            "id": "TKT1",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "transketolase",
+            "id": "TKT2",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        },
+        {
+            "name": "triose-phosphate isomerase",
+            "id": "TPI",
+            "reactionReversibility": true,
+            "biologicalType": "reaction",
+            "compartment": [
+                "c"
+            ],
+            "pathways": [],
+            "hidden": false
+        }
+    ],
+    "links": [
+        {
+            "source": 7,
+            "target": 72,
+            "interaction": "in",
+            "reversible": true,
+            "id": "acald_c -- ACALD"
+        },
+        {
+            "source": 20,
+            "target": 72,
+            "interaction": "in",
+            "reversible": true,
+            "id": "coa_c -- ACALD"
+        },
+        {
+            "source": 49,
+            "target": 72,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nad_c -- ACALD"
+        },
+        {
+            "source": 72,
+            "target": 9,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACALD -- accoa_c"
+        },
+        {
+            "source": 72,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACALD -- h_c"
+        },
+        {
+            "source": 72,
+            "target": 50,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACALD -- nadh_c"
+        },
+        {
+            "source": 8,
+            "target": 73,
+            "interaction": "in",
+            "reversible": true,
+            "id": "acald_e -- ACALDt"
+        },
+        {
+            "source": 73,
+            "target": 7,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACALDt -- acald_c"
+        },
+        {
+            "source": 5,
+            "target": 74,
+            "interaction": "in",
+            "reversible": true,
+            "id": "ac_c -- ACKr"
+        },
+        {
+            "source": 16,
+            "target": 74,
+            "interaction": "in",
+            "reversible": true,
+            "id": "atp_c -- ACKr"
+        },
+        {
+            "source": 74,
+            "target": 11,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACKr -- actp_c"
+        },
+        {
+            "source": 74,
+            "target": 12,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACKr -- adp_c"
+        },
+        {
+            "source": 17,
+            "target": 75,
+            "interaction": "in",
+            "reversible": true,
+            "id": "cit_c -- ACONTa"
+        },
+        {
+            "source": 75,
+            "target": 10,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACONTa -- acon_C_c"
+        },
+        {
+            "source": 75,
+            "target": 40,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACONTa -- h2o_c"
+        },
+        {
+            "source": 10,
+            "target": 76,
+            "interaction": "in",
+            "reversible": true,
+            "id": "acon_C_c -- ACONTb"
+        },
+        {
+            "source": 40,
+            "target": 76,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h2o_c -- ACONTb"
+        },
+        {
+            "source": 76,
+            "target": 44,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACONTb -- icit_c"
+        },
+        {
+            "source": 6,
+            "target": 77,
+            "interaction": "in",
+            "reversible": true,
+            "id": "ac_e -- ACt2r"
+        },
+        {
+            "source": 43,
+            "target": 77,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- ACt2r"
+        },
+        {
+            "source": 77,
+            "target": 5,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACt2r -- ac_c"
+        },
+        {
+            "source": 77,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ACt2r -- h_c"
+        },
+        {
+            "source": 15,
+            "target": 78,
+            "interaction": "in",
+            "reversible": true,
+            "id": "amp_c -- ADK1"
+        },
+        {
+            "source": 16,
+            "target": 78,
+            "interaction": "in",
+            "reversible": true,
+            "id": "atp_c -- ADK1"
+        },
+        {
+            "source": 78,
+            "target": 12,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ADK1 -- adp_c"
+        },
+        {
+            "source": 13,
+            "target": 79,
+            "interaction": "in",
+            "reversible": false,
+            "id": "akg_c -- AKGDH"
+        },
+        {
+            "source": 20,
+            "target": 79,
+            "interaction": "in",
+            "reversible": false,
+            "id": "coa_c -- AKGDH"
+        },
+        {
+            "source": 49,
+            "target": 79,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nad_c -- AKGDH"
+        },
+        {
+            "source": 79,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "AKGDH -- co2_c"
+        },
+        {
+            "source": 79,
+            "target": 50,
+            "interaction": "out",
+            "reversible": false,
+            "id": "AKGDH -- nadh_c"
+        },
+        {
+            "source": 79,
+            "target": 70,
+            "interaction": "out",
+            "reversible": false,
+            "id": "AKGDH -- succoa_c"
+        },
+        {
+            "source": 14,
+            "target": 80,
+            "interaction": "in",
+            "reversible": true,
+            "id": "akg_e -- AKGt2r"
+        },
+        {
+            "source": 43,
+            "target": 80,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- AKGt2r"
+        },
+        {
+            "source": 80,
+            "target": 13,
+            "interaction": "out",
+            "reversible": true,
+            "id": "AKGt2r -- akg_c"
+        },
+        {
+            "source": 80,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "AKGt2r -- h_c"
+        },
+        {
+            "source": 23,
+            "target": 81,
+            "interaction": "in",
+            "reversible": true,
+            "id": "etoh_c -- ALCD2x"
+        },
+        {
+            "source": 49,
+            "target": 81,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nad_c -- ALCD2x"
+        },
+        {
+            "source": 81,
+            "target": 7,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ALCD2x -- acald_c"
+        },
+        {
+            "source": 81,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ALCD2x -- h_c"
+        },
+        {
+            "source": 81,
+            "target": 50,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ALCD2x -- nadh_c"
+        },
+        {
+            "source": 16,
+            "target": 82,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- ATPM"
+        },
+        {
+            "source": 40,
+            "target": 82,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- ATPM"
+        },
+        {
+            "source": 82,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- adp_c"
+        },
+        {
+            "source": 82,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- h_c"
+        },
+        {
+            "source": 82,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ATPM -- pi_c"
+        },
+        {
+            "source": 12,
+            "target": 83,
+            "interaction": "in",
+            "reversible": true,
+            "id": "adp_c -- ATPS4r"
+        },
+        {
+            "source": 43,
+            "target": 83,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- ATPS4r"
+        },
+        {
+            "source": 59,
+            "target": 83,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pi_c -- ATPS4r"
+        },
+        {
+            "source": 83,
+            "target": 16,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ATPS4r -- atp_c"
+        },
+        {
+            "source": 83,
+            "target": 40,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ATPS4r -- h2o_c"
+        },
+        {
+            "source": 83,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ATPS4r -- h_c"
+        },
+        {
+            "source": 2,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "3pg_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 9,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "accoa_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 16,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 22,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "e4p_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 25,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "f6p_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 32,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "g3p_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 33,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "g6p_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 35,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "gln__L_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 37,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "glu__L_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 40,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 49,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nad_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 52,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadph_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 57,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "oaa_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 58,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pep_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 61,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pyr_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 65,
+            "target": 84,
+            "interaction": "in",
+            "reversible": false,
+            "id": "r5p_c -- Biomass_Ecoli_core"
+        },
+        {
+            "source": 84,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- adp_c"
+        },
+        {
+            "source": 84,
+            "target": 13,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- akg_c"
+        },
+        {
+            "source": 84,
+            "target": 20,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- coa_c"
+        },
+        {
+            "source": 84,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- h_c"
+        },
+        {
+            "source": 84,
+            "target": 50,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- nadh_c"
+        },
+        {
+            "source": 84,
+            "target": 51,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- nadp_c"
+        },
+        {
+            "source": 84,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "Biomass_Ecoli_core -- pi_c"
+        },
+        {
+            "source": 19,
+            "target": 85,
+            "interaction": "in",
+            "reversible": true,
+            "id": "co2_e -- CO2t"
+        },
+        {
+            "source": 85,
+            "target": 18,
+            "interaction": "out",
+            "reversible": true,
+            "id": "CO2t -- co2_c"
+        },
+        {
+            "source": 9,
+            "target": 86,
+            "interaction": "in",
+            "reversible": false,
+            "id": "accoa_c -- CS"
+        },
+        {
+            "source": 40,
+            "target": 86,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- CS"
+        },
+        {
+            "source": 57,
+            "target": 86,
+            "interaction": "in",
+            "reversible": false,
+            "id": "oaa_c -- CS"
+        },
+        {
+            "source": 86,
+            "target": 17,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CS -- cit_c"
+        },
+        {
+            "source": 86,
+            "target": 20,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CS -- coa_c"
+        },
+        {
+            "source": 86,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CS -- h_c"
+        },
+        {
+            "source": 42,
+            "target": 87,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_c -- CYTBD"
+        },
+        {
+            "source": 55,
+            "target": 87,
+            "interaction": "in",
+            "reversible": false,
+            "id": "o2_c -- CYTBD"
+        },
+        {
+            "source": 64,
+            "target": 87,
+            "interaction": "in",
+            "reversible": false,
+            "id": "q8h2_c -- CYTBD"
+        },
+        {
+            "source": 87,
+            "target": 40,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CYTBD -- h2o_c"
+        },
+        {
+            "source": 87,
+            "target": 43,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CYTBD -- h_e"
+        },
+        {
+            "source": 87,
+            "target": 63,
+            "interaction": "out",
+            "reversible": false,
+            "id": "CYTBD -- q8_c"
+        },
+        {
+            "source": 43,
+            "target": 88,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- D_LACt2"
+        },
+        {
+            "source": 46,
+            "target": 88,
+            "interaction": "in",
+            "reversible": true,
+            "id": "lac__D_e -- D_LACt2"
+        },
+        {
+            "source": 88,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "D_LACt2 -- h_c"
+        },
+        {
+            "source": 88,
+            "target": 45,
+            "interaction": "out",
+            "reversible": true,
+            "id": "D_LACt2 -- lac__D_c"
+        },
+        {
+            "source": 1,
+            "target": 89,
+            "interaction": "in",
+            "reversible": true,
+            "id": "2pg_c -- ENO"
+        },
+        {
+            "source": 89,
+            "target": 40,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ENO -- h2o_c"
+        },
+        {
+            "source": 89,
+            "target": 58,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ENO -- pep_c"
+        },
+        {
+            "source": 24,
+            "target": 90,
+            "interaction": "in",
+            "reversible": true,
+            "id": "etoh_e -- ETOHt2r"
+        },
+        {
+            "source": 43,
+            "target": 90,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- ETOHt2r"
+        },
+        {
+            "source": 90,
+            "target": 23,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ETOHt2r -- etoh_c"
+        },
+        {
+            "source": 90,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ETOHt2r -- h_c"
+        },
+        {
+            "source": 6,
+            "target": 91,
+            "interaction": "in",
+            "reversible": false,
+            "id": "ac_e -- EX_ac_e"
+        },
+        {
+            "source": 8,
+            "target": 92,
+            "interaction": "in",
+            "reversible": false,
+            "id": "acald_e -- EX_acald_e"
+        },
+        {
+            "source": 14,
+            "target": 93,
+            "interaction": "in",
+            "reversible": false,
+            "id": "akg_e -- EX_akg_e"
+        },
+        {
+            "source": 19,
+            "target": 94,
+            "interaction": "in",
+            "reversible": true,
+            "id": "co2_e -- EX_co2_e"
+        },
+        {
+            "source": 24,
+            "target": 95,
+            "interaction": "in",
+            "reversible": false,
+            "id": "etoh_e -- EX_etoh_e"
+        },
+        {
+            "source": 28,
+            "target": 96,
+            "interaction": "in",
+            "reversible": false,
+            "id": "for_e -- EX_for_e"
+        },
+        {
+            "source": 29,
+            "target": 97,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fru_e -- EX_fru_e"
+        },
+        {
+            "source": 31,
+            "target": 98,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fum_e -- EX_fum_e"
+        },
+        {
+            "source": 34,
+            "target": 99,
+            "interaction": "in",
+            "reversible": true,
+            "id": "glc__D_e -- EX_glc__D_e"
+        },
+        {
+            "source": 36,
+            "target": 100,
+            "interaction": "in",
+            "reversible": false,
+            "id": "gln__L_e -- EX_gln__L_e"
+        },
+        {
+            "source": 38,
+            "target": 101,
+            "interaction": "in",
+            "reversible": false,
+            "id": "glu__L_e -- EX_glu__L_e"
+        },
+        {
+            "source": 43,
+            "target": 102,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- EX_h_e"
+        },
+        {
+            "source": 41,
+            "target": 103,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h2o_e -- EX_h2o_e"
+        },
+        {
+            "source": 46,
+            "target": 104,
+            "interaction": "in",
+            "reversible": false,
+            "id": "lac__D_e -- EX_lac__D_e"
+        },
+        {
+            "source": 48,
+            "target": 105,
+            "interaction": "in",
+            "reversible": false,
+            "id": "mal__L_e -- EX_mal__L_e"
+        },
+        {
+            "source": 54,
+            "target": 106,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nh4_e -- EX_nh4_e"
+        },
+        {
+            "source": 56,
+            "target": 107,
+            "interaction": "in",
+            "reversible": true,
+            "id": "o2_e -- EX_o2_e"
+        },
+        {
+            "source": 60,
+            "target": 108,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pi_e -- EX_pi_e"
+        },
+        {
+            "source": 62,
+            "target": 109,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pyr_e -- EX_pyr_e"
+        },
+        {
+            "source": 69,
+            "target": 110,
+            "interaction": "in",
+            "reversible": false,
+            "id": "succ_e -- EX_succ_e"
+        },
+        {
+            "source": 26,
+            "target": 111,
+            "interaction": "in",
+            "reversible": true,
+            "id": "fdp_c -- FBA"
+        },
+        {
+            "source": 111,
+            "target": 21,
+            "interaction": "out",
+            "reversible": true,
+            "id": "FBA -- dhap_c"
+        },
+        {
+            "source": 111,
+            "target": 32,
+            "interaction": "out",
+            "reversible": true,
+            "id": "FBA -- g3p_c"
+        },
+        {
+            "source": 26,
+            "target": 112,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fdp_c -- FBP"
+        },
+        {
+            "source": 40,
+            "target": 112,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- FBP"
+        },
+        {
+            "source": 112,
+            "target": 25,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FBP -- f6p_c"
+        },
+        {
+            "source": 112,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FBP -- pi_c"
+        },
+        {
+            "source": 28,
+            "target": 113,
+            "interaction": "in",
+            "reversible": false,
+            "id": "for_e -- FORt2"
+        },
+        {
+            "source": 43,
+            "target": 113,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- FORt2"
+        },
+        {
+            "source": 113,
+            "target": 27,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FORt2 -- for_c"
+        },
+        {
+            "source": 113,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FORt2 -- h_c"
+        },
+        {
+            "source": 27,
+            "target": 114,
+            "interaction": "in",
+            "reversible": false,
+            "id": "for_c -- FORti"
+        },
+        {
+            "source": 114,
+            "target": 28,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FORti -- for_e"
+        },
+        {
+            "source": 30,
+            "target": 115,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fum_c -- FRD7"
+        },
+        {
+            "source": 64,
+            "target": 115,
+            "interaction": "in",
+            "reversible": false,
+            "id": "q8h2_c -- FRD7"
+        },
+        {
+            "source": 115,
+            "target": 63,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FRD7 -- q8_c"
+        },
+        {
+            "source": 115,
+            "target": 68,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FRD7 -- succ_c"
+        },
+        {
+            "source": 29,
+            "target": 116,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fru_e -- FRUpts2"
+        },
+        {
+            "source": 58,
+            "target": 116,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pep_c -- FRUpts2"
+        },
+        {
+            "source": 116,
+            "target": 25,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FRUpts2 -- f6p_c"
+        },
+        {
+            "source": 116,
+            "target": 61,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FRUpts2 -- pyr_c"
+        },
+        {
+            "source": 30,
+            "target": 117,
+            "interaction": "in",
+            "reversible": true,
+            "id": "fum_c -- FUM"
+        },
+        {
+            "source": 40,
+            "target": 117,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h2o_c -- FUM"
+        },
+        {
+            "source": 117,
+            "target": 47,
+            "interaction": "out",
+            "reversible": true,
+            "id": "FUM -- mal__L_c"
+        },
+        {
+            "source": 31,
+            "target": 118,
+            "interaction": "in",
+            "reversible": false,
+            "id": "fum_e -- FUMt2_2"
+        },
+        {
+            "source": 43,
+            "target": 118,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- FUMt2_2"
+        },
+        {
+            "source": 118,
+            "target": 30,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FUMt2_2 -- fum_c"
+        },
+        {
+            "source": 118,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "FUMt2_2 -- h_c"
+        },
+        {
+            "source": 33,
+            "target": 119,
+            "interaction": "in",
+            "reversible": true,
+            "id": "g6p_c -- G6PDH2r"
+        },
+        {
+            "source": 51,
+            "target": 119,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nadp_c -- G6PDH2r"
+        },
+        {
+            "source": 119,
+            "target": 4,
+            "interaction": "out",
+            "reversible": true,
+            "id": "G6PDH2r -- 6pgl_c"
+        },
+        {
+            "source": 119,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "G6PDH2r -- h_c"
+        },
+        {
+            "source": 119,
+            "target": 52,
+            "interaction": "out",
+            "reversible": true,
+            "id": "G6PDH2r -- nadph_c"
+        },
+        {
+            "source": 32,
+            "target": 120,
+            "interaction": "in",
+            "reversible": true,
+            "id": "g3p_c -- GAPD"
+        },
+        {
+            "source": 49,
+            "target": 120,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nad_c -- GAPD"
+        },
+        {
+            "source": 59,
+            "target": 120,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pi_c -- GAPD"
+        },
+        {
+            "source": 120,
+            "target": 0,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GAPD -- 13dpg_c"
+        },
+        {
+            "source": 120,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GAPD -- h_c"
+        },
+        {
+            "source": 120,
+            "target": 50,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GAPD -- nadh_c"
+        },
+        {
+            "source": 34,
+            "target": 121,
+            "interaction": "in",
+            "reversible": false,
+            "id": "glc__D_e -- GLCpts"
+        },
+        {
+            "source": 58,
+            "target": 121,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pep_c -- GLCpts"
+        },
+        {
+            "source": 121,
+            "target": 33,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLCpts -- g6p_c"
+        },
+        {
+            "source": 121,
+            "target": 61,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLCpts -- pyr_c"
+        },
+        {
+            "source": 16,
+            "target": 122,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- GLNS"
+        },
+        {
+            "source": 37,
+            "target": 122,
+            "interaction": "in",
+            "reversible": false,
+            "id": "glu__L_c -- GLNS"
+        },
+        {
+            "source": 53,
+            "target": 122,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nh4_c -- GLNS"
+        },
+        {
+            "source": 122,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNS -- adp_c"
+        },
+        {
+            "source": 122,
+            "target": 35,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNS -- gln__L_c"
+        },
+        {
+            "source": 122,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNS -- h_c"
+        },
+        {
+            "source": 122,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNS -- pi_c"
+        },
+        {
+            "source": 16,
+            "target": 123,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- GLNabc"
+        },
+        {
+            "source": 36,
+            "target": 123,
+            "interaction": "in",
+            "reversible": false,
+            "id": "gln__L_e -- GLNabc"
+        },
+        {
+            "source": 40,
+            "target": 123,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- GLNabc"
+        },
+        {
+            "source": 123,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNabc -- adp_c"
+        },
+        {
+            "source": 123,
+            "target": 35,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNabc -- gln__L_c"
+        },
+        {
+            "source": 123,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNabc -- h_c"
+        },
+        {
+            "source": 123,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLNabc -- pi_c"
+        },
+        {
+            "source": 37,
+            "target": 124,
+            "interaction": "in",
+            "reversible": true,
+            "id": "glu__L_c -- GLUDy"
+        },
+        {
+            "source": 40,
+            "target": 124,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h2o_c -- GLUDy"
+        },
+        {
+            "source": 51,
+            "target": 124,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nadp_c -- GLUDy"
+        },
+        {
+            "source": 124,
+            "target": 13,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUDy -- akg_c"
+        },
+        {
+            "source": 124,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUDy -- h_c"
+        },
+        {
+            "source": 124,
+            "target": 52,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUDy -- nadph_c"
+        },
+        {
+            "source": 124,
+            "target": 53,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUDy -- nh4_c"
+        },
+        {
+            "source": 35,
+            "target": 125,
+            "interaction": "in",
+            "reversible": false,
+            "id": "gln__L_c -- GLUN"
+        },
+        {
+            "source": 40,
+            "target": 125,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- GLUN"
+        },
+        {
+            "source": 125,
+            "target": 37,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLUN -- glu__L_c"
+        },
+        {
+            "source": 125,
+            "target": 53,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLUN -- nh4_c"
+        },
+        {
+            "source": 13,
+            "target": 126,
+            "interaction": "in",
+            "reversible": false,
+            "id": "akg_c -- GLUSy"
+        },
+        {
+            "source": 35,
+            "target": 126,
+            "interaction": "in",
+            "reversible": false,
+            "id": "gln__L_c -- GLUSy"
+        },
+        {
+            "source": 42,
+            "target": 126,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_c -- GLUSy"
+        },
+        {
+            "source": 52,
+            "target": 126,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadph_c -- GLUSy"
+        },
+        {
+            "source": 126,
+            "target": 37,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLUSy -- glu__L_c"
+        },
+        {
+            "source": 126,
+            "target": 51,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GLUSy -- nadp_c"
+        },
+        {
+            "source": 38,
+            "target": 127,
+            "interaction": "in",
+            "reversible": true,
+            "id": "glu__L_e -- GLUt2r"
+        },
+        {
+            "source": 43,
+            "target": 127,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- GLUt2r"
+        },
+        {
+            "source": 127,
+            "target": 37,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUt2r -- glu__L_c"
+        },
+        {
+            "source": 127,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "GLUt2r -- h_c"
+        },
+        {
+            "source": 3,
+            "target": 128,
+            "interaction": "in",
+            "reversible": false,
+            "id": "6pgc_c -- GND"
+        },
+        {
+            "source": 51,
+            "target": 128,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadp_c -- GND"
+        },
+        {
+            "source": 128,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GND -- co2_c"
+        },
+        {
+            "source": 128,
+            "target": 52,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GND -- nadph_c"
+        },
+        {
+            "source": 128,
+            "target": 66,
+            "interaction": "out",
+            "reversible": false,
+            "id": "GND -- ru5p__D_c"
+        },
+        {
+            "source": 41,
+            "target": 129,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h2o_e -- H2Ot"
+        },
+        {
+            "source": 129,
+            "target": 40,
+            "interaction": "out",
+            "reversible": true,
+            "id": "H2Ot -- h2o_c"
+        },
+        {
+            "source": 44,
+            "target": 130,
+            "interaction": "in",
+            "reversible": true,
+            "id": "icit_c -- ICDHyr"
+        },
+        {
+            "source": 51,
+            "target": 130,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nadp_c -- ICDHyr"
+        },
+        {
+            "source": 130,
+            "target": 13,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ICDHyr -- akg_c"
+        },
+        {
+            "source": 130,
+            "target": 18,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ICDHyr -- co2_c"
+        },
+        {
+            "source": 130,
+            "target": 52,
+            "interaction": "out",
+            "reversible": true,
+            "id": "ICDHyr -- nadph_c"
+        },
+        {
+            "source": 44,
+            "target": 131,
+            "interaction": "in",
+            "reversible": false,
+            "id": "icit_c -- ICL"
+        },
+        {
+            "source": 131,
+            "target": 39,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ICL -- glx_c"
+        },
+        {
+            "source": 131,
+            "target": 68,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ICL -- succ_c"
+        },
+        {
+            "source": 45,
+            "target": 132,
+            "interaction": "in",
+            "reversible": true,
+            "id": "lac__D_c -- LDH_D"
+        },
+        {
+            "source": 49,
+            "target": 132,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nad_c -- LDH_D"
+        },
+        {
+            "source": 132,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "LDH_D -- h_c"
+        },
+        {
+            "source": 132,
+            "target": 50,
+            "interaction": "out",
+            "reversible": true,
+            "id": "LDH_D -- nadh_c"
+        },
+        {
+            "source": 132,
+            "target": 61,
+            "interaction": "out",
+            "reversible": true,
+            "id": "LDH_D -- pyr_c"
+        },
+        {
+            "source": 9,
+            "target": 133,
+            "interaction": "in",
+            "reversible": false,
+            "id": "accoa_c -- MALS"
+        },
+        {
+            "source": 39,
+            "target": 133,
+            "interaction": "in",
+            "reversible": false,
+            "id": "glx_c -- MALS"
+        },
+        {
+            "source": 40,
+            "target": 133,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- MALS"
+        },
+        {
+            "source": 133,
+            "target": 20,
+            "interaction": "out",
+            "reversible": false,
+            "id": "MALS -- coa_c"
+        },
+        {
+            "source": 133,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "MALS -- h_c"
+        },
+        {
+            "source": 133,
+            "target": 47,
+            "interaction": "out",
+            "reversible": false,
+            "id": "MALS -- mal__L_c"
+        },
+        {
+            "source": 43,
+            "target": 134,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- MALt2_2"
+        },
+        {
+            "source": 48,
+            "target": 134,
+            "interaction": "in",
+            "reversible": false,
+            "id": "mal__L_e -- MALt2_2"
+        },
+        {
+            "source": 134,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "MALt2_2 -- h_c"
+        },
+        {
+            "source": 134,
+            "target": 47,
+            "interaction": "out",
+            "reversible": false,
+            "id": "MALt2_2 -- mal__L_c"
+        },
+        {
+            "source": 47,
+            "target": 135,
+            "interaction": "in",
+            "reversible": true,
+            "id": "mal__L_c -- MDH"
+        },
+        {
+            "source": 49,
+            "target": 135,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nad_c -- MDH"
+        },
+        {
+            "source": 135,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "MDH -- h_c"
+        },
+        {
+            "source": 135,
+            "target": 50,
+            "interaction": "out",
+            "reversible": true,
+            "id": "MDH -- nadh_c"
+        },
+        {
+            "source": 135,
+            "target": 57,
+            "interaction": "out",
+            "reversible": true,
+            "id": "MDH -- oaa_c"
+        },
+        {
+            "source": 47,
+            "target": 136,
+            "interaction": "in",
+            "reversible": false,
+            "id": "mal__L_c -- ME1"
+        },
+        {
+            "source": 49,
+            "target": 136,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nad_c -- ME1"
+        },
+        {
+            "source": 136,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME1 -- co2_c"
+        },
+        {
+            "source": 136,
+            "target": 50,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME1 -- nadh_c"
+        },
+        {
+            "source": 136,
+            "target": 61,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME1 -- pyr_c"
+        },
+        {
+            "source": 47,
+            "target": 137,
+            "interaction": "in",
+            "reversible": false,
+            "id": "mal__L_c -- ME2"
+        },
+        {
+            "source": 51,
+            "target": 137,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadp_c -- ME2"
+        },
+        {
+            "source": 137,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME2 -- co2_c"
+        },
+        {
+            "source": 137,
+            "target": 52,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME2 -- nadph_c"
+        },
+        {
+            "source": 137,
+            "target": 61,
+            "interaction": "out",
+            "reversible": false,
+            "id": "ME2 -- pyr_c"
+        },
+        {
+            "source": 42,
+            "target": 138,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_c -- NADH16"
+        },
+        {
+            "source": 50,
+            "target": 138,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadh_c -- NADH16"
+        },
+        {
+            "source": 63,
+            "target": 138,
+            "interaction": "in",
+            "reversible": false,
+            "id": "q8_c -- NADH16"
+        },
+        {
+            "source": 138,
+            "target": 43,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NADH16 -- h_e"
+        },
+        {
+            "source": 138,
+            "target": 49,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NADH16 -- nad_c"
+        },
+        {
+            "source": 138,
+            "target": 64,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NADH16 -- q8h2_c"
+        },
+        {
+            "source": 49,
+            "target": 139,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nad_c -- NADTRHD"
+        },
+        {
+            "source": 52,
+            "target": 139,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadph_c -- NADTRHD"
+        },
+        {
+            "source": 139,
+            "target": 50,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NADTRHD -- nadh_c"
+        },
+        {
+            "source": 139,
+            "target": 51,
+            "interaction": "out",
+            "reversible": false,
+            "id": "NADTRHD -- nadp_c"
+        },
+        {
+            "source": 54,
+            "target": 140,
+            "interaction": "in",
+            "reversible": true,
+            "id": "nh4_e -- NH4t"
+        },
+        {
+            "source": 140,
+            "target": 53,
+            "interaction": "out",
+            "reversible": true,
+            "id": "NH4t -- nh4_c"
+        },
+        {
+            "source": 56,
+            "target": 141,
+            "interaction": "in",
+            "reversible": true,
+            "id": "o2_e -- O2t"
+        },
+        {
+            "source": 141,
+            "target": 55,
+            "interaction": "out",
+            "reversible": true,
+            "id": "O2t -- o2_c"
+        },
+        {
+            "source": 20,
+            "target": 142,
+            "interaction": "in",
+            "reversible": false,
+            "id": "coa_c -- PDH"
+        },
+        {
+            "source": 49,
+            "target": 142,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nad_c -- PDH"
+        },
+        {
+            "source": 61,
+            "target": 142,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pyr_c -- PDH"
+        },
+        {
+            "source": 142,
+            "target": 9,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PDH -- accoa_c"
+        },
+        {
+            "source": 142,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PDH -- co2_c"
+        },
+        {
+            "source": 142,
+            "target": 50,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PDH -- nadh_c"
+        },
+        {
+            "source": 16,
+            "target": 143,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- PFK"
+        },
+        {
+            "source": 25,
+            "target": 143,
+            "interaction": "in",
+            "reversible": false,
+            "id": "f6p_c -- PFK"
+        },
+        {
+            "source": 143,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PFK -- adp_c"
+        },
+        {
+            "source": 143,
+            "target": 26,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PFK -- fdp_c"
+        },
+        {
+            "source": 143,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PFK -- h_c"
+        },
+        {
+            "source": 20,
+            "target": 144,
+            "interaction": "in",
+            "reversible": false,
+            "id": "coa_c -- PFL"
+        },
+        {
+            "source": 61,
+            "target": 144,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pyr_c -- PFL"
+        },
+        {
+            "source": 144,
+            "target": 9,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PFL -- accoa_c"
+        },
+        {
+            "source": 144,
+            "target": 27,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PFL -- for_c"
+        },
+        {
+            "source": 33,
+            "target": 145,
+            "interaction": "in",
+            "reversible": true,
+            "id": "g6p_c -- PGI"
+        },
+        {
+            "source": 145,
+            "target": 25,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PGI -- f6p_c"
+        },
+        {
+            "source": 2,
+            "target": 146,
+            "interaction": "in",
+            "reversible": true,
+            "id": "3pg_c -- PGK"
+        },
+        {
+            "source": 16,
+            "target": 146,
+            "interaction": "in",
+            "reversible": true,
+            "id": "atp_c -- PGK"
+        },
+        {
+            "source": 146,
+            "target": 0,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PGK -- 13dpg_c"
+        },
+        {
+            "source": 146,
+            "target": 12,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PGK -- adp_c"
+        },
+        {
+            "source": 4,
+            "target": 147,
+            "interaction": "in",
+            "reversible": false,
+            "id": "6pgl_c -- PGL"
+        },
+        {
+            "source": 40,
+            "target": 147,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- PGL"
+        },
+        {
+            "source": 147,
+            "target": 3,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PGL -- 6pgc_c"
+        },
+        {
+            "source": 147,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PGL -- h_c"
+        },
+        {
+            "source": 1,
+            "target": 148,
+            "interaction": "in",
+            "reversible": true,
+            "id": "2pg_c -- PGM"
+        },
+        {
+            "source": 148,
+            "target": 2,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PGM -- 3pg_c"
+        },
+        {
+            "source": 43,
+            "target": 149,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- PIt2r"
+        },
+        {
+            "source": 60,
+            "target": 149,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pi_e -- PIt2r"
+        },
+        {
+            "source": 149,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PIt2r -- h_c"
+        },
+        {
+            "source": 149,
+            "target": 59,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PIt2r -- pi_c"
+        },
+        {
+            "source": 18,
+            "target": 150,
+            "interaction": "in",
+            "reversible": false,
+            "id": "co2_c -- PPC"
+        },
+        {
+            "source": 40,
+            "target": 150,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- PPC"
+        },
+        {
+            "source": 58,
+            "target": 150,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pep_c -- PPC"
+        },
+        {
+            "source": 150,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPC -- h_c"
+        },
+        {
+            "source": 150,
+            "target": 57,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPC -- oaa_c"
+        },
+        {
+            "source": 150,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPC -- pi_c"
+        },
+        {
+            "source": 16,
+            "target": 151,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- PPCK"
+        },
+        {
+            "source": 57,
+            "target": 151,
+            "interaction": "in",
+            "reversible": false,
+            "id": "oaa_c -- PPCK"
+        },
+        {
+            "source": 151,
+            "target": 12,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPCK -- adp_c"
+        },
+        {
+            "source": 151,
+            "target": 18,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPCK -- co2_c"
+        },
+        {
+            "source": 151,
+            "target": 58,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPCK -- pep_c"
+        },
+        {
+            "source": 16,
+            "target": 152,
+            "interaction": "in",
+            "reversible": false,
+            "id": "atp_c -- PPS"
+        },
+        {
+            "source": 40,
+            "target": 152,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h2o_c -- PPS"
+        },
+        {
+            "source": 61,
+            "target": 152,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pyr_c -- PPS"
+        },
+        {
+            "source": 152,
+            "target": 15,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPS -- amp_c"
+        },
+        {
+            "source": 152,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPS -- h_c"
+        },
+        {
+            "source": 152,
+            "target": 58,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPS -- pep_c"
+        },
+        {
+            "source": 152,
+            "target": 59,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PPS -- pi_c"
+        },
+        {
+            "source": 9,
+            "target": 153,
+            "interaction": "in",
+            "reversible": true,
+            "id": "accoa_c -- PTAr"
+        },
+        {
+            "source": 59,
+            "target": 153,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pi_c -- PTAr"
+        },
+        {
+            "source": 153,
+            "target": 11,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PTAr -- actp_c"
+        },
+        {
+            "source": 153,
+            "target": 20,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PTAr -- coa_c"
+        },
+        {
+            "source": 12,
+            "target": 154,
+            "interaction": "in",
+            "reversible": false,
+            "id": "adp_c -- PYK"
+        },
+        {
+            "source": 42,
+            "target": 154,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_c -- PYK"
+        },
+        {
+            "source": 58,
+            "target": 154,
+            "interaction": "in",
+            "reversible": false,
+            "id": "pep_c -- PYK"
+        },
+        {
+            "source": 154,
+            "target": 16,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PYK -- atp_c"
+        },
+        {
+            "source": 154,
+            "target": 61,
+            "interaction": "out",
+            "reversible": false,
+            "id": "PYK -- pyr_c"
+        },
+        {
+            "source": 43,
+            "target": 155,
+            "interaction": "in",
+            "reversible": true,
+            "id": "h_e -- PYRt2"
+        },
+        {
+            "source": 62,
+            "target": 155,
+            "interaction": "in",
+            "reversible": true,
+            "id": "pyr_e -- PYRt2"
+        },
+        {
+            "source": 155,
+            "target": 42,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PYRt2 -- h_c"
+        },
+        {
+            "source": 155,
+            "target": 61,
+            "interaction": "out",
+            "reversible": true,
+            "id": "PYRt2 -- pyr_c"
+        },
+        {
+            "source": 66,
+            "target": 156,
+            "interaction": "in",
+            "reversible": true,
+            "id": "ru5p__D_c -- RPE"
+        },
+        {
+            "source": 156,
+            "target": 71,
+            "interaction": "out",
+            "reversible": true,
+            "id": "RPE -- xu5p__D_c"
+        },
+        {
+            "source": 65,
+            "target": 157,
+            "interaction": "in",
+            "reversible": true,
+            "id": "r5p_c -- RPI"
+        },
+        {
+            "source": 157,
+            "target": 66,
+            "interaction": "out",
+            "reversible": true,
+            "id": "RPI -- ru5p__D_c"
+        },
+        {
+            "source": 43,
+            "target": 158,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- SUCCt2_2"
+        },
+        {
+            "source": 69,
+            "target": 158,
+            "interaction": "in",
+            "reversible": false,
+            "id": "succ_e -- SUCCt2_2"
+        },
+        {
+            "source": 158,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCCt2_2 -- h_c"
+        },
+        {
+            "source": 158,
+            "target": 68,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCCt2_2 -- succ_c"
+        },
+        {
+            "source": 43,
+            "target": 159,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- SUCCt3"
+        },
+        {
+            "source": 68,
+            "target": 159,
+            "interaction": "in",
+            "reversible": false,
+            "id": "succ_c -- SUCCt3"
+        },
+        {
+            "source": 159,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCCt3 -- h_c"
+        },
+        {
+            "source": 159,
+            "target": 69,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCCt3 -- succ_e"
+        },
+        {
+            "source": 63,
+            "target": 160,
+            "interaction": "in",
+            "reversible": false,
+            "id": "q8_c -- SUCDi"
+        },
+        {
+            "source": 68,
+            "target": 160,
+            "interaction": "in",
+            "reversible": false,
+            "id": "succ_c -- SUCDi"
+        },
+        {
+            "source": 160,
+            "target": 30,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCDi -- fum_c"
+        },
+        {
+            "source": 160,
+            "target": 64,
+            "interaction": "out",
+            "reversible": false,
+            "id": "SUCDi -- q8h2_c"
+        },
+        {
+            "source": 16,
+            "target": 161,
+            "interaction": "in",
+            "reversible": true,
+            "id": "atp_c -- SUCOAS"
+        },
+        {
+            "source": 20,
+            "target": 161,
+            "interaction": "in",
+            "reversible": true,
+            "id": "coa_c -- SUCOAS"
+        },
+        {
+            "source": 68,
+            "target": 161,
+            "interaction": "in",
+            "reversible": true,
+            "id": "succ_c -- SUCOAS"
+        },
+        {
+            "source": 161,
+            "target": 12,
+            "interaction": "out",
+            "reversible": true,
+            "id": "SUCOAS -- adp_c"
+        },
+        {
+            "source": 161,
+            "target": 59,
+            "interaction": "out",
+            "reversible": true,
+            "id": "SUCOAS -- pi_c"
+        },
+        {
+            "source": 161,
+            "target": 70,
+            "interaction": "out",
+            "reversible": true,
+            "id": "SUCOAS -- succoa_c"
+        },
+        {
+            "source": 32,
+            "target": 162,
+            "interaction": "in",
+            "reversible": true,
+            "id": "g3p_c -- TALA"
+        },
+        {
+            "source": 67,
+            "target": 162,
+            "interaction": "in",
+            "reversible": true,
+            "id": "s7p_c -- TALA"
+        },
+        {
+            "source": 162,
+            "target": 22,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TALA -- e4p_c"
+        },
+        {
+            "source": 162,
+            "target": 25,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TALA -- f6p_c"
+        },
+        {
+            "source": 43,
+            "target": 163,
+            "interaction": "in",
+            "reversible": false,
+            "id": "h_e -- THD2"
+        },
+        {
+            "source": 50,
+            "target": 163,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadh_c -- THD2"
+        },
+        {
+            "source": 51,
+            "target": 163,
+            "interaction": "in",
+            "reversible": false,
+            "id": "nadp_c -- THD2"
+        },
+        {
+            "source": 163,
+            "target": 42,
+            "interaction": "out",
+            "reversible": false,
+            "id": "THD2 -- h_c"
+        },
+        {
+            "source": 163,
+            "target": 49,
+            "interaction": "out",
+            "reversible": false,
+            "id": "THD2 -- nad_c"
+        },
+        {
+            "source": 163,
+            "target": 52,
+            "interaction": "out",
+            "reversible": false,
+            "id": "THD2 -- nadph_c"
+        },
+        {
+            "source": 65,
+            "target": 164,
+            "interaction": "in",
+            "reversible": true,
+            "id": "r5p_c -- TKT1"
+        },
+        {
+            "source": 71,
+            "target": 164,
+            "interaction": "in",
+            "reversible": true,
+            "id": "xu5p__D_c -- TKT1"
+        },
+        {
+            "source": 164,
+            "target": 32,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TKT1 -- g3p_c"
+        },
+        {
+            "source": 164,
+            "target": 67,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TKT1 -- s7p_c"
+        },
+        {
+            "source": 22,
+            "target": 165,
+            "interaction": "in",
+            "reversible": true,
+            "id": "e4p_c -- TKT2"
+        },
+        {
+            "source": 71,
+            "target": 165,
+            "interaction": "in",
+            "reversible": true,
+            "id": "xu5p__D_c -- TKT2"
+        },
+        {
+            "source": 165,
+            "target": 25,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TKT2 -- f6p_c"
+        },
+        {
+            "source": 165,
+            "target": 32,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TKT2 -- g3p_c"
+        },
+        {
+            "source": 21,
+            "target": 166,
+            "interaction": "in",
+            "reversible": true,
+            "id": "dhap_c -- TPI"
+        },
+        {
+            "source": 166,
+            "target": 32,
+            "interaction": "out",
+            "reversible": true,
+            "id": "TPI -- g3p_c"
+        }
+    ]
+}

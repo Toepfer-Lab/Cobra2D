@@ -5,14 +5,15 @@ Implementation of the phase and Phases classes.
 from __future__ import annotations
 from inspect import isclass
 import logging
-from typing import List, Optional, Union
-from typing_extensions import Literal
-from warnings import warn
+from inspect import isclass
+from typing import List, Union, Optional
 from xml.etree.ElementTree import Element
 
 from cobra import DictList, Model, Reaction
 from cobra.core import Group
+from cobra.util import linear_reaction_coefficients
 from prettytable import PrettyTable
+from typing_extensions import Literal
 
 from model_duplication.duplication.duplication import (
     _main_placeholder,
@@ -45,6 +46,9 @@ class Phase:
             the phase.
         reaction_settings(Reaction): Definition of reactions to be adjusted
             identically to those defined here within the phase.
+        objective_factor(float): A factor that scales the value of the
+            objective_function of this phase before summing all objective
+            functions to form the final one.
     """
 
     id: str
@@ -56,6 +60,7 @@ class Phase:
     volume: int
     model: Optional[Model]
     reaction_settings: List[Reaction]
+    objective_factor: float
 
     def __init__(
         self,
@@ -65,6 +70,7 @@ class Phase:
         timeframe: int = 1,
         volume: int = 1,
         name: str = "",
+        objective_factor=1.0,
     ):
         """
         Initialize a Phase.
@@ -84,6 +90,7 @@ class Phase:
         self.timeframe = timeframe
         self.reaction_settings = []
         self.model = None
+        self.objective_factor = objective_factor
 
     def __str__(self):
         """
@@ -297,7 +304,14 @@ class Phases:
                 phase
             )
 
-        phase_names = [phase.id for phase in without_model]
+        phase_names = []
+        objective_factor = []
+
+        for phase in without_model:
+            phase_names.append(phase.id)
+            objective_factor.append(
+                phase.objective_factor * phase.timeframe * phase.volume
+            )
 
         if without_model:
             if model is None:
@@ -313,14 +327,21 @@ class Phases:
                 )
 
             new_model = _main_placeholder(
-                model=model, labels=phase_names, genes=link_genes
+                model=model,
+                labels=phase_names,
+                genes=link_genes,
+                objective_factor=objective_factor,
             )
 
         for phase in with_model:
             copy = phase.model.copy()
 
             # ToDo duplicate code from _main_placeholder should be refactored
-            _rename(copy, phase.id)
+            _rename(
+                copy,
+                phase.id,
+                phase.objective_factor * phase.timeframe * phase.volume,
+            )
 
             # Add all objects of the model to a group named after the label
             copy.add_groups(
@@ -339,6 +360,10 @@ class Phases:
                 raise Exception(f"Test for phase {copy.id} failed.")
 
             # ToDo Genes wont be connected? no knowledge if Genes are identical
+
+        model_objective = {}
+        for reaction, coeff in linear_reaction_coefficients(new_model).items():
+            model_objective[reaction.id] = coeff
 
         for phase in self.phases:
             for reaction in phase.reaction_settings:

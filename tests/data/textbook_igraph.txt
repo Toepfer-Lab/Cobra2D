@@ -1,0 +1,187 @@
+IGRAPH UN-- 167 360 --
++ attr: color (v), name (v), coeff (e)
++ edges (vertex names):
+           13dpg_c -- GAPD, PGK
+             2pg_c -- ENO, PGM
+             3pg_c -- Biomass_Ecoli_core, PGK, PGM
+            6pgc_c -- GND, PGL
+            6pgl_c -- G6PDH2r, PGL
+              ac_c -- ACKr, ACt2r
+              ac_e -- ACt2r, EX_ac_e
+           acald_c -- ACALD, ACALDt, ALCD2x
+           acald_e -- ACALDt, EX_acald_e
+           accoa_c -- ACALD, Biomass_Ecoli_core, CS, MALS, PDH, PFL, PTAr
+          acon_C_c -- ACONTa, ACONTb
+            actp_c -- ACKr, PTAr
+             adp_c -- ACKr, ADK1, ATPM, ATPS4r, Biomass_Ecoli_core, GLNS,
+GLNabc, PFK, PGK, PPCK, PYK, SUCOAS
+             akg_c -- AKGDH, AKGt2r, Biomass_Ecoli_core, GLUDy, GLUSy, ICDHyr
+             akg_e -- AKGt2r, EX_akg_e
+             amp_c -- ADK1, PPS
+             atp_c -- ACKr, ADK1, ATPM, ATPS4r, Biomass_Ecoli_core, GLNS,
+GLNabc, PFK, PGK, PPCK, PPS, PYK, SUCOAS
+             cit_c -- ACONTa, CS
+             co2_c -- AKGDH, CO2t, GND, ICDHyr, ME1, ME2, PDH, PPC, PPCK
+             co2_e -- CO2t, EX_co2_e
+             coa_c -- ACALD, AKGDH, Biomass_Ecoli_core, CS, MALS, PDH, PFL,
+PTAr, SUCOAS
+            dhap_c -- FBA, TPI
+             e4p_c -- Biomass_Ecoli_core, TALA, TKT2
+            etoh_c -- ALCD2x, ETOHt2r
+            etoh_e -- ETOHt2r, EX_etoh_e
+             f6p_c -- Biomass_Ecoli_core, FBP, FRUpts2, PFK, PGI, TALA, TKT2
+             fdp_c -- FBA, FBP, PFK
+             for_c -- FORt2, FORti, PFL
+             for_e -- EX_for_e, FORt2, FORti
+             fru_e -- EX_fru_e, FRUpts2
+             fum_c -- FRD7, FUM, FUMt2_2, SUCDi
+             fum_e -- EX_fum_e, FUMt2_2
+             g3p_c -- Biomass_Ecoli_core, FBA, GAPD, TALA, TKT1, TKT2, TPI
+             g6p_c -- Biomass_Ecoli_core, G6PDH2r, GLCpts, PGI
+          glc__D_e -- EX_glc__D_e, GLCpts
+          gln__L_c -- Biomass_Ecoli_core, GLNS, GLNabc, GLUN, GLUSy
+          gln__L_e -- EX_gln__L_e, GLNabc
+          glu__L_c -- Biomass_Ecoli_core, GLNS, GLUDy, GLUN, GLUSy, GLUt2r
+          glu__L_e -- EX_glu__L_e, GLUt2r
+             glx_c -- ICL, MALS
+             h2o_c -- ACONTa, ACONTb, ATPM, ATPS4r, Biomass_Ecoli_core, CS,
+CYTBD, ENO, FBP, FUM, GLNabc, GLUDy, GLUN, H2Ot, MALS, PGL, PPC, PPS
+             h2o_e -- EX_h2o_e, H2Ot
+               h_c -- ACALD, ACt2r, AKGt2r, ALCD2x, ATPM, ATPS4r,
+Biomass_Ecoli_core, CS, CYTBD, D_LACt2, ETOHt2r, FORt2, FUMt2_2, G6PDH2r,
+GAPD, GLNS, GLNabc, GLUDy, GLUSy, GLUt2r, LDH_D, MALS, MALt2_2, MDH, NADH16,
+PFK, PGL, PIt2r, PPC, PPS, PYK, PYRt2, SUCCt2_2, SUCCt3, THD2
+               h_e -- ACt2r, AKGt2r, ATPS4r, CYTBD, D_LACt2, ETOHt2r, EX_h_e,
+FORt2, FUMt2_2, GLUt2r, MALt2_2, NADH16, PIt2r, PYRt2, SUCCt2_2, SUCCt3, THD2
+            icit_c -- ACONTb, ICDHyr, ICL
+          lac__D_c -- D_LACt2, LDH_D
+          lac__D_e -- D_LACt2, EX_lac__D_e
+          mal__L_c -- FUM, MALS, MALt2_2, MDH, ME1, ME2
+          mal__L_e -- EX_mal__L_e, MALt2_2
+             nad_c -- ACALD, AKGDH, ALCD2x, Biomass_Ecoli_core, GAPD, LDH_D,
+MDH, ME1, NADH16, NADTRHD, PDH, THD2
+            nadh_c -- ACALD, AKGDH, ALCD2x, Biomass_Ecoli_core, GAPD, LDH_D,
+MDH, ME1, NADH16, NADTRHD, PDH, THD2
+            nadp_c -- Biomass_Ecoli_core, G6PDH2r, GLUDy, GLUSy, GND, ICDHyr,
+ME2, NADTRHD, THD2
+           nadph_c -- Biomass_Ecoli_core, G6PDH2r, GLUDy, GLUSy, GND, ICDHyr,
+ME2, NADTRHD, THD2
+             nh4_c -- GLNS, GLUDy, GLUN, NH4t
+             nh4_e -- EX_nh4_e, NH4t
+              o2_c -- CYTBD, O2t
+              o2_e -- EX_o2_e, O2t
+             oaa_c -- Biomass_Ecoli_core, CS, MDH, PPC, PPCK
+             pep_c -- Biomass_Ecoli_core, ENO, FRUpts2, GLCpts, PPC, PPCK,
+PPS, PYK
+              pi_c -- ATPM, ATPS4r, Biomass_Ecoli_core, FBP, GAPD, GLNS,
+GLNabc, PIt2r, PPC, PPS, PTAr, SUCOAS
+              pi_e -- EX_pi_e, PIt2r
+             pyr_c -- Biomass_Ecoli_core, FRUpts2, GLCpts, LDH_D, ME1, ME2,
+PDH, PFL, PPS, PYK, PYRt2
+             pyr_e -- EX_pyr_e, PYRt2
+              q8_c -- CYTBD, FRD7, NADH16, SUCDi
+            q8h2_c -- CYTBD, FRD7, NADH16, SUCDi
+             r5p_c -- Biomass_Ecoli_core, RPI, TKT1
+         ru5p__D_c -- GND, RPE, RPI
+             s7p_c -- TALA, TKT1
+            succ_c -- FRD7, ICL, SUCCt2_2, SUCCt3, SUCDi, SUCOAS
+            succ_e -- EX_succ_e, SUCCt2_2, SUCCt3
+          succoa_c -- AKGDH, SUCOAS
+         xu5p__D_c -- RPE, TKT1, TKT2
+             ACALD -- acald_c, accoa_c, coa_c, h_c, nad_c, nadh_c
+            ACALDt -- acald_c, acald_e
+              ACKr -- ac_c, actp_c, adp_c, atp_c
+            ACONTa -- acon_C_c, cit_c, h2o_c
+            ACONTb -- acon_C_c, h2o_c, icit_c
+             ACt2r -- ac_c, ac_e, h_c, h_e
+              ADK1 -- adp_c, amp_c, atp_c
+             AKGDH -- akg_c, co2_c, coa_c, nad_c, nadh_c, succoa_c
+            AKGt2r -- akg_c, akg_e, h_c, h_e
+            ALCD2x -- acald_c, etoh_c, h_c, nad_c, nadh_c
+              ATPM -- adp_c, atp_c, h2o_c, h_c, pi_c
+            ATPS4r -- adp_c, atp_c, h2o_c, h_c, h_e, pi_c
+Biomass_Ecoli_core -- 3pg_c, accoa_c, adp_c, akg_c, atp_c, coa_c, e4p_c,
+f6p_c, g3p_c, g6p_c, gln__L_c, glu__L_c, h2o_c, h_c, nad_c, nadh_c, nadp_c,
+nadph_c, oaa_c, pep_c, pi_c, pyr_c, r5p_c
+              CO2t -- co2_c, co2_e
+                CS -- accoa_c, cit_c, coa_c, h2o_c, h_c, oaa_c
+             CYTBD -- h2o_c, h_c, h_e, o2_c, q8_c, q8h2_c
+           D_LACt2 -- h_c, h_e, lac__D_c, lac__D_e
+               ENO -- 2pg_c, h2o_c, pep_c
+           ETOHt2r -- etoh_c, etoh_e, h_c, h_e
+           EX_ac_e -- ac_e
+        EX_acald_e -- acald_e
+          EX_akg_e -- akg_e
+          EX_co2_e -- co2_e
+         EX_etoh_e -- etoh_e
+          EX_for_e -- for_e
+          EX_fru_e -- fru_e
+          EX_fum_e -- fum_e
+       EX_glc__D_e -- glc__D_e
+       EX_gln__L_e -- gln__L_e
+       EX_glu__L_e -- glu__L_e
+            EX_h_e -- h_e
+          EX_h2o_e -- h2o_e
+       EX_lac__D_e -- lac__D_e
+       EX_mal__L_e -- mal__L_e
+          EX_nh4_e -- nh4_e
+           EX_o2_e -- o2_e
+           EX_pi_e -- pi_e
+          EX_pyr_e -- pyr_e
+         EX_succ_e -- succ_e
+               FBA -- dhap_c, fdp_c, g3p_c
+               FBP -- f6p_c, fdp_c, h2o_c, pi_c
+             FORt2 -- for_c, for_e, h_c, h_e
+             FORti -- for_c, for_e
+              FRD7 -- fum_c, q8_c, q8h2_c, succ_c
+           FRUpts2 -- f6p_c, fru_e, pep_c, pyr_c
+               FUM -- fum_c, h2o_c, mal__L_c
+           FUMt2_2 -- fum_c, fum_e, h_c, h_e
+           G6PDH2r -- 6pgl_c, g6p_c, h_c, nadp_c, nadph_c
+              GAPD -- 13dpg_c, g3p_c, h_c, nad_c, nadh_c, pi_c
+            GLCpts -- g6p_c, glc__D_e, pep_c, pyr_c
+              GLNS -- adp_c, atp_c, gln__L_c, glu__L_c, h_c, nh4_c, pi_c
+            GLNabc -- adp_c, atp_c, gln__L_c, gln__L_e, h2o_c, h_c, pi_c
+             GLUDy -- akg_c, glu__L_c, h2o_c, h_c, nadp_c, nadph_c, nh4_c
+              GLUN -- gln__L_c, glu__L_c, h2o_c, nh4_c
+             GLUSy -- akg_c, gln__L_c, glu__L_c, h_c, nadp_c, nadph_c
+            GLUt2r -- glu__L_c, glu__L_e, h_c, h_e
+               GND -- 6pgc_c, co2_c, nadp_c, nadph_c, ru5p__D_c
+              H2Ot -- h2o_c, h2o_e
+            ICDHyr -- akg_c, co2_c, icit_c, nadp_c, nadph_c
+               ICL -- glx_c, icit_c, succ_c
+             LDH_D -- h_c, lac__D_c, nad_c, nadh_c, pyr_c
+              MALS -- accoa_c, coa_c, glx_c, h2o_c, h_c, mal__L_c
+           MALt2_2 -- h_c, h_e, mal__L_c, mal__L_e
+               MDH -- h_c, mal__L_c, nad_c, nadh_c, oaa_c
+               ME1 -- co2_c, mal__L_c, nad_c, nadh_c, pyr_c
+               ME2 -- co2_c, mal__L_c, nadp_c, nadph_c, pyr_c
+            NADH16 -- h_c, h_e, nad_c, nadh_c, q8_c, q8h2_c
+           NADTRHD -- nad_c, nadh_c, nadp_c, nadph_c
+              NH4t -- nh4_c, nh4_e
+               O2t -- o2_c, o2_e
+               PDH -- accoa_c, co2_c, coa_c, nad_c, nadh_c, pyr_c
+               PFK -- adp_c, atp_c, f6p_c, fdp_c, h_c
+               PFL -- accoa_c, coa_c, for_c, pyr_c
+               PGI -- f6p_c, g6p_c
+               PGK -- 13dpg_c, 3pg_c, adp_c, atp_c
+               PGL -- 6pgc_c, 6pgl_c, h2o_c, h_c
+               PGM -- 2pg_c, 3pg_c
+             PIt2r -- h_c, h_e, pi_c, pi_e
+               PPC -- co2_c, h2o_c, h_c, oaa_c, pep_c, pi_c
+              PPCK -- adp_c, atp_c, co2_c, oaa_c, pep_c
+               PPS -- amp_c, atp_c, h2o_c, h_c, pep_c, pi_c, pyr_c
+              PTAr -- accoa_c, actp_c, coa_c, pi_c
+               PYK -- adp_c, atp_c, h_c, pep_c, pyr_c
+             PYRt2 -- h_c, h_e, pyr_c, pyr_e
+               RPE -- ru5p__D_c, xu5p__D_c
+               RPI -- r5p_c, ru5p__D_c
+          SUCCt2_2 -- h_c, h_e, succ_c, succ_e
+            SUCCt3 -- h_c, h_e, succ_c, succ_e
+             SUCDi -- fum_c, q8_c, q8h2_c, succ_c
+            SUCOAS -- adp_c, atp_c, coa_c, pi_c, succ_c, succoa_c
+              TALA -- e4p_c, f6p_c, g3p_c, s7p_c
+              THD2 -- h_c, h_e, nad_c, nadh_c, nadp_c, nadph_c
+              TKT1 -- g3p_c, r5p_c, s7p_c, xu5p__D_c
+              TKT2 -- e4p_c, f6p_c, g3p_c, xu5p__D_c
+               TPI -- dhap_c, g3p_c

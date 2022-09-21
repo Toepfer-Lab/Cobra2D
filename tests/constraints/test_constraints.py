@@ -1,12 +1,15 @@
 import io
-from importlib.resources import open_text
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 from xml.etree.ElementTree import Element
 
+import cobra
 from cobra import Model, Reaction, Configuration
-from cobra.test import create_test_model
+from cobra.io import read_sbml_model
+from graphviz import Digraph
+from importlib_resources import files, as_file, open_text
 
 from model_duplication.constraints.constraints import Constraints
 from model_duplication.constraints.linker import Linkage, Linker
@@ -19,6 +22,14 @@ class TestConstraints(TestCase):
     def setUpClass(cls):
         cobra_config = Configuration()
         cobra_config.solver = "glpk"
+
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
+        ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
+        with as_file(ecoli_raw) as ecoliXML:
+            cls.ecoli = read_sbml_model(str(ecoliXML))
 
     def test_create(self):
         con = Constraints()
@@ -241,7 +252,7 @@ class TestConstraints(TestCase):
         )
         con.add_linker(linker)
 
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
         new_model = con.apply_to_model(model)
 
         created_linker: Reaction = new_model.reactions.get_by_id(
@@ -289,9 +300,9 @@ class TestConstraints(TestCase):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
         phase = con.get_phase_by_id("default-0")
-        phase_model: Model = create_test_model(model_name="ecoli")
+        phase_model: Model = self.textbook.copy()
         phase.model = phase_model
-        model = create_test_model(model_name="textbook")
+        model = self.textbook.copy()
 
         new_model = con.apply_to_model(model)
         self.assertEqual(
@@ -305,7 +316,7 @@ class TestConstraints(TestCase):
 
         # simulation
 
-        model: Model = create_test_model("ecoli")
+        model: Model = self.ecoli.copy()
         con = Constraints()
         con.add_time_slots(3, 1, "light")
         con.add_sub_models(["root", "leaf"], [2, 4])
@@ -318,7 +329,7 @@ class TestConstraints(TestCase):
             summary = str(model.summary())
             self.assertEqual(expected.read(), summary)
 
-        textbook_model: Model = create_test_model(model_name="textbook")
+        textbook_model: Model = self.textbook.copy()
 
         with open_text(
             data, "textbook_summary.txt", encoding="UTF-8"
@@ -340,7 +351,7 @@ class TestConstraints(TestCase):
         new_model = con.apply_to_model(model)
         solution = new_model.optimize()
 
-        self.assertRegex(str(solution), r"^<Solution 5\.677.*>$")
+        self.assertRegex(str(solution), r"^<Solution 17\.032.*>$")
 
         summary = str(new_model.summary())
         with open_text(data, "summary.txt", encoding="UTF-8") as expected:
@@ -443,6 +454,73 @@ class TestConstraints(TestCase):
         # compare linker
         self.assertCountEqual(con_exp.linker.linker, con_load.linker.linker)
 
+    def test_create_graph(self):
+        con_exp = Constraints()
+        con_exp.add_time_slots(2, 1, "light")
 
-if __name__ == "__main__":
-    main(verbosity=2, failfast=True)
+        con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
+
+        linker = Linker(
+            id="amp_c",
+            source="model0-0",
+            destination="model0-1",
+        )
+        con_exp.add_linker(linker)
+
+        g = con_exp.create_graph()
+        self.assertIsInstance(g, Digraph)
+        with open_text(
+            data, "graphviz_Digraph_JSON.txt", encoding="UTF-8"
+        ) as expected:
+            self.assertEqual(str(g), expected.read())
+
+    def test__constraint2networkx(self):
+        con = Constraints()
+        con.add_time_slots(2, 1, "light")
+
+        con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
+
+        linker = Linker(
+            id="amp_c",
+            source="leaf-0",
+            destination="leaf-1",
+        )
+        con.add_linker(linker)
+        con.add_linker_series("atp_c", last2first=True)
+
+        g = con._constraint2networkx()
+        exp_edges = [
+            (
+                "leaf-0",
+                "leaf-1",
+                {"label": "atp_c", "Metabolite": "amp_c\natp_c"},
+            ),
+            ("leaf-1", "leaf-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root-0", "root-1", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root-1", "root-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+        ]
+
+        exp_nodes = ["leaf-0", "leaf-1", "root-0", "root-1"]
+
+        self.assertCountEqual(exp_edges, list(g.edges.data()))
+        self.assertCountEqual(exp_nodes, g.nodes)
+
+    def test__con2json(self):
+        con = Constraints()
+        con.add_time_slots(2, 1, "light")
+
+        con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
+
+        linker = Linker(
+            id="amp_c",
+            source="leaf-0",
+            destination="leaf-1",
+        )
+        con.add_linker(linker)
+        con.add_linker_series("atp_c", last2first=True)
+
+        json_string, metabolites_existing_between_all_phases = con._con2json()
+        with open_text(
+            data, "con2json_result.JSON", encoding="UTF-8"
+        ) as expected:
+            self.assertEqual(json_string, json.load(expected))

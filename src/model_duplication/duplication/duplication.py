@@ -24,7 +24,7 @@ logger.level = 20
 __version__ = "0.0.1-alpha"
 
 
-def _rename(model: Model, suffix: str):
+def _rename(model: Model, suffix: str, objective_factor: float = 1.0):
 
     model_objective = {}
     for reaction, coeff in linear_reaction_coefficients(model).items():
@@ -38,7 +38,7 @@ def _rename(model: Model, suffix: str):
             logger.debug(msg=f"Item renamed to {item.id}")
 
         else:
-            logger.warn(
+            logger.warning(
                 msg=f"Item {id(item)} has a problem with its id. No suffix"
                 + "was added"
             )
@@ -46,7 +46,7 @@ def _rename(model: Model, suffix: str):
     new_objectives = {}
     for reaction_id, coeff in model_objective.items():
         reaction = model.reactions.get_by_id(f"{reaction_id}_{suffix}")
-        new_objectives[reaction] = coeff
+        new_objectives[reaction] = coeff * objective_factor
 
     model.objective = new_objectives
 
@@ -110,11 +110,17 @@ def _test(main: Model, submodel: Model) -> bool:
 
 
 def _main_placeholder(
-    model: Model, labels: List[str], file: Path = None, genes: bool = False
+    model: Model,
+    labels: List[str],
+    objective_factor: List[float],
+    file: Path = None,
+    genes: bool = False,
 ) -> Model:
 
     _model = model.copy()
-    _rename(model=_model, suffix=labels[0])
+    _rename(
+        model=_model, suffix=labels[0], objective_factor=objective_factor[0]
+    )
     logger.info(f"New suffix '{labels[0]}' for model added")
 
     if file:
@@ -131,7 +137,11 @@ def _main_placeholder(
 
         # Use copy of original to avoid 2n reactions
         submodel: Model = model.copy()
-        _rename(model=submodel, suffix=f"{label}")
+        _rename(
+            model=submodel,
+            suffix=f"{label}",
+            objective_factor=objective_factor[i],
+        )
 
         # Add all objects of the model to a group named after the label
         submodel.add_groups(
