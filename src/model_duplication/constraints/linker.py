@@ -5,6 +5,7 @@ Implementation of the Linker and Linkage classes.
 from __future__ import annotations
 
 import logging
+import warnings
 from inspect import isclass
 from typing import List, Union
 from xml.etree.ElementTree import Element, SubElement
@@ -13,13 +14,14 @@ from cobra import Metabolite, Model, Reaction
 from prettytable import PrettyTable
 
 from model_duplication.constraints.phase import Phase, Phases
+from model_duplication.constraints.transport import Transport, Transports
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.level = 20
 
 
-class Linker(Metabolite):
+class Linker(Transport):
     """
     Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended
     with information representing the source and target for a metabolite.
@@ -40,21 +42,13 @@ class Linker(Metabolite):
             :py:func:`cobra.Reaction`.
     """
 
-    id: str
-    source: str
-    destination: str
-    lower_bound: int
-    upper_bound: int
-
     def __init__(
-        self,
-        id: str,
-        source: Union[Phase, str],
-        destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
-        *args,
-        **kwargs,
+            self,
+            metabolite_id: str,
+            source: Union[Phase, str],
+            destination: Union[Phase, str],
+            lower_bound: int = 0,
+            upper_bound: int = 1000,
     ):
         """
         Initialize a Linker.
@@ -62,8 +56,8 @@ class Linker(Metabolite):
 
 
         Args:
-            id: The ID to be used for the metabolite. This should match
-                the ID of the metabolite in the model.
+            metabolite_id: The ID to be used for the metabolite. This should
+                match the ID of the metabolite in the model.
             source: The ID of the source phase or the source
                 phase itself.
             destination: The ID of the source phase or the
@@ -74,21 +68,14 @@ class Linker(Metabolite):
             upper_bound: The 'upper_bound' to be used for the reaction.
                 For more information see :py:attr:`lower_bound` in
                 :py:class:`cobra.Reaction.`.
-            *args: See :py:class:`cobra.Metabolite` for possible '*args'.
-            **kwargs: See :py:class:'cobra.Metabolite' for possible '*kwargs'.
         """
-        super().__init__(id=id, *args, **kwargs)
-
-        if isinstance(source, Phase):
-            source = source.id
-
-        if isinstance(destination, Phase):
-            destination = destination.id
-
-        self.source = source
-        self.destination = destination
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        super().__init__(
+            metabolite_id=metabolite_id,
+            source=source,
+            destination=destination,
+            lower_bound=lower_bound,
+            upper_bound=upper_bound,
+        )
 
     def __str__(self) -> str:
         """
@@ -98,42 +85,10 @@ class Linker(Metabolite):
             bound of the linker object as a formatted string.
 
         """
-        output = PrettyTable(
-            [
-                "ID",
-                "Name",
-                "Source",
-                "Destination",
-                "Lower Bounds",
-                "Upper Bounds",
-            ]
-        )
-
-        output.add_row(
-            [
-                self.id,
-                self.name,
-                self.source,
-                self.destination,
-                self.lower_bound,
-                self.upper_bound,
-            ]
-        )
-
-        return output.get_string()
+        return super().__str__()
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, Linker):
-            if (
-                other.id == self.id
-                and other.source == self.source
-                and other.destination == self.destination
-                and other.lower_bound == self.lower_bound
-                and other.upper_bound == self.upper_bound
-            ):
-                return True
-
-        return False
+        return super(Linker, self).__eq__(other)
 
     def to_xml(self) -> Element:
         """
@@ -147,7 +102,7 @@ class Linker(Metabolite):
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
 
-        element.set("id", self.id)
+        element.set("id", self.metabolite_id)
         element.set("lower_bound", str(self.lower_bound))
         element.set("upper_bound", str(self.upper_bound))
 
@@ -168,7 +123,7 @@ class Linker(Metabolite):
             .. code-block:: python
 
                 dictionary = {
-                    "id": "id",
+                    "metabolite_id": "id",
                     "lower_bound": "4",
                     "upper_bound": "500",
                     "destination": {"refid": "destination"},
@@ -177,7 +132,7 @@ class Linker(Metabolite):
                 linker = Linker.from_dict(dictionary)
         """
         return cls(
-            id=data["id"],
+            metabolite_id=data["metabolite_id"],
             lower_bound=int(data["lower_bound"]),
             upper_bound=int(data["upper_bound"]),
             destination=data["destination"]["refid"],
@@ -185,7 +140,7 @@ class Linker(Metabolite):
         )
 
 
-class Linkage:
+class Linkage(Transports):
     """
     Linkage as a class represents multiple Linker. Furthermore it implements
     the applying of Linkers to a cobra.model.
@@ -217,7 +172,6 @@ class Linkage:
         output = PrettyTable(
             [
                 "ID",
-                "Name",
                 "Source",
                 "Destination",
                 "Lower Bounds",
@@ -227,8 +181,7 @@ class Linkage:
         for linker in self.linker:
             output.add_row(
                 [
-                    linker.id,
-                    linker.name,
+                    linker.metabolite_id,
                     linker.source,
                     linker.destination,
                     linker.lower_bound,
@@ -237,17 +190,33 @@ class Linkage:
             )
         return output.get_string()
 
+    def register(self, obj: Linker):
+        """
+        Adds linker to the linkage class.
+
+        Args:
+            obj: The linker to be added.
+        """
+        # ToDo check for duplicates?
+        self.linker.append(obj)
+
     def add_linker(self, linker: Linker):
         """
         Adds linker to the linkage class.
 
         Args:
             linker: The linker to be added.
-        """
-        # ToDo check for duplicates?
-        self.linker.append(linker)
 
-    def remove_linker(self, obj_pos: Union[Linker, int]):
+        Note:
+            This method is deprecated and will be removed in version 1.0.0.
+            Use :py:method:`linkage.linker.register` instead.
+        """
+        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use 'linkage.register' instead.",
+                      DeprecationWarning)
+
+        self.register(obj=linker)
+
+    def remove(self, obj_pos: Union[Linker, int]):
         """
         Function to remove a linker. Either the position of the linker in the
         :py:attr:`linkage.linker` list can be specified or the respective
@@ -264,7 +233,27 @@ class Linkage:
 
         self.linker.remove(obj_pos)
 
-    def apply_linkage(self, model: Model, phases: Phases) -> Model:
+    def remove_linker(self, obj_pos: Union[Linker, int]):
+        """
+        Function to remove a linker. Either the position of the linker in the
+        :py:attr:`linkage.linker` list can be specified or the respective
+        linker.
+
+        Args:
+            obj_pos: The position of the linker object to be deleted or it
+                itself.
+
+        Note:
+            This method is deprecated and will be removed in version 1.0.0.
+            Use :py:method:`linkage.linker.remove` instead.
+
+        """
+        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use `linkage.register` instead.",
+                      DeprecationWarning)
+
+        self.remove(obj_pos=obj_pos)
+
+    def apply(self, model: Model, phases: Phases) -> Model:
         """
         Function to apply all linkers contained in Linkage to a
         :py:class:`cobra.Model`
@@ -284,16 +273,16 @@ class Linkage:
             destination = phases.phases.get_by_id(link.destination)
 
             source_metabolite: Metabolite = model.metabolites.get_by_id(
-                link.id + "_" + link.source
+                link.metabolite_id + "_" + link.source
             )
             destination_metabolite: Metabolite = model.metabolites.get_by_id(
-                link.id + "_" + link.destination
+                link.metabolite_id + "_" + link.destination
             )
 
             linker: Reaction = Reaction(
-                id=link.id + "_L_" + link.source + "_" + link.destination,
-                name=f"Linker for {link.id} from {link.source} "
-                f"to {link.destination}",
+                id=link.metabolite_id + "_L_" + link.source + "_" + link.destination,
+                name=f"Linker for {link.metabolite_id} from {link.source} "
+                     f"to {link.destination}",
                 subsystem="Linker",
                 lower_bound=link.lower_bound,
                 upper_bound=link.upper_bound,
@@ -302,7 +291,7 @@ class Linkage:
             linker.add_metabolites(
                 {
                     source_metabolite: -destination.volume
-                    * destination.timeframe,
+                                       * destination.timeframe,
                     destination_metabolite: source.volume * source.timeframe,
                 }
             )
@@ -316,6 +305,31 @@ class Linkage:
         # Returning a model with not all the reactions might bring wrong
         # results
         return model
+
+    def apply_linkage(self, model: Model, phases: Phases) -> Model:
+        """
+        Function to apply all linkers contained in Linkage to a
+        :py:class:`cobra.Model`
+
+        Args:
+            model: The model to which the Linker should be applied.
+            phases: A phases object that contains all phases referenced by
+                the individual Linker.
+
+        Returns:
+            A :py:class:`cobra.model` that contains the Linker.
+        Note:
+            This method is deprecated and will be removed in version 1.0.0.
+            Use :py:method:`linkage.linker.apply` instead.
+        """
+
+        warnings.warn("'apply_linkage' is deprecated and will be removed in version 1.0.0. Use `linkage.linker.apply` instead.",
+                      DeprecationWarning)
+
+        return self.apply(
+            model=model,
+            phases=phases,
+        )
 
     def to_xml(self) -> Element:
         """

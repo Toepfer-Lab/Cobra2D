@@ -13,43 +13,38 @@ from model_duplication.constraints.phase import Phase, Phases
 class TestLinker(TestCase):
     def test_create(self):
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
 
         self.assertIsInstance(linker, Linker)
 
-        self.assertEqual(linker.id, "test_id")
+        self.assertEqual(linker.metabolite_id, "test_id")
         self.assertEqual(linker.source, "source")
         self.assertEqual(linker.destination, "destination")
 
     def test_toString(self):
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
 
         string = str(linker)
         expected = (
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+\n"
-            "|    ID   | Name | Source | Destination | Lower Bounds "
-            "| Upper Bounds |\n"
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+\n"
-            "| test_id |      | source | destination |      0       "
-            "|     1000     |\n"
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+"
+            "+---------------+--------+-------------+--------------+--------------+\n"
+            "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"
+            "+---------------+--------+-------------+--------------+--------------+\n"
+            "|    test_id    | source | destination |      0       |     1000     |\n"
+            "+---------------+--------+-------------+--------------+--------------+"
         )
 
         self.assertEqual(expected, string)
 
     def test_to_xml(self):
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
@@ -90,7 +85,7 @@ class TestLinker(TestCase):
 
     def test_from_dict(self):
         dic = {
-            "id": "id",
+            "metabolite_id": "id",
             "lower_bound": "4",
             "upper_bound": "500",
             "destination": {"refid": "destination"},
@@ -99,7 +94,7 @@ class TestLinker(TestCase):
 
         linker = Linker.from_dict(dic)
 
-        self.assertEqual(linker.id, "id")
+        self.assertEqual(linker.metabolite_id, "id")
         self.assertEqual(linker.lower_bound, 4)
         self.assertEqual(linker.upper_bound, 500)
         self.assertEqual(linker.destination, "destination")
@@ -123,7 +118,7 @@ class TestLinkage(TestCase):
         linkage = Linkage()
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
@@ -132,16 +127,11 @@ class TestLinkage(TestCase):
 
         string = str(linkage)
         expected = (
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+\n"
-            "|    ID   | Name | Source | Destination | Lower Bounds "
-            "| Upper Bounds |\n"
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+\n"
-            "| test_id |      | source | destination |      0       "
-            "|     1000     |\n"
-            "+---------+------+--------+-------------+--------------"
-            "+--------------+"
+            "+---------+--------+-------------+--------------+--------------+\n"
+            "|    ID   | Source | Destination | Lower Bounds | Upper Bounds |\n"
+            "+---------+--------+-------------+--------------+--------------+\n"
+            "| test_id | source | destination |      0       |     1000     |\n"
+            "+---------+--------+-------------+--------------+--------------+"
         )
 
         self.assertEqual(expected, string)
@@ -149,13 +139,13 @@ class TestLinkage(TestCase):
     def test_add_linker(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
 
         linker2 = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
@@ -175,7 +165,7 @@ class TestLinkage(TestCase):
     def test_remove_linker(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
@@ -197,13 +187,13 @@ class TestLinkage(TestCase):
 
         linkage = Linkage()
         linker_default = Linker(
-            id="gln__L_c",
+            metabolite_id="gln__L_c",
             source="test_phase",
             destination="test_phase",
         )
 
         linker_non_default = Linker(
-            id="nadp_c",
+            metabolite_id="nadp_c",
             source="test_phase",
             destination="test_phase",
             upper_bound=564,
@@ -226,13 +216,13 @@ class TestLinkage(TestCase):
         model = linkage.apply_linkage(model, phases)
 
         linker_reaction = model.reactions.get_by_id(
-            f"{linker_default.id}_L_{linker_default.source}"
+            f"{linker_default.metabolite_id}_L_{linker_default.source}"
             f"_{linker_default.destination}"
         )
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
-            f"Linker for {linker_default.id} from {linker_default.source} "
+            f"Linker for {linker_default.metabolite_id} from {linker_default.source} "
             f"to {linker_default.destination}",
             linker_reaction.name,
         )
@@ -248,13 +238,13 @@ class TestLinkage(TestCase):
         self.assertEqual({expected_metabolite: 15}, metabolites)
 
         linker_reaction = model.reactions.get_by_id(
-            f"{linker_non_default.id}_L_{linker_non_default.source}"
+            f"{linker_non_default.metabolite_id}_L_{linker_non_default.source}"
             f"_{linker_non_default.destination}"
         )
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
-            f"Linker for {linker_non_default.id} from "
+            f"Linker for {linker_non_default.metabolite_id} from "
             f"{linker_non_default.source} to {linker_non_default.destination}",
             linker_reaction.name,
         )
@@ -270,7 +260,7 @@ class TestLinkage(TestCase):
     def test_to_xml(self):
         linkage = Linkage()
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="source",
             destination="destination",
         )
@@ -307,7 +297,7 @@ class TestLinkage(TestCase):
     def test_from_dict(self):
         dict_list = [
             {
-                "id": "id",
+                "metabolite_id": "id",
                 "lower_bound": "4",
                 "upper_bound": "500",
                 "destination": {"refid": "destination"},
@@ -322,7 +312,7 @@ class TestLinkage(TestCase):
 
         linker = linkage.linker[0]
 
-        self.assertEqual(linker.id, "id")
+        self.assertEqual(linker.metabolite_id, "id")
         self.assertEqual(linker.lower_bound, 4)
         self.assertEqual(linker.upper_bound, 500)
         self.assertEqual(linker.destination, "destination")
