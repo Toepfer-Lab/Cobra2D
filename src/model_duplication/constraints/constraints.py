@@ -301,7 +301,7 @@ class Constraints:
         except KeyError:
             raise KeyError(f"The source: '{linker.source}' is unknown.")
 
-        self.linker.add_linker(linker)
+        self.linker.append(linker)
 
     def add_linker_series(
         self,
@@ -364,7 +364,7 @@ class Constraints:
                 time = times[n]
                 try:
                     linker = Linker(
-                        id=id,
+                        metabolite_id=id,
                         source=f"{label}-{time}",
                         destination=f"{label}-{times[n + 1]}",
                         upper_bound=upper_bound,
@@ -381,7 +381,7 @@ class Constraints:
 
             if last2first:
                 linker = Linker(
-                    id=id,
+                    metabolite_id=id,
                     source=f"{label}-{times[-1]}",
                     destination=f"{label}-{times[0]}",
                     upper_bound=upper_bound,
@@ -402,7 +402,7 @@ class Constraints:
 
         new_model = self.phases.apply_phases(model)
         # TODO: verify if transfers should be apply before linker
-        new_model = self.linker.apply_linkage(new_model, phases=self.phases)
+        new_model = self.linker.apply(new_model, phases=self.phases)
 
         return new_model
 
@@ -579,15 +579,15 @@ class Constraints:
 
         for linker in self.linker.linker:
             edge_value: Tuple[str, str] = (linker.source, linker.destination)
-            if linker.id in edge_dict:
-                edge_dict[linker.id].append(edge_value)
+            if linker.metabolite_id in edge_dict:
+                edge_dict[linker.metabolite_id].append(edge_value)
             else:
-                edge_dict[linker.id] = [edge_value]
+                edge_dict[linker.metabolite_id] = [edge_value]
 
             if edge_value in edge_dict_reverse:
-                edge_dict_reverse[edge_value].append(linker.id)
+                edge_dict_reverse[edge_value].append(linker.metabolite_id)
             else:
-                edge_dict_reverse[edge_value] = [linker.id]
+                edge_dict_reverse[edge_value] = [linker.metabolite_id]
 
         size = len(edge_dict_reverse)
         linker_str = "linker existing in all connections:"
@@ -637,7 +637,7 @@ class Constraints:
             graph.add_edge(
                 linker.source,
                 linker.destination,
-                label=linker.id,
+                label=linker.metabolite_id,
             )
 
         edge_dict_reverse = {}
@@ -646,9 +646,9 @@ class Constraints:
             value: Tuple[str, str] = (linker.source, linker.destination)
 
             if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.id)
+                edge_dict_reverse[value].append(linker.metabolite_id)
             else:
-                edge_dict_reverse[value] = [linker.id]
+                edge_dict_reverse[value] = [linker.metabolite_id]
 
         for key, value in edge_dict_reverse.items():
             source, destintaion = key
@@ -694,15 +694,15 @@ class Constraints:
 
         for linker in self.linker.linker:
             value: Tuple[str, str] = (linker.source, linker.destination)
-            if linker.id in edge_dict:
-                edge_dict[linker.id].append(value)
+            if linker.metabolite_id in edge_dict:
+                edge_dict[linker.metabolite_id].append(value)
             else:
-                edge_dict[linker.id] = [value]
+                edge_dict[linker.metabolite_id] = [value]
 
             if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.id)
+                edge_dict_reverse[value].append(linker.metabolite_id)
             else:
-                edge_dict_reverse[value] = [linker.id]
+                edge_dict_reverse[value] = [linker.metabolite_id]
 
         size = len(edge_dict_reverse)
         metabolites_existing_between_all_phases = []

@@ -124,7 +124,7 @@ class TestConstraints(TestCase):
         con.add_time_slots(2, 1, "light")
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="default-0",
             destination="default-1",
         )
@@ -137,7 +137,7 @@ class TestConstraints(TestCase):
         # Raise error if source or destination are not known
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="unknown",
             destination="default-1",
         )
@@ -148,7 +148,7 @@ class TestConstraints(TestCase):
             con.add_linker(linker)
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="default-0",
             destination="unknown",
         )
@@ -168,7 +168,7 @@ class TestConstraints(TestCase):
             destination = f"default-{n + 1}"
             linker.append(
                 Linker(
-                    id="test_id",
+                    metabolite_id="test_id",
                     source=source,
                     destination=destination,
                 )
@@ -186,7 +186,7 @@ class TestConstraints(TestCase):
         con.add_linker_series("test_id", last2first=True)
 
         linker.append(
-            Linker(id="test_id", source="default-4", destination="default-0")
+            Linker(metabolite_id="test_id", source="default-4", destination="default-0")
         )
 
         self.assertCountEqual(con.linker.linker, linker)
@@ -201,7 +201,7 @@ class TestConstraints(TestCase):
             source = f"default-{n + 1}"
             linker.append(
                 Linker(
-                    id="test_id",
+                    metabolite_id="test_id",
                     source=source,
                     destination=destination,
                 )
@@ -213,7 +213,7 @@ class TestConstraints(TestCase):
 
         # last2first: bool = True reverse: bool = True
         linker.append(
-            Linker(id="test_id", source="default-0", destination="default-4")
+            Linker(metabolite_id="test_id", source="default-0", destination="default-4")
         )
         con = Constraints()
         con.add_time_slots(5, 1, "light")
@@ -246,7 +246,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -365,7 +365,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -395,7 +395,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -419,7 +419,7 @@ class TestConstraints(TestCase):
         con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -461,7 +461,7 @@ class TestConstraints(TestCase):
         con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -481,7 +481,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="leaf-0",
             destination="leaf-1",
         )
@@ -512,7 +512,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="leaf-0",
             destination="leaf-1",
         )

@@ -7,7 +7,7 @@
         <phase id="model1-1" light_dark="light" name="name" timeframe="1" volume="2"/>
     </phases>
     <linkage>
-        <linker id="amp_c" lower_bound="0" upper_bound="1000">
+        <linker metabolite_id="amp_c" lower_bound="0" upper_bound="1000">
             <destination refid="model0-1"/>
             <source refid="model0-0"/>
         </linker>

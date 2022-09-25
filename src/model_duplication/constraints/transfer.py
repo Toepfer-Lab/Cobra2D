@@ -1,19 +1,16 @@
+from __future__ import annotations
+
 from typing import List, Union
-from typing_extensions import Self
-from warnings import warn
 from xml.etree.ElementTree import Element, SubElement
 
-from cobra.core.dictlist import DictList
-from cobra.core.metabolite import Metabolite
 from cobra.core.model import Model
 from cobra.core.reaction import Reaction
-from prettytable.prettytable import PrettyTable
 
 from model_duplication.constraints.phase import Phase, Phases
-from model_duplication.error import NameWarning, PhaseNotFound
+from model_duplication.constraints.transport import Transport, Transports
 
 
-class Transfer:
+class Transfer(Transport):
     """
     Representation of a Transfer. It includes the attribute 'metabolite',
     which refers to the metabolite that is transferred. Changing this
@@ -44,7 +41,7 @@ class Transfer:
 
     def __init__(
         self,
-        metabolite: str,
+        metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
         lower_bound: int = 0,
@@ -54,7 +51,7 @@ class Transfer:
         Initializes the Transfer.
 
         Args:
-            metabolite (str) = The identifier of the metabolite
+            metabolite_id (str) = The identifier of the metabolite
             source: The ID of the source phase or the source
                 phase itself.
             destination: The ID of the source phase or the
@@ -62,116 +59,33 @@ class Transfer:
             lower_bound (int): The 'lower_bound' to be used for the reaction.
             upper_bound (int): The 'upper_bound' to be used for the reaction.
         """
+
+        super().__init__(
+            metabolite_id=metabolite_id,
+            source=source,
+            destination=destination,
+            lower_bound=lower_bound,
+            upper_bound=upper_bound,
+        )
+
         # TODO: Nomenclature for transfers.
-        self._lower_bound = lower_bound
-        self._upper_bound = upper_bound
-        self.source = source
-        self.destination = destination
 
-        self._id = f"TR_{metabolite}_{self.source}_{self.destination}"
-        self._name = (
-            f"Transfer for {metabolite} from {self.source} to "
-            f"{self.destination}"
-        )
-        self._metabolite = metabolite
-        self._reaction = Reaction(
-            self.id, self.name, "Transfer", lower_bound, upper_bound
-        )
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Transfer):
+            return False
+        return super().__eq__(other)
 
     @property
-    def metabolite(self):
-        return self._metabolite
-
-    @metabolite.setter
-    def metabolite(self, identifier: str):
-        """
-        Setter for metabolite. This method updates the internal name and id
-        for the reaction.
-        """
-        self._metabolite = identifier
-        self._id = f"TR_{identifier}_{self.source}_{self.destination}"
-        self._title = (
-            f"Transfer for {self.id} from {self.source} to "
-            f"{self.destination}"
-        )
-        # TODO: create new reaction or rather change attributes?
-        self._reaction = Reaction(
-            self.id, self.name, "Transfer", self.lower_bound, self.upper_bound
-        )
+    def reac_id(self) -> str:
+        return f"TR_{self.metabolite_id}_{self.source}_{self.destination}"
 
     @property
-    def lower_bound(self):
-        return self._lower_bound
-
-    @lower_bound.setter
-    def lower_bound(self, value: int):
-        self._lower_bound = value
-
-    @property
-    def upper_bound(self):
-        return self._upper_bound
-
-    @upper_bound.setter
-    def upper_bound(self, value: int):
-        self._upper_bound = value
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def source(self):
-        return self._source
-
-    @source.setter
-    def source(self, phase: Union[Phase, str]):
-        """
-        Setter for attribute source. It is encouraged to use a 'Phase' rather
-        than a string
-        """
-        if isinstance(phase, Phase):
-            self._source = phase.id
-
-        else:
-
-            warn(
-                "The use of strings is not recommended. Rather "
-                "use a Phase to ensure an existing name",
-                NameWarning,
-            )
-            self._source = phase
-
-    @property
-    def destination(self):
-        return self._destination
-
-    @destination.setter
-    def destination(self, phase: Union[Phase, str]):
-        """
-        Setter for attribute destination. It is encouraged to use a 'Phase'
-        rather than a string
-        """
-        if isinstance(phase, Phase):
-            self._destination = phase.id
-
-        else:
-
-            warn(
-                "The use of strings is not recommended. Rather "
-                "use a Phase to ensure an existing name",
-                NameWarning,
-            )
-            self._destination = phase
-
-    @property
-    def name(self):
-        """Name of the reaction"""
-        return self._name
-
-    @property
-    def reaction(self):
-        """COBRApy Reaction of the transfer"""
-        return self._reaction
+    def reac_name(self) -> str:
+        return f"Transfer for {self.metabolite_id} from {self.source} to {self.destination}"
 
     def to_xml(self) -> Element:
 
@@ -179,21 +93,28 @@ class Transfer:
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
 
-        element.set("metabolite", self.metabolite)
+        element.set("metabolite", self.metabolite_id)
         element.set("lower_bound", str(self.lower_bound))
         element.set("upper_bound", str(self.upper_bound))
 
         return element
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict) -> Transfer:
         """
-        Creates an an object from given dictionary
+        Creates an object from given dictionary
+
+        Args:
+            data: A dict that contains the necessary data to create a transport.
+
+        Returns:
+            A transport based on the data from the dict.
+
         Examples:
             .. code-block:: python
 
                 input = {
-                    "metabolite": "id",
+                    "metabolite_id": "id",
                     "lower_bound": "4",
                     "upper_bound": "500",
                     "destination": {"refid": "destination"},
@@ -202,39 +123,15 @@ class Transfer:
                 transfers = Transfers.from_dict(input)
         """
         return cls(
-            data["metabolite"],
-            data["source"]["refid"],
-            data["destination"]["refid"],
-            int(data["lower_bound"]),
-            int(data["upper_bound"]),
+            metabolite_id=data["metabolite"],
+            source=data["source"]["refid"],
+            destination=data["destination"]["refid"],
+            lower_bound=int(data["lower_bound"]),
+            upper_bound=int(data["upper_bound"]),
         )
 
-    def __str__(self) -> str:
-        output = PrettyTable(
-            [
-                "ID",
-                "Name",
-                "Source",
-                "Destination",
-                "Lower Bounds",
-                "Upper Bounds",
-            ]
-        )
 
-        output.add_row(
-            [
-                self.id,
-                self.name,
-                self.source,
-                self.destination,
-                self.lower_bound,
-                self.upper_bound,
-            ]
-        )
-        return output.get_string()
-
-
-class Transfers(DictList):
+class Transfers(Transports):
     """
     DictList with the Transfers. Refer to :py:class:`cobra.DictList`
     for its methods.
@@ -242,6 +139,53 @@ class Transfers(DictList):
     Additionally it includes the following methods: apply, from_dict
     and to_xml
     """
+
+    transfers: List[Transport]
+
+    def __init__(self):
+        super(Transfers, self).__init__()
+
+    def __str__(self):
+        """
+        The toString method of the Transfer class.
+
+        Returns:
+            The ID, name, source, destination, lower bound and upper
+            bound of all linker objects as a formatted string.
+        """
+
+        return super(Transfers, self).__str__()
+
+    def __iter__(self):
+        return super(Transfers, self).__iter__()
+
+    def append(self, obj: Transfer):
+        """
+        Adds a transfer to the Transfers class.
+
+        Args:
+            obj: The transfer to be added.
+
+        """
+        if isinstance(obj, Transfer):
+            super(Transfers, self).append(obj)
+        else:
+            raise TypeError(f"{obj} is not of type Transfer cannot be added.")
+
+    def remove(self, obj_pos: Union[Transport, int]):
+        """
+        Function to remove a transfer. Either the position of the transfer in the
+        :py:attr:`linkage.transfer` list can be specified or the respective
+        linker.
+
+        Args:
+            obj_pos: The position of the transfer object to be deleted or
+                itself."""
+        super(Transfers, self).remove(obj_pos)
+
+    @property
+    def transfers(self):
+        return self.transports
 
     def apply(self, model: Model, phases: Phases) -> Model:
         """
@@ -254,89 +198,23 @@ class Transfers(DictList):
                 each individual Transfer.
 
         Returns:
-            A :py:class:`cobra.model` that contains the Linker.
+            A :py:class:`cobra.model` that contains the transfers.
         """
 
-        _model = model.copy()
+        return super(Transfers, self).apply(model = model, phases = phases)
 
-        try:
-
-            item: Transfer
-            for item in self:
-
-                try:
-                    source: Phase = phases.phases.get_by_id(item.source)
-                    destination: Phase = phases.phases.get_by_id(
-                        item.destination
-                    )
-
-                except KeyError:
-                    raise PhaseNotFound
-
-                source_metabolite: Metabolite = _model.metabolites.get_by_id(
-                    item.metabolite + "_" + item.source
-                )
-                destination_metabolite: Metabolite = (
-                    _model.metabolites.get_by_id(
-                        item.metabolite + "_" + item.destination
-                    )
-                )
-
-                transfer = item.reaction
-                transfer.add_metabolites(
-                    {
-                        source_metabolite: -destination.volume
-                        * destination.timeframe,
-                        destination_metabolite: source.volume
-                        * source.timeframe,
-                    }
-                )
-                _model.add_reactions([transfer])
-
-            return _model
-
-        except PhaseNotFound:
-            warn(
-                "One of the Phases in the Transfers could not be found. "
-                "Please revise that the source and destination of the "
-                "transfers have existing phase identifiers",
-                PhaseNotFound,
-            )
-
-            return model
-
-    def __str__(self):
+    def to_xml(self) -> Element:
         """
-        The toString method of the Transfer class.
-
-        Returns:
-            The ID, name, source, destination, lower bound and upper
-            bound of all linker objects as a formatted string.
+        Converts Transfers to an :py:class:`xml.etree.ElementTree.Element`.
         """
-        output = PrettyTable(
-            [
-                "ID",
-                "Name",
-                "Source",
-                "Destination",
-                "Lower Bounds",
-                "Upper Bounds",
-            ]
-        )
+
+        root = Element("Transfers")
 
         item: Transfer
         for item in self:
-            output.add_row(
-                [
-                    item.id,
-                    item.name,
-                    item.source,
-                    item.destination,
-                    item.lower_bound,
-                    item.upper_bound,
-                ]
-            )
-        return output.get_string()
+            root.append(item.to_xml())
+
+        return root
 
     @classmethod
     def from_dict(cls, data: List[dict]) -> Self:
@@ -354,7 +232,7 @@ class Transfers(DictList):
             .. code-block:: python
 
                 input = [{
-                    "metabolite": "id",
+                    "metabolite_id": "id",
                     "lower_bound": "4",
                     "upper_bound": "500",
                     "destination": {"refid": "destination"},
@@ -369,16 +247,3 @@ class Transfers(DictList):
             container.append(transfer)
 
         return container
-
-    def to_xml(self) -> Element:
-        """
-        Converts Transfers to an :py:class:`xml.etree.ElementTree.Element`.
-        """
-
-        root = Element("Transfers")
-
-        item: Transfer
-        for item in self:
-            root.append(item.to_xml())
-
-        return root

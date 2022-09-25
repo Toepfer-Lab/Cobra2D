@@ -1,17 +1,32 @@
-import unittest
+from importlib.resources import files, as_file
+from unittest import TestCase
 
+import cobra
+from cobra import Configuration
 from cobra.core import Model, Reaction
-from cobra.test import create_test_model
+from cobra.io import read_sbml_model
 
 from model_duplication.duplication.merging import _link_genes, _merge
 
 
-class MergingTest(unittest.TestCase):
+class MergingTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cobra_config = Configuration()
+        cobra_config.solver = "glpk"
+
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
+        ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
+        with as_file(ecoli_raw) as ecoliXML:
+            cls.ecoli = read_sbml_model(str(ecoliXML))
     def test_cobra_merge(self):
         """Test the behavior of method Model.merge"""
 
-        model: Model = create_test_model("textbook")
-        submodel: Model = create_test_model("textbook")
+        model: Model = self.textbook.copy()
+        submodel: Model = self.textbook.copy()
         model.merge(right=submodel, prefix_existing="right_")
 
         # COBRApy only duplicates reactions
@@ -22,16 +37,16 @@ class MergingTest(unittest.TestCase):
     def test__merge(self):
         """Test the behavior of merging models with new function"""
 
-        model: Model = create_test_model("textbook")
-        submodel: Model = create_test_model("textbook")
+        model: Model = self.textbook.copy()
+        submodel: Model = self.textbook.copy()
 
         self.assertRaises(
             AssertionError, _merge, model=model, right=submodel, suffix=""
         )
 
         # Grouping
-        model: Model = create_test_model("textbook")
-        submodel: Model = create_test_model("textbook")
+        model: Model = self.textbook.copy()
+        submodel: Model = self.textbook.copy()
 
         for item in (
             submodel.metabolites + submodel.reactions + submodel.groups
@@ -56,8 +71,8 @@ class MergingTest(unittest.TestCase):
     def test__link_genes(self):
         """Checks the behavior for linking genes"""
 
-        model: Model = create_test_model("textbook")
-        submodel: Model = create_test_model("textbook")
+        model: Model = self.textbook.copy()
+        submodel: Model = self.textbook.copy()
 
         reactions = [reaction.id for reaction in model.reactions]
 
@@ -89,7 +104,3 @@ class MergingTest(unittest.TestCase):
             self.assertEqual(
                 len(gene.reactions) % 2, 0, f"{gene.id}\n{len(gene.reactions)}"
             )
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2, failfast=True)

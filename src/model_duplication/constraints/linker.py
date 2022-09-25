@@ -10,8 +10,7 @@ from inspect import isclass
 from typing import List, Union
 from xml.etree.ElementTree import Element, SubElement
 
-from cobra import Metabolite, Model, Reaction
-from prettytable import PrettyTable
+from cobra import Model
 
 from model_duplication.constraints.phase import Phase, Phases
 from model_duplication.constraints.transport import Transport, Transports
@@ -23,14 +22,13 @@ logger.level = 20
 
 class Linker(Transport):
     """
-    Linker is a Subclass of cobra Metabolite. cobra Metabolite is extended
-    with information representing the source and target for a metabolite.
-    Phases are used for this purpose. These define a fixed time period in
-    a fixed organ. Using this information, a pseudo reaction can be created
-    representing the transition between two such phases.
+    Linker is a Subclass of Transport and represents a transition of a
+    Metabolite from one Phase to another. Phases itself define a fixed time
+    period in a fixed organ. Using this information, a pseudo reaction can be
+    created representing the transition between two such phases.
 
     Attributes:
-        id: The ID to be used for the metabolite. This should match
+        metabolite_id: The ID to be used for the metabolite. This should match
                 the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
@@ -52,8 +50,6 @@ class Linker(Transport):
     ):
         """
         Initialize a Linker.
-
-
 
         Args:
             metabolite_id: The ID to be used for the metabolite. This should
@@ -88,7 +84,17 @@ class Linker(Transport):
         return super().__str__()
 
     def __eq__(self, other) -> bool:
-        return super(Linker, self).__eq__(other)
+        if not isinstance(other, Linker):
+            return False
+        return super().__eq__(other)
+
+    @property
+    def reac_id(self) -> str:
+        return f"{self.metabolite_id}_L_{self.source}_{self.destination}"
+
+    @property
+    def reac_name(self) -> str:
+        return f"Linker for {self.metabolite_id} from {self.source} to {self.destination}"
 
     def to_xml(self) -> Element:
         """
@@ -102,7 +108,7 @@ class Linker(Transport):
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
 
-        element.set("id", self.metabolite_id)
+        element.set("metabolite_id", self.metabolite_id)
         element.set("lower_bound", str(self.lower_bound))
         element.set("upper_bound", str(self.upper_bound))
 
@@ -117,7 +123,7 @@ class Linker(Transport):
             data: A dict that contains the necessary data to create a linker.
 
         Returns:
-            A linker created based on the data from the dict.
+            A linker based on the data from the dict.
 
         Examples:
             .. code-block:: python
@@ -145,21 +151,17 @@ class Linkage(Transports):
     Linkage as a class represents multiple Linker. Furthermore it implements
     the applying of Linkers to a cobra.model.
 
-    Attributes:
-        linker (List[Linker]): A list containing individual Linker.
-
     """
 
     # ToDo change to Set? or to DictList
     # COMMENT:So far, the behavior of DictList works flawlessly. This would
     # remove the check for duplicates as long the identifiers are not the same
-    linker: List[Linker]
 
     def __init__(self):
         """
         Initialize a Linkage.
         """
-        self.linker = []
+        super(Linkage, self).__init__()
 
     def __str__(self):
         """
@@ -169,36 +171,22 @@ class Linkage(Transports):
             The ID, name, source, destination, lower bound and upper
             bound of all linker objects as a formatted string.
         """
-        output = PrettyTable(
-            [
-                "ID",
-                "Source",
-                "Destination",
-                "Lower Bounds",
-                "Upper Bounds",
-            ]
-        )
-        for linker in self.linker:
-            output.add_row(
-                [
-                    linker.metabolite_id,
-                    linker.source,
-                    linker.destination,
-                    linker.lower_bound,
-                    linker.upper_bound,
-                ]
-            )
-        return output.get_string()
+        return super(Linkage, self).__str__()
 
-    def register(self, obj: Linker):
+    def __iter__(self):
+        return super(Linkage, self).__iter__()
+
+    def append(self, obj: Linker):
         """
         Adds linker to the linkage class.
 
         Args:
             obj: The linker to be added.
         """
-        # ToDo check for duplicates?
-        self.linker.append(obj)
+        if isinstance(obj, Linker):
+            super(Linkage, self).append(obj)
+        else:
+            raise TypeError(f"{obj} is not of type linker cannot be added.")
 
     def add_linker(self, linker: Linker):
         """
@@ -209,12 +197,12 @@ class Linkage(Transports):
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
-            Use :py:method:`linkage.linker.register` instead.
+            Use :py:method:`linkage.linker.append` instead.
         """
-        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use 'linkage.register' instead.",
+        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use 'linkage.append' instead.",
                       DeprecationWarning)
 
-        self.register(obj=linker)
+        self.append(obj=linker)
 
     def remove(self, obj_pos: Union[Linker, int]):
         """
@@ -223,15 +211,15 @@ class Linkage(Transports):
         linker.
 
         Args:
-            obj_pos: The position of the linker object to be deleted or it
+            obj_pos: The position of the linker object to be deleted or
                 itself.
 
         """
-        if isinstance(obj_pos, int):
-            del self.linker[obj_pos]
-            return
+        super(Linkage, self).remove(obj_pos)
 
-        self.linker.remove(obj_pos)
+    @property
+    def linker(self):
+        return self.transports
 
     def remove_linker(self, obj_pos: Union[Linker, int]):
         """
@@ -240,7 +228,7 @@ class Linkage(Transports):
         linker.
 
         Args:
-            obj_pos: The position of the linker object to be deleted or it
+            obj_pos: The position of the linker object to be deleted or
                 itself.
 
         Note:
@@ -248,7 +236,7 @@ class Linkage(Transports):
             Use :py:method:`linkage.linker.remove` instead.
 
         """
-        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use `linkage.register` instead.",
+        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use `linkage.append` instead.",
                       DeprecationWarning)
 
         self.remove(obj_pos=obj_pos)
@@ -266,45 +254,8 @@ class Linkage(Transports):
         Returns:
             A :py:class:`cobra.model` that contains the Linker.
         """
-        reactions2add: List[Reaction] = []
 
-        for link in self.linker:
-            source = phases.phases.get_by_id(link.source)
-            destination = phases.phases.get_by_id(link.destination)
-
-            source_metabolite: Metabolite = model.metabolites.get_by_id(
-                link.metabolite_id + "_" + link.source
-            )
-            destination_metabolite: Metabolite = model.metabolites.get_by_id(
-                link.metabolite_id + "_" + link.destination
-            )
-
-            linker: Reaction = Reaction(
-                id=link.metabolite_id + "_L_" + link.source + "_" + link.destination,
-                name=f"Linker for {link.metabolite_id} from {link.source} "
-                     f"to {link.destination}",
-                subsystem="Linker",
-                lower_bound=link.lower_bound,
-                upper_bound=link.upper_bound,
-            )
-
-            linker.add_metabolites(
-                {
-                    source_metabolite: -destination.volume
-                                       * destination.timeframe,
-                    destination_metabolite: source.volume * source.timeframe,
-                }
-            )
-
-            reactions2add.append(linker)
-
-        model.add_reactions(reactions2add)
-
-        # COMMENT: can exceptions be raised? link.id is None? Or maybe the
-        # name of the phase does not exist.
-        # Returning a model with not all the reactions might bring wrong
-        # results
-        return model
+        return super(Linkage, self).apply(model=model, phases = phases)
 
     def apply_linkage(self, model: Model, phases: Phases) -> Model:
         """
@@ -363,7 +314,7 @@ class Linkage(Transports):
             .. code-block:: python
 
                 input = [{
-                    "id": "id",
+                    "metabolite_id": "id",
                     "lower_bound": "4",
                     "upper_bound": "500",
                     "destination": {"refid": "destination"},
@@ -379,6 +330,6 @@ class Linkage(Transports):
 
         for linker_dict in data:
             new_linker = Linker.from_dict(linker_dict)
-            linkage.add_linker(new_linker)
+            linkage.append(new_linker)
 
         return linkage

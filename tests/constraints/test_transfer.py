@@ -1,9 +1,13 @@
-import unittest
+from importlib.resources import files, as_file
+from unittest import TestCase
 from xml.etree.ElementTree import Element
 
+import cobra
+from cobra import Configuration
 from cobra.core.model import Model
 from cobra.core.reaction import Reaction
-from cobra.test import create_test_model
+from cobra.io import read_sbml_model
+
 from model_duplication.constraints.linker import Linkage, Linker
 from model_duplication.constraints.phase import Phase, Phases
 
@@ -11,22 +15,27 @@ from model_duplication.constraints.transfer import Transfers, Transfer
 from model_duplication.error import NameWarning
 
 
-class TestTransfer(unittest.TestCase):
+class TestTransfer(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cobra_config = Configuration()
+        cobra_config.solver = "glpk"
+
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
+        ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
+        with as_file(ecoli_raw) as ecoliXML:
+            cls.ecoli = read_sbml_model(str(ecoliXML))
     def test_create(self):
         transfer = Transfer(
-            "identifier", Phase("root", "light"), Phase("stem", "light")
+            "identifier", "root", "stem"
         )
         self.assertIsInstance(transfer, Transfer)
-        self.assertEqual(transfer.id, "TR_identifier_root_stem")
+        self.assertEqual(transfer.metabolite_id, "identifier")
         self.assertEqual(transfer.source, "root")
         self.assertEqual(transfer.destination, "stem")
-
-        with self.assertWarnsRegex(
-            NameWarning,
-            "The use of strings is not recommended. Rather use a "
-            "Phase to ensure an existing name",
-        ):
-            Transfer("identifier", "root", "stem")
 
     def test_toString(self):
         transfer = Transfer(
@@ -39,21 +48,11 @@ class TestTransfer(unittest.TestCase):
         self.assertEqual(
             str(transfer),
             (
-                "+-------------------------+---------------------------------"
-                "----------+--------+-------------+----"
-                "----------+--------------+\n"
-                "|            ID           |                    Name       "
-                "            | Source | Destination |"
-                " Lower Bounds | Upper Bounds |\n"
-                "+-------------------------+--------------------------------"
-                "-----------+--------+-------------+--------"
-                "------+--------------+\n"
-                "| TR_identifier_root_stem | Transfer for identifier from "
-                "root to stem |  root  |     stem    |      50      | "
-                "    600      |\n"
-                "+-------------------------+-------------------------------"
-                "------------+--------+-------------+--------------+------"
-                "--------+"
+                "+---------------+--------+-------------+--------------+--------------+\n"
+                "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"
+                "+---------------+--------+-------------+--------------+--------------+\n"
+                "|   identifier  |  root  |     stem    |      50      |     600      |\n"
+                "+---------------+--------+-------------+--------------+--------------+"
             ),
         )
 
@@ -88,36 +87,44 @@ class TestTransfer(unittest.TestCase):
             "source": {"refid": "root"},
         }
         transfer = Transfer.from_dict(dictionary)
-        self.assertEqual(transfer.id, "TR_identifier_root_stem")
+        self.assertEqual(transfer.metabolite_id, "identifier")
         self.assertEqual(transfer.source, "root")
         self.assertEqual(transfer.destination, "stem")
         self.assertEqual(transfer.lower_bound, 50)
         self.assertEqual(transfer.upper_bound, 600)
 
 
-class TestTransfers(unittest.TestCase):
+class TestTransfers(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cobra_config = Configuration()
+        cobra_config.solver = "glpk"
+
+        textbook_raw = files(cobra.data).joinpath("textbook.xml.gz")
+        with as_file(textbook_raw) as textbookXML:
+            cls.textbook = read_sbml_model(str(textbookXML))
+
+        ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
+        with as_file(ecoli_raw) as ecoliXML:
+            cls.ecoli = read_sbml_model(str(ecoliXML))
     def test_create(self):
         transfers = Transfers()
 
         self.assertIsInstance(transfers, Transfers)
-        self.assertEqual(transfers, [])
+        self.assertEqual(transfers.transfers, [])
 
     def test_toString(self):
         transfers = Transfers()
-        transfers.extend(
-            [
-                Transfer(
+        transfers.append(Transfer(
                     "metabolite",
                     source=Phase("root", "light"),
                     destination=Phase("stem", "light"),
-                ),
-                Transfer(
+                ))
+        transfers.append(Transfer(
                     "metabolite",
                     source=Phase("root2", "dark", 2),
                     destination=Phase("stem2", "dark", 2),
-                ),
-            ]
-        )
+                ))
 
         self.assertEqual(
             str(transfers),
@@ -175,7 +182,7 @@ class TestTransfers(unittest.TestCase):
         transfers = Transfers.from_dict(dictionary)
 
         self.assertEqual(len(transfers), 2)
-        self.assertEqual(transfers[1].id, "TR_identifier_root2_stem2")
+        self.assertEqual(transfers[1].metabolite_id, "TR_identifier_root2_stem2")
         self.assertEqual(transfers[1].source, "root2")
         self.assertEqual(transfers[1].destination, "stem2")
         self.assertEqual(transfers[1].lower_bound, 0)
@@ -183,20 +190,17 @@ class TestTransfers(unittest.TestCase):
 
     def test_to_xml(self):
         transfers = Transfers()
-        transfers.extend(
-            [
-                Transfer(
+        transfers.append(Transfer(
                     "metabolite",
                     source=Phase("root", "light"),
                     destination=Phase("stem", "light"),
-                ),
-                Transfer(
+                ))
+
+        transfers.append(Transfer(
                     "metabolite",
                     source=Phase("root2", "dark", 2),
                     destination=Phase("stem2", "dark", 2),
-                ),
-            ]
-        )
+                ))
         element = transfers.to_xml()
 
         for child in element:
@@ -220,7 +224,7 @@ class TestTransfers(unittest.TestCase):
         )
 
     def test_apply(self):
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
 
         # Regular Phases
         phases = Phases()
@@ -257,7 +261,7 @@ class TestTransfers(unittest.TestCase):
     def test_apply_complex(self):
         """Combination of linkers and transfers"""
 
-        model: Model = create_test_model(model_name="textbook")
+        model: Model = self.textbook.copy()
 
         # Should replicate behavior of add_sub_models and add_time_slots
         phases = Phases()
@@ -318,7 +322,3 @@ class TestTransfers(unittest.TestCase):
             },
             {"gln__L_c_root-1": -1, "gln__L_c_stem-1": 1},
         )
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2, failfast=True)
