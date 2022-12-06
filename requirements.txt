@@ -90,7 +90,7 @@ spectate==1.0.1           # via ipycytoscape
 stack-data==0.2.0         # via ipython
 swiglpk==5.0.5            # via cobra, optlang
 sympy==1.10.1             # via optlang
-terminado==0.13.3         # via notebook
+terminado==0.17.1         # via notebook
 tinycss2==1.1.1           # via nbconvert
 tornado==6.1              # via ipykernel, jupyter-client, notebook, terminado
 traitlets==5.2.2.post1          # via ipykernel, ipython, ipywidgets, jupyter-client, jupyter-core, matplotlib-inline, nbclient, nbconvert, nbformat, notebook
