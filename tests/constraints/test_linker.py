@@ -6,8 +6,8 @@ from cobra import Model, Reaction
 from cobra.io import read_sbml_model
 from importlib_resources import files, as_file
 
-from model_duplication.constraints.linker import Linker, Linkage
-from model_duplication.constraints.phase import Phase, Phases
+from cobra2d.constraints.linker import Linker, Linkage
+from cobra2d.constraints.phase import Phase, Phases
 
 
 class TestLinker(TestCase):
@@ -33,11 +33,11 @@ class TestLinker(TestCase):
 
         string = str(linker)
         expected = (
-            "+---------------+--------+-------------+--------------+--------------+\n"
-            "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"
-            "+---------------+--------+-------------+--------------+--------------+\n"
-            "|    test_id    | source | destination |      0       |     1000     |\n"
-            "+---------------+--------+-------------+--------------+--------------+"
+            "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+            "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
+            "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
         self.assertEqual(expected, string)
@@ -54,7 +54,11 @@ class TestLinker(TestCase):
         self.assertIsInstance(xml, Element)
         self.assertEqual(xml.tag, "linker")
         self.assertEqual(
-            {'lower_bound': '0', 'metabolite_id': 'test_id', 'upper_bound': '1000'},
+            {
+                "lower_bound": "0",
+                "metabolite_id": "test_id",
+                "upper_bound": "1000",
+            },
             xml.attrib,
         )
         self.assertIsNone(xml.text)
@@ -127,11 +131,11 @@ class TestLinkage(TestCase):
 
         string = str(linkage)
         expected = (
-            "+---------+--------+-------------+--------------+--------------+\n"
-            "|    ID   | Source | Destination | Lower Bounds | Upper Bounds |\n"
-            "+---------+--------+-------------+--------------+--------------+\n"
-            "| test_id | source | destination |      0       |     1000     |\n"
-            "+---------+--------+-------------+--------------+--------------+"
+            "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+            "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
+            "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
         self.assertEqual(expected, string)
@@ -222,7 +226,8 @@ class TestLinkage(TestCase):
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
-            f"Linker for {linker_default.metabolite_id} from {linker_default.source} "
+            f"Linker for {linker_default.metabolite_id} "
+            f"from {linker_default.source} "
             f"to {linker_default.destination}",
             linker_reaction.name,
         )
@@ -251,7 +256,7 @@ class TestLinkage(TestCase):
         )
 
         # ToDo set subsystem or not
-        #self.assertEqual("Linker", linker_reaction.subsystem)
+        # self.assertEqual("Linker", linker_reaction.subsystem)
         self.assertEqual(-1234, linker_reaction.lower_bound)
         self.assertEqual(564, linker_reaction.upper_bound)
 
@@ -291,7 +296,11 @@ class TestLinkage(TestCase):
             self.assertIsInstance(child, Element)
             self.assertEqual(child.tag, "linker")
             self.assertEqual(
-                {'lower_bound': '0', 'metabolite_id': 'test_id', 'upper_bound': '1000'},
+                {
+                    "lower_bound": "0",
+                    "metabolite_id": "test_id",
+                    "upper_bound": "1000",
+                },
                 child.attrib,
             )
             self.assertIsNone(child.text)

@@ -1,5 +1,7 @@
-Welcome to model-duplication's documentation!
+Welcome to Cobra2D documentation!
 =============================================	
+
+.. include:: ../../README.md
 
 .. toctree::
     :maxdepth: 2

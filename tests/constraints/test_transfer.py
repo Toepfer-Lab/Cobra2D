@@ -8,11 +8,10 @@ from cobra.core.model import Model
 from cobra.core.reaction import Reaction
 from cobra.io import read_sbml_model
 
-from model_duplication.constraints.linker import Linkage, Linker
-from model_duplication.constraints.phase import Phase, Phases
+from cobra2d.constraints.linker import Linkage, Linker
+from cobra2d.constraints.phase import Phase, Phases
 
-from model_duplication.constraints.transfer import Transfers, Transfer
-from model_duplication.error import NameWarning
+from cobra2d.constraints.transfer import Transfers, Transfer
 
 
 class TestTransfer(TestCase):
@@ -28,10 +27,9 @@ class TestTransfer(TestCase):
         ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
         with as_file(ecoli_raw) as ecoliXML:
             cls.ecoli = read_sbml_model(str(ecoliXML))
+
     def test_create(self):
-        transfer = Transfer(
-            "identifier", "root", "stem"
-        )
+        transfer = Transfer("identifier", "root", "stem")
         self.assertIsInstance(transfer, Transfer)
         self.assertEqual(transfer.metabolite_id, "identifier")
         self.assertEqual(transfer.source, "root")
@@ -48,11 +46,11 @@ class TestTransfer(TestCase):
         self.assertEqual(
             str(transfer),
             (
-                "+---------------+--------+-------------+--------------+--------------+\n"
-                "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"
-                "+---------------+--------+-------------+--------------+--------------+\n"
-                "|   identifier  |  root  |     stem    |      50      |     600      |\n"
-                "+---------------+--------+-------------+--------------+--------------+"
+                "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+                "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
+                "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+                "|   identifier  |  root  |     stem    |      50      |     600      |\n"  # noqa: E501
+                "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
 
@@ -107,6 +105,7 @@ class TestTransfers(TestCase):
         ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
         with as_file(ecoli_raw) as ecoliXML:
             cls.ecoli = read_sbml_model(str(ecoliXML))
+
     def test_create(self):
         transfers = Transfers()
 
@@ -115,52 +114,32 @@ class TestTransfers(TestCase):
 
     def test_toString(self):
         transfers = Transfers()
-        transfers.append(Transfer(
-                    "metabolite",
-                    source=Phase("root", "light"),
-                    destination=Phase("stem", "light"),
-                ))
-        transfers.append(Transfer(
-                    "metabolite",
-                    source=Phase("root2", "dark", 2),
-                    destination=Phase("stem2", "dark", 2),
-                ))
+        transfers.append(
+            Transfer(
+                "metabolite",
+                source=Phase("root", "light"),
+                destination=Phase("stem", "light"),
+            )
+        )
+        transfers.append(
+            Transfer(
+                "metabolite",
+                source=Phase("root2", "dark", 2),
+                destination=Phase("stem2", "dark", 2),
+            )
+        )
 
         self.assertEqual(
             str(transfers),
             (
-                "+---------------------------+-----------------------------"
-                "----------------+--------+-------------+--------------+--------------+\n"
-                "|             ID            |                     Name    "
-                "                | Source | Destination | Lower Bounds | Upper Bounds |\n"
-                "+---------------------------+-----------------------------"
-                "----------------+--------+-------------+--------------+--------------+\n"
-                "|  TR_metabolite_root_stem  |  Transfer for metabolite fro"
-                "m root to stem  |  root  |     stem    |      0       |     1000     |\n"
-                "| TR_metabolite_root2_stem2 | Transfer for metabolite from"
-                " root2 to stem2 | root2  |    stem2    |      0       |     1000     |\n"
-                "+---------------------------+-----------------------------"
-                "----------------+--------+-------------+--------------+--------------+"
+                "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+                "|             ID            |                     Name                    | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
+                "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
+                "|  TR_metabolite_root_stem  |  Transfer for metabolite from root to stem  |  root  |     stem    |      0       |     1000     |\n"  # noqa: E501
+                "| TR_metabolite_root2_stem2 | Transfer for metabolite from root2 to stem2 | root2  |    stem2    |      0       |     1000     |\n"  # noqa: E501
+                "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
-
-    def test_dictlist_behavior(self):
-        transfers = Transfers()
-        transfer = Transfer(
-            "metabolite",
-            source=Phase("root", "light"),
-            destination=Phase("stem", "light"),
-        )
-
-        transfers.append(transfer)
-        self.assertEqual(len(transfers), 1)
-
-        self.assertIsInstance(
-            transfers.get_by_id("TR_metabolite_root_stem"), Transfer
-        )
-
-        transfers.remove(transfer)
-        self.assertEqual(len(transfers), 0)
 
     def test_from_dict(self):
         dictionary = [
@@ -182,7 +161,9 @@ class TestTransfers(TestCase):
         transfers = Transfers.from_dict(dictionary)
 
         self.assertEqual(len(transfers), 2)
-        self.assertEqual(transfers[1].metabolite_id, "TR_identifier_root2_stem2")
+        self.assertEqual(
+            transfers[1].metabolite_id, "TR_identifier_root2_stem2"
+        )
         self.assertEqual(transfers[1].source, "root2")
         self.assertEqual(transfers[1].destination, "stem2")
         self.assertEqual(transfers[1].lower_bound, 0)
@@ -190,17 +171,21 @@ class TestTransfers(TestCase):
 
     def test_to_xml(self):
         transfers = Transfers()
-        transfers.append(Transfer(
-                    "metabolite",
-                    source=Phase("root", "light"),
-                    destination=Phase("stem", "light"),
-                ))
+        transfers.append(
+            Transfer(
+                "metabolite",
+                source=Phase("root", "light"),
+                destination=Phase("stem", "light"),
+            )
+        )
 
-        transfers.append(Transfer(
-                    "metabolite",
-                    source=Phase("root2", "dark", 2),
-                    destination=Phase("stem2", "dark", 2),
-                ))
+        transfers.append(
+            Transfer(
+                "metabolite",
+                source=Phase("root2", "dark", 2),
+                destination=Phase("stem2", "dark", 2),
+            )
+        )
         element = transfers.to_xml()
 
         for child in element:

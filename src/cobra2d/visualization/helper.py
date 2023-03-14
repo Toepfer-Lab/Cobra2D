@@ -1,5 +1,5 @@
 from re import sub
-from typing import List
+from typing import List, Optional
 
 from cobra import Model, Solution, Metabolite
 from ipywidgets import (
@@ -12,7 +12,7 @@ from ipywidgets import (
     HTML,
 )
 
-from model_duplication.visualization.converter import metexplore
+from cobra2d.visualization.converter import metexplore
 
 
 def multi_checkbox_widget(descriptions):
@@ -61,8 +61,9 @@ def multi_checkbox_widget(descriptions):
     return multi_select
 
 
-def select_side_metabolites(model: Model, side_metabolites: List[str] = None):
-
+def select_side_metabolites(
+    model: Model, side_metabolites: Optional[List[str]] = None
+):
     # ToDo read File
 
     metabolites = []
@@ -92,8 +93,8 @@ def select_side_metabolites(model: Model, side_metabolites: List[str] = None):
 
 def metexplore_interface(
     model: Model,
-    solution: Solution = None,
-    side_metabolites: List[str] = None,
+    solution: Optional[Solution] = None,
+    side_metabolites: Optional[List[str]] = None,
     remove_unselected_groups=True,
 ):
     groups = [(group.id, False) for group in model.groups]

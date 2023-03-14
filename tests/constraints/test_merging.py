@@ -6,7 +6,7 @@ from cobra import Configuration
 from cobra.core import Model, Reaction
 from cobra.io import read_sbml_model
 
-from model_duplication.duplication.merging import _link_genes, _merge
+from cobra2d.duplication.merging import _link_genes, _merge
 
 
 class MergingTest(TestCase):
@@ -22,6 +22,7 @@ class MergingTest(TestCase):
         ecoli_raw = files(cobra.data).joinpath("iJO1366.xml.gz")
         with as_file(ecoli_raw) as ecoliXML:
             cls.ecoli = read_sbml_model(str(ecoliXML))
+
     def test_cobra_merge(self):
         """Test the behavior of method Model.merge"""
 
@@ -51,7 +52,6 @@ class MergingTest(TestCase):
         for item in (
             submodel.metabolites + submodel.reactions + submodel.groups
         ):
-
             item.id = f"{item.id}_X"
 
         model = _merge(model, submodel, "_X")
@@ -77,17 +77,14 @@ class MergingTest(TestCase):
         reactions = [reaction.id for reaction in model.reactions]
 
         for item in model.metabolites + model.reactions + model.groups:
-
             item.id = f"{item.id}_01"
 
         for item in (
             submodel.metabolites + submodel.reactions + submodel.groups
         ):
-
             item.id = f"{item.id}_02"
 
             if isinstance(item, Reaction):
-
                 item.gene_reaction_rule = ""
 
         model.merge(right=submodel, prefix_existing="failed_")
@@ -97,7 +94,6 @@ class MergingTest(TestCase):
         self.assertEqual(len(model.genes), len(submodel.genes))
 
         for gene in model.genes:
-
             if not gene.reactions:
                 continue
 

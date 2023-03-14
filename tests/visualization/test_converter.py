@@ -7,7 +7,7 @@ from cobra import Configuration
 from cobra.io import read_sbml_model
 from importlib_resources import files, as_file
 
-from model_duplication.visualization.converter import (
+from cobra2d.visualization.converter import (
     cobra2igraph,
     cobra2networkx,
     cobra2metexplore,

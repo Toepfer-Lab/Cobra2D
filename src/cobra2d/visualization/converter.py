@@ -4,7 +4,7 @@ from importlib.resources import open_text
 from io import BytesIO
 from pathlib import Path
 from subprocess import Popen
-from typing import Union, List, Set, Dict, Tuple
+from typing import Union, List, Set, Dict, Tuple, Optional
 from zipfile import ZipFile
 
 import igraph as ig
@@ -14,7 +14,7 @@ from cobra import Model, Metabolite, Reaction, Solution
 from cobra.core import Group
 from tqdm import tqdm
 
-from model_duplication import resources
+from cobra2d import resources
 
 webserver_process: Popen
 
@@ -170,8 +170,8 @@ def __create_and_append_links(
 
 def cobra2metexplore(
     model: Model,
-    groups: Union[str, List[str]] = None,
-    side_metabolites: List[str] = None,
+    groups: Optional[Union[str, List[str]]] = None,
+    side_metabolites: Optional[List[str]] = None,
     removeUnselectedGroups=False,
 ) -> str:
     """
@@ -409,8 +409,8 @@ def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
 def cobra2metexplore_file(
     model: Model,
     file: Union[Path, str],
-    groups: Union[str, List[str]] = None,
-    side_metabolites: List[str] = None,
+    groups: Optional[Union[str, List[str]]] = None,
+    side_metabolites: Optional[List[str]] = None,
     removeUnselectedGroups=True,
 ):
     """
@@ -436,7 +436,13 @@ def cobra2metexplore_file(
 
     logging.info("")
 
-    out = cobra2metexplore(model=model, groups=groups)
+    out = cobra2metexplore(
+        model=model,
+        groups=groups,
+        side_metabolites=side_metabolites,
+        removeUnselectedGroups=removeUnselectedGroups,
+    )
+
     if isinstance(file, str):
         file = Path(file)
 
@@ -466,8 +472,8 @@ def metexplore(
     model: Model,
     dir: Union[Path, str] = Path.cwd() / "MetExplore",
     solution: Solution = None,
-    groups: Union[str, List[str]] = None,
-    side_metabolites: List[str] = None,
+    groups: Optional[Union[str, List[str]]] = None,
+    side_metabolites: Optional[List[str]] = None,
     removeUnselectedGroups=True,
 ):
     """
@@ -505,6 +511,7 @@ def metexplore(
         model=model,
         file=dir / "model.json",
         groups=groups,
+        side_metabolites=side_metabolites,
         removeUnselectedGroups=removeUnselectedGroups,
     )
     list2side_metabolite_file(

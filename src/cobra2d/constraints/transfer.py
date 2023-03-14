@@ -4,10 +4,9 @@ from typing import List, Union
 from xml.etree.ElementTree import Element, SubElement
 
 from cobra.core.model import Model
-from cobra.core.reaction import Reaction
 
-from model_duplication.constraints.phase import Phase, Phases
-from model_duplication.constraints.transport import Transport, Transports
+from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.constraints.transport import Transport, Transports
 
 
 class Transfer(Transport):
@@ -18,26 +17,17 @@ class Transfer(Transport):
     recommended to use Phases when creating the Transfer to avoid KeyErrors
 
     Attributes:
-        id (str): Internal identifier of the Transfer
-        name (str): The internal name if the Transfer
-        metabolite (str): The identifier of the involved metabolite
-        reaction (Reaction): Internal Reaction of the Transfer
+        metabolite_id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
         lower_bound (int): The 'lower_bound' to be used for the reaction.
-            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+            For more information see 'lower_bound' in
+            :py:func:`cobra.Reaction`.
         upper_bound (int): The 'upper_bound' to be used for the reaction.
-            For more information see ''lower_bound'' in :func:'cobra.Reaction'.
+            For more information see 'lower_bound' in
+            :py:func:`cobra.Reaction`.
     """
-
-    _metabolite: str
-    _id: str = ""
-    _name: str
-    _reaction: Reaction
-    _source: str
-    _destination: str
-    _lower_bound: int
-    _upper_bound: int
 
     def __init__(
         self,
@@ -70,7 +60,6 @@ class Transfer(Transport):
 
         # TODO: Nomenclature for transfers.
 
-
     def __str__(self) -> str:
         return super().__str__()
 
@@ -85,10 +74,12 @@ class Transfer(Transport):
 
     @property
     def reac_name(self) -> str:
-        return f"Transfer for {self.metabolite_id} from {self.source} to {self.destination}"
+        return (
+            f"Transfer for {self.metabolite_id} "
+            f"from {self.source} to {self.destination}"
+        )
 
     def to_xml(self) -> Element:
-
         element = Element("transfer")
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
@@ -105,7 +96,8 @@ class Transfer(Transport):
         Creates an object from given dictionary
 
         Args:
-            data: A dict that contains the necessary data to create a transport.
+            data: A dict that contains the necessary data to create
+                a transport.
 
         Returns:
             A transport based on the data from the dict.
@@ -140,8 +132,6 @@ class Transfers(Transports):
     and to_xml
     """
 
-    transfers: List[Transport]
-
     def __init__(self):
         super(Transfers, self).__init__()
 
@@ -159,7 +149,7 @@ class Transfers(Transports):
     def __iter__(self):
         return super(Transfers, self).__iter__()
 
-    def append(self, obj: Transfer):
+    def append(self, obj: Transfer):  # type: ignore
         """
         Adds a transfer to the Transfers class.
 
@@ -174,8 +164,8 @@ class Transfers(Transports):
 
     def remove(self, obj_pos: Union[Transport, int]):
         """
-        Function to remove a transfer. Either the position of the transfer in the
-        :py:attr:`linkage.transfer` list can be specified or the respective
+        Function to remove a transfer. Either the position of the transfer in
+        the :py:attr:`linkage.transfer` list can be specified or the respective
         linker.
 
         Args:
@@ -201,7 +191,7 @@ class Transfers(Transports):
             A :py:class:`cobra.model` that contains the transfers.
         """
 
-        return super(Transfers, self).apply(model = model, phases = phases)
+        return super(Transfers, self).apply(model=model, phases=phases)
 
     def to_xml(self) -> Element:
         """
@@ -217,7 +207,7 @@ class Transfers(Transports):
         return root
 
     @classmethod
-    def from_dict(cls, data: List[dict]) -> Self:
+    def from_dict(cls, data: List[dict]) -> Transfers:
         """
         Creates a Transfers object based on the data encoded in a dict.
 

@@ -3,7 +3,7 @@ Implementation of the Constraints class.
 """
 from __future__ import annotations
 
-import logging
+import warnings
 from collections import OrderedDict
 from importlib.resources import open_text
 from inspect import isclass
@@ -26,12 +26,13 @@ from rich.table import Table
 from typing_extensions import Literal
 from xmlschema import XMLSchema
 
-from model_duplication import resources
-from model_duplication.constraints.linker import Linkage, Linker
-from model_duplication.constraints.phase import Phase, Phases
-from model_duplication.error import InvalidLabel
-from model_duplication.utils import Matrix
-from model_duplication.visualization.helper import metexplore_interface
+from cobra2d import resources
+from cobra2d.constraints.linker import Linkage, Linker
+from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.constraints.transfer import Transfers, Transfer
+from cobra2d.error import InvalidLabel, PhaseNotFound
+from cobra2d.utils import Matrix
+from cobra2d.visualization.helper import metexplore_interface
 
 
 class Constraints:
@@ -44,8 +45,9 @@ class Constraints:
     based on such an XML file.
 
     Attributes:
-        phases(Linkage) :
+        phases(Phases) :
         linker(Linkage) :
+        transfers(Transfers):
     """
 
     def __init__(self):
@@ -55,6 +57,7 @@ class Constraints:
         """
         self.phases = Phases()
         self.linker = Linkage()
+        self.transfers = Transfers()
         self.order = Matrix()
         self.phases.add_phase(
             Phase(id="default-0", name="Default Phase", light_dark="light")
@@ -134,7 +137,12 @@ class Constraints:
         Returns:
             The phase that has the specified ID.
         """
-        return self.phases.phases.get_by_id(id)
+        try:
+            phase = self.phases.phases.get_by_id(id)
+        except KeyError as e:
+            raise PhaseNotFound from e
+
+        return phase
 
     def add_reaction_to_phase(
         self,
@@ -291,21 +299,56 @@ class Constraints:
 
         try:
             self.get_phase_by_id(linker.destination)
-        except KeyError:
-            raise KeyError(
+        except PhaseNotFound as e:
+            raise PhaseNotFound(
                 f"The destination: '{linker.destination}' is unknown."
-            )
+            ) from e
 
         try:
             self.get_phase_by_id(linker.source)
-        except KeyError:
-            raise KeyError(f"The source: '{linker.source}' is unknown.")
+        except PhaseNotFound as e:
+            raise PhaseNotFound(
+                f"The source: '{linker.source}' is unknown."
+            ) from e
 
-        self.linker.append(linker)
+        with warnings.catch_warnings(record=True) as w:
+            self.linker.append(linker)
+        for warning in w:
+            warnings.warn(
+                message=warning.message,
+                category=warning.category,
+                stacklevel=2,
+                source=warning.source,
+            )
+
+    def add_transfer(self, transfer: Transfer):
+        try:
+            self.get_phase_by_id(transfer.destination)
+        except PhaseNotFound as e:
+            raise PhaseNotFound(
+                f"The destination: '{transfer.destination}' is unknown."
+            ) from e
+
+        try:
+            self.get_phase_by_id(transfer.source)
+        except PhaseNotFound as e:
+            raise PhaseNotFound(
+                f"The source: '{transfer.source}' is unknown."
+            ) from e
+
+        with warnings.catch_warnings(record=True) as w:
+            self.transfers.append(transfer)
+        for warning in w:
+            warnings.warn(
+                message=warning.message,
+                category=warning.category,
+                stacklevel=2,
+                source=warning.source,
+            )
 
     def add_linker_series(
         self,
-        id: str,
+        metabolite_id: str,
         lower_bound: int = 0,
         upper_bound: int = 1000,
         last2first: bool = False,
@@ -317,7 +360,7 @@ class Constraints:
         Method to create linkers across all existing time periods.
 
         Args:
-            id: The ID to be used for the metabolite. This should match
+            metabolite_id: The ID to be used for the metabolite. This should match
                 the ID of the metabolite in the model.
             lower_bound: The 'lower_bound' to be used for the reaction.
                 For more information see :py:attr:`cobra.Reaction.lower_bound`
@@ -362,32 +405,136 @@ class Constraints:
         for label in labels:
             for n in range(len(times) - 1):
                 time = times[n]
-                try:
-                    linker = Linker(
-                        metabolite_id=id,
-                        source=f"{label}-{time}",
-                        destination=f"{label}-{times[n + 1]}",
-                        upper_bound=upper_bound,
-                        lower_bound=lower_bound,
-                    )
+                # try:
+                linker = Linker(
+                    metabolite_id=metabolite_id,
+                    source=f"{label}-{time}",
+                    destination=f"{label}-{times[n + 1]}",
+                    upper_bound=upper_bound,
+                    lower_bound=lower_bound,
+                )
+                with warnings.catch_warnings(record=True) as w:
                     self.add_linker(linker)
-
-                except KeyError:
-                    logging.warning(
-                        f"Linker from {label}-{time} to "
-                        f"{label}-{times[n + 1]} could not be "
-                        f"created."
+                for warning in w:
+                    warnings.warn(
+                        message=warning.message,
+                        category=warning.category,
+                        stacklevel=2,
+                        source=warning.source,
                     )
 
             if last2first:
                 linker = Linker(
-                    metabolite_id=id,
+                    metabolite_id=metabolite_id,
                     source=f"{label}-{times[-1]}",
                     destination=f"{label}-{times[0]}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
-                self.add_linker(linker)
+                with warnings.catch_warnings(record=True) as w:
+                    self.add_linker(linker)
+                for warning in w:
+                    warnings.warn(
+                        message=warning.message,
+                        category=warning.category,
+                        stacklevel=2,
+                        source=warning.source,
+                    )
+
+    def add_transfer_series(
+        self,
+        metabolite_id: str,
+        lower_bound: int = 0,
+        upper_bound: int = 1000,
+        last2first: bool = False,
+        reverse: bool = False,
+        timeframes: Optional[List[str]] = None,
+        sub_models: Optional[List[str]] = None,
+    ):
+        """
+        Method to create linkers across all existing time periods.
+
+        Args:
+            metabolite_id: The ID to be used for the metabolite. This should match
+                the ID of the metabolite in the model.
+            lower_bound: The 'lower_bound' to be used for the reaction.
+                For more information see :py:attr:`cobra.Reaction.lower_bound`
+                in :py:func:`cobra.Reaction`.
+            upper_bound: The 'upper_bound' to be used for the reaction.
+                For more information see :py:attr:`lower_bound` in
+                :py:class:`cobra.Reaction.`.
+            last2first: Bool that determines whether a linker should be created
+                between the last and the first period.
+                If True said linker will be created.
+                If reverse equals True, a linker will be created
+                from the first to the last period.
+            reverse: Bool that specifies the orientation of the linkers.
+                If True, the linkers are created starting from the last to the
+                first time period and not from the first to the last as usual.
+            sub_models:
+            timeframes:
+        Examples:
+            Application to a four phase model:
+
+            >>> con = Constraints()
+            >>> con.add_time_slots(4, 1)
+            >>> con.add_transfer_series("ATP")
+            >>> print(con.transfers)
+            +-----+------+-----------+-------------+--------------+--------------+
+            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
+            +-----+------+-----------+-------------+--------------+--------------+
+            | ATP |      | default-0 |  default-1  |      0       |     1000     |
+            | ATP |      | default-1 |  default-2  |      0       |     1000     |
+            | ATP |      | default-2 |  default-3  |      0       |     1000     |
+            +-----+------+-----------+-------------+--------------+--------------+
+        """  # noqa: E501
+
+        labels, times = self.__get_label_time(reverse=reverse)
+
+        if sub_models is not None:
+            labels = [label for label in labels if label in sub_models]
+
+        if timeframes is not None:
+            times = [time for time in times if time in timeframes]
+
+        for label in labels:
+            for n in range(len(times) - 1):
+                time = times[n]
+                # try:
+                transfer = Transfer(
+                    metabolite_id=metabolite_id,
+                    source=f"{label}-{time}",
+                    destination=f"{label}-{times[n + 1]}",
+                    upper_bound=upper_bound,
+                    lower_bound=lower_bound,
+                )
+                with warnings.catch_warnings(record=True) as w:
+                    self.add_transfer(transfer)
+                for warning in w:
+                    warnings.warn(
+                        message=warning.message,
+                        category=warning.category,
+                        stacklevel=2,
+                        source=warning.source,
+                    )
+
+            if last2first:
+                transfer = Transfer(
+                    metabolite_id=metabolite_id,
+                    source=f"{label}-{times[-1]}",
+                    destination=f"{label}-{times[0]}",
+                    upper_bound=upper_bound,
+                    lower_bound=lower_bound,
+                )
+                with warnings.catch_warnings(record=True) as w:
+                    self.add_transfer(transfer)
+                for warning in w:
+                    warnings.warn(
+                        message=warning.message,
+                        category=warning.category,
+                        stacklevel=2,
+                        source=warning.source,
+                    )
 
     def apply_to_model(self, model: Optional[Model] = None) -> Model:
         """
@@ -402,6 +549,7 @@ class Constraints:
 
         new_model = self.phases.apply_phases(model)
         # TODO: verify if transfers should be apply before linker
+        new_model = self.transfers.apply(new_model, phases=self.phases)
         new_model = self.linker.apply(new_model, phases=self.phases)
 
         return new_model
@@ -419,10 +567,11 @@ class Constraints:
         root.set(
             "xmlns",
             "https://github.com/Toepfer-Lab/"
-            "model_duplication/blob/main/src/resources/schema.xsd",
+            "cobra2d/blob/main/src/resources/schema.xsd",
         )
 
         root.append(self.phases.to_xml())
+        root.append(self.transfers.to_xml())
         root.append(self.linker.to_xml())
 
         return root
@@ -487,7 +636,11 @@ class Constraints:
         # encoding cannot be used.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
+        print(data)
         constraints.phases = Phases.from_dict(data["phases"]["phase"])
+        constraints.transfers = Transfers.from_dict(
+            data["Transfers"]["transfer"]
+        )
         constraints.linker = Linkage.from_dict(data["linkage"]["linker"])
 
         if (
@@ -574,30 +727,71 @@ class Constraints:
 
                         last_label = new_label
 
-        edge_dict: Dict[str, List[Tuple[str, str]]] = {}
-        edge_dict_reverse: Dict[Tuple[str, str], list[str]] = {}
+        linker_edge_dict: Dict[str, List[Tuple[str, str]]] = {}
+        linker_edge_dict_reverse: Dict[Tuple[str, str], list[str]] = {}
+        transfer_edge_dict: Dict[str, List[Tuple[str, str]]] = {}
+        transfer_edge_dict_reverse: Dict[Tuple[str, str], list[str]] = {}
 
         for linker in self.linker.linker:
             edge_value: Tuple[str, str] = (linker.source, linker.destination)
-            if linker.metabolite_id in edge_dict:
-                edge_dict[linker.metabolite_id].append(edge_value)
+            if linker.metabolite_id in linker_edge_dict:
+                linker_edge_dict[linker.metabolite_id].append(edge_value)
             else:
-                edge_dict[linker.metabolite_id] = [edge_value]
+                linker_edge_dict[linker.metabolite_id] = [edge_value]
 
-            if edge_value in edge_dict_reverse:
-                edge_dict_reverse[edge_value].append(linker.metabolite_id)
+            if edge_value in linker_edge_dict_reverse:
+                linker_edge_dict_reverse[edge_value].append(
+                    linker.metabolite_id
+                )
             else:
-                edge_dict_reverse[edge_value] = [linker.metabolite_id]
+                linker_edge_dict_reverse[edge_value] = [linker.metabolite_id]
 
-        size = len(edge_dict_reverse)
+        for transfer in self.transfers.transfers:
+            edge_value: Tuple[str, str] = (  # type: ignore
+                transfer.source,
+                transfer.destination,
+            )
+            if transfer.metabolite_id in transfer_edge_dict:
+                transfer_edge_dict[transfer.metabolite_id].append(edge_value)
+            else:
+                transfer_edge_dict[transfer.metabolite_id] = [edge_value]
+
+            if edge_value in transfer_edge_dict_reverse:
+                transfer_edge_dict_reverse[edge_value].append(
+                    transfer.metabolite_id
+                )
+            else:
+                transfer_edge_dict_reverse[edge_value] = [
+                    transfer.metabolite_id
+                ]
+
+        size = len(linker_edge_dict_reverse)
         linker_str = "linker existing in all connections:"
-        for key, value in edge_dict.items():
+        for key, value in linker_edge_dict.items():
             if len(value) == size:
                 linker_str += f"\n {key}"
-                for metabolite_ids in edge_dict_reverse.values():
+                for metabolite_ids in linker_edge_dict_reverse.values():
                     metabolite_ids.remove(key)
 
-        for key_r, value_r in edge_dict_reverse.items():
+        size = len(transfer_edge_dict_reverse)
+        transfer_str = "Transfers existing in all connections:"
+        for key, value in transfer_edge_dict.items():
+            if len(value) == size:
+                transfer_str += f"\n {key}"
+                for metabolite_ids in transfer_edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key_r, value_r in linker_edge_dict_reverse.items():
+            source, destintaion = key_r
+            g.edge(
+                source,
+                destintaion,
+                label="\t\n".join(value_r),
+                labeldistance="6",
+                labelangle="75",
+            )
+
+        for key_r, value_r in transfer_edge_dict_reverse.items():
             source, destintaion = key_r
             g.edge(
                 source,
@@ -608,7 +802,7 @@ class Constraints:
             )
 
         for source, destintaion in invis_connections:
-            if (source, destintaion) not in edge_dict_reverse.keys():
+            if (source, destintaion) not in linker_edge_dict_reverse.keys():
                 g.edge(
                     source,
                     destintaion,
@@ -640,17 +834,39 @@ class Constraints:
                 label=linker.metabolite_id,
             )
 
-        edge_dict_reverse = {}
+        for transfer in self.transfers.transfers:
+            graph.add_edge(
+                transfer.source,
+                transfer.destination,
+                label=transfer.metabolite_id,
+            )
+
+        linker_edge_dict_reverse = {}
+        transfer_edge_dict_reverse = {}
 
         for linker in self.linker.linker:
             value: Tuple[str, str] = (linker.source, linker.destination)
 
-            if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.metabolite_id)
+            if value in linker_edge_dict_reverse:
+                linker_edge_dict_reverse[value].append(linker.metabolite_id)
             else:
-                edge_dict_reverse[value] = [linker.metabolite_id]
+                linker_edge_dict_reverse[value] = [linker.metabolite_id]
 
-        for key, value in edge_dict_reverse.items():
+        for transfer in self.transfers.transfers:
+            value: Tuple[str, str] = (transfer.source, transfer.destination)
+
+            if value in transfer_edge_dict_reverse:
+                transfer_edge_dict_reverse[value].append(
+                    transfer.metabolite_id
+                )
+            else:
+                transfer_edge_dict_reverse[value] = [transfer.metabolite_id]
+
+        for key, value in linker_edge_dict_reverse.items():
+            source, destintaion = key
+            graph.add_edge(source, destintaion, Metabolite="\n".join(value))
+
+        for key, value in transfer_edge_dict_reverse.items():
             source, destintaion = key
             graph.add_edge(source, destintaion, Metabolite="\n".join(value))
 
@@ -689,30 +905,48 @@ class Constraints:
                 }
             )
 
-        edge_dict = {}
-        edge_dict_reverse = {}
+        linker_edge_dict = {}
+        linker_edge_dict_reverse = {}
+        transfer_edge_dict = {}
+        transfer_edge_dict_reverse = {}
 
         for linker in self.linker.linker:
             value: Tuple[str, str] = (linker.source, linker.destination)
-            if linker.metabolite_id in edge_dict:
-                edge_dict[linker.metabolite_id].append(value)
+            if linker.metabolite_id in linker_edge_dict:
+                linker_edge_dict[linker.metabolite_id].append(value)
             else:
-                edge_dict[linker.metabolite_id] = [value]
+                linker_edge_dict[linker.metabolite_id] = [value]
 
-            if value in edge_dict_reverse:
-                edge_dict_reverse[value].append(linker.metabolite_id)
+            if value in linker_edge_dict_reverse:
+                linker_edge_dict_reverse[value].append(linker.metabolite_id)
             else:
-                edge_dict_reverse[value] = [linker.metabolite_id]
+                linker_edge_dict_reverse[value] = [linker.metabolite_id]
 
-        size = len(edge_dict_reverse)
-        metabolites_existing_between_all_phases = []
-        for key, value in edge_dict.items():
+        for transfer in self.transfers.transfers:
+            value: Tuple[str, str] = (linker.source, linker.destination)
+            if transfer.metabolite_id in transfer_edge_dict:
+                transfer_edge_dict[transfer.metabolite_id].append(value)
+            else:
+                transfer_edge_dict[transfer.metabolite_id] = [value]
+
+            if value in transfer_edge_dict_reverse:
+                transfer_edge_dict_reverse[value].append(
+                    transfer.metabolite_id
+                )
+            else:
+                transfer_edge_dict_reverse[value] = [transfer.metabolite_id]
+
+        size = len(linker_edge_dict_reverse)
+        metabolites_existing_between_all_phases_linker = []
+        metabolites_existing_between_all_phases_transfer = []
+
+        for key, value in linker_edge_dict.items():
             if len(value) == size:
-                metabolites_existing_between_all_phases.append(key)
-                for metabolite_ids in edge_dict_reverse.values():
+                metabolites_existing_between_all_phases_linker.append(key)
+                for metabolite_ids in linker_edge_dict_reverse.values():
                     metabolite_ids.remove(key)
 
-        for key, value in edge_dict_reverse.items():
+        for key, value in linker_edge_dict_reverse.items():
             source, destination = key
             edges.append(
                 {
@@ -726,9 +960,31 @@ class Constraints:
                 }
             )
 
+        size = len(transfer_edge_dict_reverse)
+        for key, value in transfer_edge_dict.items():
+            if len(value) == size:
+                metabolites_existing_between_all_phases_transfer.append(key)
+                for metabolite_ids in transfer_edge_dict_reverse.values():
+                    metabolite_ids.remove(key)
+
+        for key, value in transfer_edge_dict_reverse.items():
+            source, destination = key
+            edges.append(
+                {
+                    "data": {
+                        "id": f"Transfer from {source} to {destination}",
+                        "source": source,
+                        "target": destination,
+                        "Metabolite": value,
+                        "isdirected": "true",
+                    }
+                }
+            )
+
         return (
             {"nodes": nodes, "edges": edges},
-            metabolites_existing_between_all_phases,
+            metabolites_existing_between_all_phases_linker,
+            metabolites_existing_between_all_phases_transfer,
         )
 
     def cytoscape(self):  # pragma: no cover
@@ -736,7 +992,11 @@ class Constraints:
         tab = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
         cytoscapeobj = ipycytoscape.CytoscapeWidget()
-        graph, met_betw_all_phases = self._con2json()
+        (
+            graph,
+            met_betw_all_phases_linker,
+            met_betw_all_phases_transfer,
+        ) = self._con2json()
         cytoscapeobj.graph.add_graph_from_json(graph, directed=True)
         cytoscapeobj.set_layout(name="dagre", nodeSpacing=50, edgeLengthVal=10)
 
@@ -802,18 +1062,42 @@ class Constraints:
         )
 
         out = Output()
-        all_met_betw_all_phases = iter(met_betw_all_phases)
-        try:
-            met_betw_all_phases_html = (
-                f"{tab}&bull; {next(all_met_betw_all_phases)}<br>"
-            )
-            if len(met_betw_all_phases) > 1:
-                met_betw_all_phases_html += f"{tab}&bull; "
-        except StopIteration:
-            met_betw_all_phases_html = f"{tab}None"
+        all_met_betw_all_phases_linker = iter(met_betw_all_phases_linker)
+        all_met_betw_all_phases_transfer = iter(met_betw_all_phases_transfer)
 
-        met_betw_all_phases_html += (f"<br>{tab}&bull; ").join(
-            all_met_betw_all_phases
+        try:
+            met_betw_all_phases_linker_html = (
+                f"{tab}&bull; {next(all_met_betw_all_phases_linker)}<br>"
+            )
+            if len(met_betw_all_phases_linker) > 1:
+                met_betw_all_phases_linker_html += f"{tab}&bull; "
+        except StopIteration:
+            met_betw_all_phases_linker_html = f"{tab}None"
+
+        met_betw_all_phases_linker_html += (f"<br>{tab}&bull; ").join(
+            all_met_betw_all_phases_linker
+        )
+
+        try:
+            met_betw_all_phases_transfer_html = (
+                f"{tab}&bull; {next(all_met_betw_all_phases_transfer)}<br>"
+            )
+            if len(met_betw_all_phases_transfer) > 1:
+                met_betw_all_phases_transfer_html += f"{tab}&bull; "
+        except StopIteration:
+            met_betw_all_phases_transfer_html = f"{tab}None"
+
+        met_betw_all_phases_transfer_html += (f"<br>{tab}&bull; ").join(
+            all_met_betw_all_phases_transfer
+        )
+
+        met_betw_all_phases_linker_html = (
+            "<h5>Linker existing between all Phases:</h5>"
+            + met_betw_all_phases_linker_html
+        )
+        met_betw_all_phases_transfer_html = (
+            "<h5>Transfers existing between all Phases:</h5>"
+            + met_betw_all_phases_transfer_html
         )
 
         def log_mouseovers_edge(edge):
@@ -833,9 +1117,8 @@ class Constraints:
                 display(
                     HTML(
                         f"<h4>{id}</h4>"
-                        f"<h5>Metabolites/Linker existing between all "
-                        f"Phases:</h5>"
-                        f"{met_betw_all_phases_html}<br>"
+                        f"{met_betw_all_phases_linker_html}<br>"
+                        f"{met_betw_all_phases_transfer_html}<br>"
                         f"<h5>Additional metabolites:</h5>"
                         f"{metabolites_html}"
                     )

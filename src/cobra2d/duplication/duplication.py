@@ -9,8 +9,9 @@ from cobra.core.configuration import Configuration
 from cobra.exceptions import OptimizationError
 from cobra.util import linear_reaction_coefficients
 
-from model_duplication.duplication.merging import _merge, _link_genes
-from model_duplication.duplication.reactions import (
+import cobra2d
+from cobra2d.duplication.merging import _merge, _link_genes
+from cobra2d.duplication.reactions import (
     _create_reactions,
     read_file,
 )
@@ -21,18 +22,14 @@ logger = getLogger(__name__)
 logger.addHandler(StreamHandler())
 logger.level = 20
 
-__version__ = "0.0.1-alpha"
-
 
 def _rename(model: Model, suffix: str, objective_factor: float = 1.0):
-
     model_objective = {}
     for reaction, coeff in linear_reaction_coefficients(model).items():
         model_objective[reaction.id] = coeff
 
     item: Union[Metabolite, Reaction, Group, Gene]
     for item in model.metabolites + model.reactions + model.groups:
-
         if item.id:
             item.id = f"{item.id}_{suffix}"
             logger.debug(msg=f"Item renamed to {item.id}")
@@ -57,7 +54,7 @@ def _connect_models(
     secondary: Model,
     left_suffix: str,
     right_suffix: str,
-    metabolites: List[str] = None,
+    metabolites: Optional[List[str]] = None,
 ) -> Model:
     try:
         model: Model = _merge(model=main, right=secondary, suffix=right_suffix)
@@ -74,7 +71,6 @@ def _connect_models(
             model.add_reactions(inter_reactions)
 
     except AssertionError as e:
-
         # FIXME: warn
         raise e
 
@@ -113,10 +109,9 @@ def _main_placeholder(
     model: Model,
     labels: List[str],
     objective_factor: List[float],
-    file: Path = None,
+    file: Optional[Path] = None,
     genes: bool = False,
 ) -> Model:
-
     _model = model.copy()
     _rename(
         model=_model, suffix=labels[0], objective_factor=objective_factor[0]
@@ -134,7 +129,6 @@ def _main_placeholder(
         metabolites = []
 
     for i, label in enumerate(labels[1:], 1):
-
         # Use copy of original to avoid 2n reactions
         submodel: Model = model.copy()
         _rename(
@@ -164,7 +158,7 @@ def _main_placeholder(
         )
 
         # update objective function
-
+        # TODO deprecated ?
         if not _test(_model, submodel):
             raise Exception(f"Test for submodel {submodel.id}_{label} failed.")
 
@@ -181,7 +175,7 @@ def _main_placeholder(
     # Meta-data
     _model.notes[
         "submodels-info"
-    ] = f"Modified with module version {__version__}"
+    ] = f"Modified with Cobra2D version {cobra2d.__version__}"
     _model.notes["submodels"] = ",".join(labels)
 
     logger.info(f"Model {model.id} successfully modified")

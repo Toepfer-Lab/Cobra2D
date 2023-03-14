@@ -12,8 +12,8 @@ from xml.etree.ElementTree import Element, SubElement
 
 from cobra import Model
 
-from model_duplication.constraints.phase import Phase, Phases
-from model_duplication.constraints.transport import Transport, Transports
+from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.constraints.transport import Transport, Transports
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
@@ -41,12 +41,12 @@ class Linker(Transport):
     """
 
     def __init__(
-            self,
-            metabolite_id: str,
-            source: Union[Phase, str],
-            destination: Union[Phase, str],
-            lower_bound: int = 0,
-            upper_bound: int = 1000,
+        self,
+        metabolite_id: str,
+        source: Union[Phase, str],
+        destination: Union[Phase, str],
+        lower_bound: int = 0,
+        upper_bound: int = 1000,
     ):
         """
         Initialize a Linker.
@@ -94,7 +94,10 @@ class Linker(Transport):
 
     @property
     def reac_name(self) -> str:
-        return f"Linker for {self.metabolite_id} from {self.source} to {self.destination}"
+        return (
+            f"Linker for {self.metabolite_id} "
+            f"from {self.source} to {self.destination}"
+        )
 
     def to_xml(self) -> Element:
         """
@@ -176,7 +179,7 @@ class Linkage(Transports):
     def __iter__(self):
         return super(Linkage, self).__iter__()
 
-    def append(self, obj: Linker):
+    def append(self, obj: Linker):  # type: ignore
         """
         Adds linker to the linkage class.
 
@@ -199,12 +202,15 @@ class Linkage(Transports):
             This method is deprecated and will be removed in version 1.0.0.
             Use :py:method:`linkage.linker.append` instead.
         """
-        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use 'linkage.append' instead.",
-                      DeprecationWarning)
+        warnings.warn(
+            "'add_linker' is deprecated and will be removed in "
+            "version 1.0.0. Use 'linkage.append' instead.",
+            DeprecationWarning,
+        )
 
         self.append(obj=linker)
 
-    def remove(self, obj_pos: Union[Linker, int]):
+    def remove(self, obj_pos: Union[Linker, int]):  # type: ignore
         """
         Function to remove a linker. Either the position of the linker in the
         :py:attr:`linkage.linker` list can be specified or the respective
@@ -236,8 +242,11 @@ class Linkage(Transports):
             Use :py:method:`linkage.linker.remove` instead.
 
         """
-        warnings.warn("'add_linker' is deprecated and will be removed in version 1.0.0. Use `linkage.append` instead.",
-                      DeprecationWarning)
+        warnings.warn(
+            "'add_linker' is deprecated and will be removed in "
+            "version 1.0.0. Use `linkage.append` instead.",
+            DeprecationWarning,
+        )
 
         self.remove(obj_pos=obj_pos)
 
@@ -255,7 +264,7 @@ class Linkage(Transports):
             A :py:class:`cobra.model` that contains the Linker.
         """
 
-        return super(Linkage, self).apply(model=model, phases = phases)
+        return super(Linkage, self).apply(model=model, phases=phases)
 
     def apply_linkage(self, model: Model, phases: Phases) -> Model:
         """
@@ -274,8 +283,11 @@ class Linkage(Transports):
             Use :py:method:`linkage.linker.apply` instead.
         """
 
-        warnings.warn("'apply_linkage' is deprecated and will be removed in version 1.0.0. Use `linkage.linker.apply` instead.",
-                      DeprecationWarning)
+        warnings.warn(
+            "'apply_linkage' is deprecated and will be removed in "
+            "version 1.0.0. Use `linkage.linker.apply` instead.",
+            DeprecationWarning,
+        )
 
         return self.apply(
             model=model,

@@ -20,7 +20,6 @@ def update_stoichiometry(
     metabolites: Dict[Metabolite, float] = reaction.metabolites
 
     for metabolite, coef in metabolites.items():
-
         if coef < 0:
             coef *= left
 
@@ -57,7 +56,6 @@ def normalize(
     ), "Both sides of the equation are not equal"
 
     for reaction in transfers:
-
         assert model.reactions.get_by_id(
             reaction
         ), f"{reaction} does not exist"

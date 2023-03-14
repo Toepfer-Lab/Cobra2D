@@ -3,7 +3,6 @@ Implementation of the phase and Phases classes.
 
 """
 from __future__ import annotations
-from inspect import isclass
 import logging
 from inspect import isclass
 from typing import List, Union, Optional
@@ -15,13 +14,13 @@ from cobra.util import linear_reaction_coefficients
 from prettytable import PrettyTable
 from typing_extensions import Literal
 
-from model_duplication.duplication.duplication import (
+from cobra2d.duplication.duplication import (
     _main_placeholder,
     _rename,
     _test,
 )
-from model_duplication.duplication.merging import _merge
-from model_duplication.error import IdAlreadyInUse
+from cobra2d.duplication.merging import _merge
+from cobra2d.error import IdAlreadyInUse
 
 
 class Phase:

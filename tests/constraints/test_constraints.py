@@ -2,7 +2,7 @@ import io
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase, main
+from unittest import TestCase
 from xml.etree.ElementTree import Element
 
 import cobra
@@ -11,9 +11,10 @@ from cobra.io import read_sbml_model
 from graphviz import Digraph
 from importlib_resources import files, as_file, open_text
 
-from model_duplication.constraints.constraints import Constraints
-from model_duplication.constraints.linker import Linkage, Linker
-from model_duplication.constraints.phase import Phase, Phases
+from cobra2d.constraints.constraints import Constraints
+from cobra2d.constraints.linker import Linkage, Linker
+from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.error import PhaseNotFound
 from tests import data
 
 
@@ -143,7 +144,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-            KeyError, "The source: 'unknown' is unknown."
+            PhaseNotFound, "The source: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -154,7 +155,7 @@ class TestConstraints(TestCase):
         )
 
         with self.assertRaisesRegex(
-            KeyError, "The destination: 'unknown' is unknown."
+            PhaseNotFound, "The destination: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -186,7 +187,11 @@ class TestConstraints(TestCase):
         con.add_linker_series("test_id", last2first=True)
 
         linker.append(
-            Linker(metabolite_id="test_id", source="default-4", destination="default-0")
+            Linker(
+                metabolite_id="test_id",
+                source="default-4",
+                destination="default-0",
+            )
         )
 
         self.assertCountEqual(con.linker.linker, linker)
@@ -213,12 +218,16 @@ class TestConstraints(TestCase):
 
         # last2first: bool = True reverse: bool = True
         linker.append(
-            Linker(metabolite_id="test_id", source="default-0", destination="default-4")
+            Linker(
+                metabolite_id="test_id",
+                source="default-0",
+                destination="default-4",
+            )
         )
         con = Constraints()
         con.add_time_slots(5, 1, "light")
         self.assertEqual(0, len(con.linker.linker))
-        con.add_linker_series("test_id", reverse=True, last2first=True)
+        con.add_linker_series("test_id", last2first=True, reverse=True)
         self.assertCountEqual(linker, con.linker.linker)
 
         # phase is not usable
@@ -227,17 +236,11 @@ class TestConstraints(TestCase):
         con.add_sub_models(["root", "leaf"], [1, 2])
         self.assertEqual(0, len(con.linker.linker))
         del con.phases.phases[3]
-        con.add_linker_series("test_linker")
 
-        with self.assertLogs(level="WARNING") as waning:
+        with self.assertRaisesRegex(
+            PhaseNotFound, "The destination: 'root-3' is unknown."
+        ):
             con.add_linker_series("test_linker")
-        self.assertEqual(
-            waning.output,
-            [
-                "WARNING:root:Linker from root-2 to root-3 "
-                "could not be created."
-            ],
-        )
 
     def test_apply_to_model(self):
         con = Constraints()
@@ -519,7 +522,14 @@ class TestConstraints(TestCase):
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)
 
-        json_string, metabolites_existing_between_all_phases = con._con2json()
+        print(con._con2json())
+
+        (
+            json_string,
+            metabolites_existing_between_all_phases,
+            metabolites_existing_between_all_phases_transfer,
+        ) = con._con2json()
+
         with open_text(
             data, "con2json_result.JSON", encoding="UTF-8"
         ) as expected:
