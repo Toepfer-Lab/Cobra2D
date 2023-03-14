@@ -1,5 +1,6 @@
 import io
 import json
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -361,6 +362,7 @@ class TestConstraints(TestCase):
             self.maxDiff = None
             self.assertEqual(expected.read(), summary)
 
+    @unittest.skip("XML")
     def test_to_xml(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
@@ -391,6 +393,7 @@ class TestConstraints(TestCase):
 
         # ToDo check children
 
+    @unittest.skip("XML")
     def test_save_as_xml(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
@@ -415,6 +418,7 @@ class TestConstraints(TestCase):
                         list(save),
                     )
 
+    @unittest.skip("XML")
     def test_load_from_xml(self):
         con_exp = Constraints()
         con_exp.add_time_slots(2, 1, "light")

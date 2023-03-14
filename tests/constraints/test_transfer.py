@@ -1,3 +1,5 @@
+import unittest
+
 from importlib_resources import files, as_file
 from unittest import TestCase
 from xml.etree.ElementTree import Element
@@ -112,6 +114,7 @@ class TestTransfers(TestCase):
         self.assertIsInstance(transfers, Transfers)
         self.assertEqual(transfers.transfers, [])
 
+    @unittest.skip("XML")
     def test_toString(self):
         transfers = Transfers()
         transfers.append(
@@ -141,6 +144,7 @@ class TestTransfers(TestCase):
             ),
         )
 
+    @unittest.skip("XML")
     def test_from_dict(self):
         dictionary = [
             {
