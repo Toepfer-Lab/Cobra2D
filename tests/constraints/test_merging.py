@@ -1,4 +1,4 @@
-from importlib.resources import files, as_file
+from importlib_resources import files, as_file
 from unittest import TestCase
 
 import cobra

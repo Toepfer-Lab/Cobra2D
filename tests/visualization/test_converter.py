@@ -1,5 +1,5 @@
 import json
-from importlib.resources import open_text
+from importlib_resources import open_text
 from unittest import TestCase
 
 import cobra
