@@ -5,13 +5,11 @@ from cobra.core import Metabolite, Model, Reaction
 
 
 def _read(file: Path) -> List[str]:
-
     # FIXME: identify csv and xls
     with open(file, "r") as f:
         lines = f.readlines()
 
     if not lines:
-
         # TODO: message
         raise Exception
 
@@ -20,9 +18,7 @@ def _read(file: Path) -> List[str]:
 
 
 def _check_reactions(model: Model, elements: List[str]) -> bool:
-
     for element in elements:
-
         item = model.metabolites.query(element)
 
         if not item:
@@ -46,14 +42,12 @@ def read_file(model: Model, file: Path) -> List[str]:
 def _create_reactions(
     model: Model, metabolites: List[str], left_suffix: str, right_suffix: str
 ) -> List[Reaction]:
-
     # FIXME: reaction type
     reaction_type = "Linker"
 
     inter_reactions: List[Reaction] = list()
 
     for metabolite in metabolites:
-
         right_metabolite: Metabolite = model.metabolites.get_by_id(
             f"{metabolite}_{right_suffix}"
         )

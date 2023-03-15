@@ -5,8 +5,8 @@ from cobra import Configuration
 from cobra.io import read_sbml_model
 from importlib_resources import files, as_file
 
-from model_duplication import Constraints
-from model_duplication.optimization.parsimonious import (
+from cobra2d import Constraints
+from cobra2d.optimization.parsimonious import (
     add_adjusted_pfba_objective,
 )
 

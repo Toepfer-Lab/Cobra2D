@@ -7,7 +7,7 @@ from cobra.io import read_sbml_model
 from cobra.util import linear_reaction_coefficients
 from importlib_resources import files, as_file
 
-from model_duplication.constraints.phase import Phase, Phases
+from cobra2d.constraints.phase import Phase, Phases
 
 
 class TestPhase(TestCase):

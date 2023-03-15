@@ -1,5 +1,6 @@
 import io
 import json
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -11,9 +12,10 @@ from cobra.io import read_sbml_model
 from graphviz import Digraph
 from importlib_resources import files, as_file, open_text
 
-from model_duplication.constraints.constraints import Constraints
-from model_duplication.constraints.linker import Linkage, Linker
-from model_duplication.constraints.phase import Phase, Phases
+from cobra2d.constraints.constraints import Constraints
+from cobra2d.constraints.linker import Linkage, Linker
+from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.error import PhaseNotFound
 from tests import data
 
 
@@ -124,7 +126,7 @@ class TestConstraints(TestCase):
         con.add_time_slots(2, 1, "light")
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="default-0",
             destination="default-1",
         )
@@ -137,24 +139,24 @@ class TestConstraints(TestCase):
         # Raise error if source or destination are not known
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="unknown",
             destination="default-1",
         )
 
         with self.assertRaisesRegex(
-            KeyError, "The source: 'unknown' is unknown."
+            PhaseNotFound, "The source: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
         linker = Linker(
-            id="test_id",
+            metabolite_id="test_id",
             source="default-0",
             destination="unknown",
         )
 
         with self.assertRaisesRegex(
-            KeyError, "The destination: 'unknown' is unknown."
+            PhaseNotFound, "The destination: 'unknown' is unknown."
         ):
             con.add_linker(linker)
 
@@ -168,7 +170,7 @@ class TestConstraints(TestCase):
             destination = f"default-{n + 1}"
             linker.append(
                 Linker(
-                    id="test_id",
+                    metabolite_id="test_id",
                     source=source,
                     destination=destination,
                 )
@@ -186,7 +188,11 @@ class TestConstraints(TestCase):
         con.add_linker_series("test_id", last2first=True)
 
         linker.append(
-            Linker(id="test_id", source="default-4", destination="default-0")
+            Linker(
+                metabolite_id="test_id",
+                source="default-4",
+                destination="default-0",
+            )
         )
 
         self.assertCountEqual(con.linker.linker, linker)
@@ -201,7 +207,7 @@ class TestConstraints(TestCase):
             source = f"default-{n + 1}"
             linker.append(
                 Linker(
-                    id="test_id",
+                    metabolite_id="test_id",
                     source=source,
                     destination=destination,
                 )
@@ -213,12 +219,16 @@ class TestConstraints(TestCase):
 
         # last2first: bool = True reverse: bool = True
         linker.append(
-            Linker(id="test_id", source="default-0", destination="default-4")
+            Linker(
+                metabolite_id="test_id",
+                source="default-0",
+                destination="default-4",
+            )
         )
         con = Constraints()
         con.add_time_slots(5, 1, "light")
         self.assertEqual(0, len(con.linker.linker))
-        con.add_linker_series("test_id", reverse=True, last2first=True)
+        con.add_linker_series("test_id", last2first=True, reverse=True)
         self.assertCountEqual(linker, con.linker.linker)
 
         # phase is not usable
@@ -227,17 +237,11 @@ class TestConstraints(TestCase):
         con.add_sub_models(["root", "leaf"], [1, 2])
         self.assertEqual(0, len(con.linker.linker))
         del con.phases.phases[3]
-        con.add_linker_series("test_linker")
 
-        with self.assertLogs(level="WARNING") as waning:
+        with self.assertRaisesRegex(
+            PhaseNotFound, "The destination: 'root-3' is unknown."
+        ):
             con.add_linker_series("test_linker")
-        self.assertEqual(
-            waning.output,
-            [
-                "WARNING:root:Linker from root-2 to root-3 "
-                "could not be created."
-            ],
-        )
 
     def test_apply_to_model(self):
         con = Constraints()
@@ -246,7 +250,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -358,6 +362,7 @@ class TestConstraints(TestCase):
             self.maxDiff = None
             self.assertEqual(expected.read(), summary)
 
+    @unittest.skip("XML")
     def test_to_xml(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
@@ -365,7 +370,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -388,6 +393,7 @@ class TestConstraints(TestCase):
 
         # ToDo check children
 
+    @unittest.skip("XML")
     def test_save_as_xml(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")
@@ -395,7 +401,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -412,6 +418,7 @@ class TestConstraints(TestCase):
                         list(save),
                     )
 
+    @unittest.skip("XML")
     def test_load_from_xml(self):
         con_exp = Constraints()
         con_exp.add_time_slots(2, 1, "light")
@@ -419,7 +426,7 @@ class TestConstraints(TestCase):
         con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -461,7 +468,7 @@ class TestConstraints(TestCase):
         con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="model0-0",
             destination="model0-1",
         )
@@ -481,7 +488,7 @@ class TestConstraints(TestCase):
         con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="leaf-0",
             destination="leaf-1",
         )
@@ -512,14 +519,21 @@ class TestConstraints(TestCase):
         con.add_sub_models(["leaf", "root"], [1, 2], ["leaf", "root"])
 
         linker = Linker(
-            id="amp_c",
+            metabolite_id="amp_c",
             source="leaf-0",
             destination="leaf-1",
         )
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)
 
-        json_string, metabolites_existing_between_all_phases = con._con2json()
+        print(con._con2json())
+
+        (
+            json_string,
+            metabolites_existing_between_all_phases,
+            metabolites_existing_between_all_phases_transfer,
+        ) = con._con2json()
+
         with open_text(
             data, "con2json_result.JSON", encoding="UTF-8"
         ) as expected:

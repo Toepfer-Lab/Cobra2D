@@ -54,7 +54,7 @@
       <xs:element type="destinationType" name="destination"/>
       <xs:element type="sourceType" name="source"/>
     </xs:sequence>
-    <xs:attribute type="xs:ID" name="id"/>
+    <xs:attribute type="xs:ID" name="metabolite_id"/>
     <xs:attribute type="xs:integer" name="lower_bound"/>
     <xs:attribute type="xs:integer" name="upper_bound"/>
   </xs:complexType>

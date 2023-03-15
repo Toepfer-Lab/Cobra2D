@@ -7,7 +7,7 @@ from cobra.util import fix_objective_as_constraint
 from optlang import Objective, Variable
 from optlang.symbolics import Zero
 
-from model_duplication import Constraints
+from cobra2d import Constraints
 
 
 def adjusted_pfba(
@@ -17,7 +17,6 @@ def adjusted_pfba(
     objective: Optional[Union[Dict, Objective]] = None,
     reactions: Optional[List[Reaction]] = None,
 ) -> Solution:
-
     """
     A customized version of the pFBA provided by COBRApy.
     It differs in that it takes into account the time periods and
@@ -64,7 +63,6 @@ def add_adjusted_pfba_objective(
     objective: Optional[Union[Dict, Objective]] = None,
     fraction_of_optimum: float = 1.0,
 ) -> None:
-
     if objective is not None:
         model.objective = objective
 
@@ -83,6 +81,8 @@ def add_adjusted_pfba_objective(
         try:
             # ToDo clear identification for Linker (Linker and Amino acids )
             if re.match(r".*[^_]_L_[^_].*", reaction.id):
+                continue
+            if re.match(r"^TR_.*$", reaction.id):
                 continue
         except IndexError:
             pass

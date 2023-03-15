@@ -3,7 +3,6 @@ Implementation of the phase and Phases classes.
 
 """
 from __future__ import annotations
-
 import logging
 from inspect import isclass
 from typing import List, Union, Optional
@@ -15,13 +14,13 @@ from cobra.util import linear_reaction_coefficients
 from prettytable import PrettyTable
 from typing_extensions import Literal
 
-from model_duplication.duplication.duplication import (
+from cobra2d.duplication.duplication import (
     _main_placeholder,
     _rename,
     _test,
 )
-from model_duplication.duplication.merging import _merge
-from model_duplication.error import IdAlreadyInUse
+from cobra2d.duplication.merging import _merge
+from cobra2d.error import IdAlreadyInUse
 
 
 class Phase:
@@ -65,6 +64,7 @@ class Phase:
     def __init__(
         self,
         id: str,
+        # COMMENT: this might be fixed if using tags
         light_dark: Literal["light", "dark"],
         timeframe: int = 1,
         volume: int = 1,
@@ -240,6 +240,7 @@ class Phases:
         del self.phases
         self.phases = DictList()
 
+    # TODO: maybe ability to add Iterators?
     def add_phase(self, phase: Phase):
         """
         Method to add a phase to the Phases object.

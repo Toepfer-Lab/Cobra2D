@@ -46,7 +46,7 @@ add_module_names = False
 
 
 # APIDoc
-# autoapi_dirs = '../../src/model_duplication'
+# autoapi_dirs = '../../src/cobra2d'
 # apidoc_output_dir = 'reference'
 # autoapi_root = 'module'
 #apidoc_excluded_paths = ['tests']

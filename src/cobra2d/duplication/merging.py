@@ -11,7 +11,6 @@ logger = getLogger(__name__)
 
 
 def _merge(model: Model, right: Model, suffix: str) -> Model:
-
     model.merge(right=right, prefix_existing="failed_", objective="sum")
 
     # add unused metabolites and check if duplicates are created
@@ -35,7 +34,6 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
 
     group: Group
     for group in right.groups.query(suffix):
-
         new_group = Group(id=group.id, name=group.name, kind=group.kind)
         new_group.notes = group.notes.copy()
 
@@ -75,19 +73,16 @@ def _link_genes(model: Model, reactions: List[str], suffix: str) -> Model:
     try:
         reaction: str
         for reaction in reactions:
-
             to_modify = _model.reactions.query(reaction)
 
             item: Reaction
             for item in to_modify:
-
                 item.gene_reaction_rule = model.reactions.get_by_id(
                     f"{reaction}_{suffix}"
                 ).gene_reaction_rule
                 # TODO: add debug
 
     except Exception:
-
         # TODO: warning
         return model
 
