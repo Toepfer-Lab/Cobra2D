@@ -11,8 +11,8 @@ jobs:
   lint-format:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-python@v2
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v4
           with:
             python-version: 3.7
         - name: Install dependencies
@@ -30,8 +30,8 @@ jobs:
         python: [ 3.7, 3.8, 3.9 ]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
@@ -43,8 +43,8 @@ jobs:
     needs: [lint-format, types]
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-python@v2
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v4
           with:
             python-version: '3.10'
         - name: Install dependencies
@@ -61,9 +61,9 @@ jobs:
     runs-on: ${{ matrix.os}}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -75,7 +75,7 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: |
           output=$(python setup.py --version)
           echo "::set-output name=version::$output"
@@ -92,3 +92,31 @@ jobs:
               ref: "refs/tags/v${{ steps.version.outputs.version }}",
               sha: context.sha
             })
+
+  build-publish:
+    needs: [ lint-format, types, test ]
+    name: Build and publish the package to TestPyPI
+    if: github.event.pull_request.merged == true && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install twine
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+      - name: Check the package
+        run: twine check dist/*
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run:
+          twine upload --non-interactive dist/*
