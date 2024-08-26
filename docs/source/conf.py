@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'model-duplication'
+project = 'cobra2d'
 copyright = '2022, Jan-Niklas Weder'
 author = 'Jan-Niklas Weder'
 
@@ -32,17 +32,31 @@ release = '0.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'nbsphinx',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
     'myst_parser',
 ]
+
+# Intersphinx
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "cobra": ("https://cobrapy.readthedocs.io/en/latest/", None),
+    "escher": ("https://escher.readthedocs.io/en/latest/", None),
+}
+
 # AutoSummary
-autosummary_generate = False
+autosummary_generate = True
 
 # autodoc settings
 add_module_names = False
+autoapi_generate_api_docs = False
+autoapi_add_toctree_entry = False
+
+autoapi_dirs = ["../../src/cobra2d"]
 
 
 # APIDoc
@@ -76,7 +90,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 
 html_theme_options = {
     'navigation_depth' : -1
