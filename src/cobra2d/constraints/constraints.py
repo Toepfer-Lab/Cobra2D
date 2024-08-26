@@ -45,9 +45,12 @@ class Constraints:
     based on such an XML file.
 
     Attributes:
-        phases(Phases) : A :py:class:`Phases` object that manages the individual :py:class:`Phase` objects.
-        linker(Linkage) : A :py:class:`Linkage` object that contains the defined :py:class:`Linker`.
-        transfers(Transfers): A :py:class:`Transfers` object that contains the defined :py:class:`Transfer` objects.
+        phases(Phases) : A :py:class:`Phases` object that manages the
+            individual :py:class:`Phase` objects.
+        linker(Linkage) : A :py:class:`Linkage` object that contains the
+            defined :py:class:`Linker`.
+        transfers(Transfers): A :py:class:`Transfers` object that contains
+            the defined :py:class:`Transfer` objects.
     """
 
     def __init__(self):
