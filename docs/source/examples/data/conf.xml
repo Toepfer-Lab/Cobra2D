@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<Conf xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd">
+    <phases>
+        <phase id="leaf-0" light_dark="light" name="" timeframe="2" volume="1">
+            <reaction id="ATPM" lower_bound="456" upper_bound="765"/>
+        </phase>
+        <phase id="root-0" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="leaf-1" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root-1" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="leaf-2" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root-2" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="leaf-3" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root-3" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="leaf-4" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root-4" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="leaf-5" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root-5" light_dark="light" name="" timeframe="2" volume="1"/>
+    </phases>
+    <linkage>
+        <linker id="acald_e" lower_bound="0" upper_bound="1000">
+            <destination refid="leaf-1"/>
+            <source refid="leaf-0"/>
+        </linker>
+    </linkage>
+</Conf>
