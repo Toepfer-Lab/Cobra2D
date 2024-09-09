@@ -240,9 +240,9 @@ class Transports(ABC):
 
             reac.add_metabolites(
                 {
-                    source_metabolite: -destination.volume
-                    * destination.timeframe,
-                    destination_metabolite: source.volume * source.timeframe,
+                    # source defined as one for visualisation purposes
+                    source_metabolite: - 1,
+                    destination_metabolite: (source.volume * source.timeframe) / (destination.volume * destination.timeframe),
                 }
             )
 
