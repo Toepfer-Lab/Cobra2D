@@ -2,6 +2,7 @@
 Implementation of the phase and Phases classes.
 
 """
+
 from __future__ import annotations
 import logging
 from inspect import isclass

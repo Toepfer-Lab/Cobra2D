@@ -95,22 +95,18 @@ class Transport(ABC):
 
     @property
     @abstractmethod
-    def reac_id(self) -> str:
-        ...
+    def reac_id(self) -> str: ...
 
     @property
     @abstractmethod
-    def reac_name(self) -> str:
-        ...
+    def reac_name(self) -> str: ...
 
     @abstractmethod
-    def to_xml(self) -> Element:
-        ...
+    def to_xml(self) -> Element: ...
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict) -> Transport:
-        ...
+    def from_dict(cls, data: dict) -> Transport: ...
 
 
 class Transports(ABC):
@@ -238,7 +234,7 @@ class Transports(ABC):
                 upper_bound=transport.upper_bound,
             )
 
-            if source_metabolite == destination_metabolite :
+            if source_metabolite == destination_metabolite:
                 warnings.warn(
                     f"Source and target metabolite are identical. "
                     f"Generation of the reaction is skipped. \n "
@@ -252,10 +248,13 @@ class Transports(ABC):
             reac.add_metabolites(
                 {
                     # source defined as one for visualisation purposes
-                    source_metabolite: - 1,
-                    destination_metabolite: (source.volume * source.timeframe) / (destination.volume * destination.timeframe),
+                    source_metabolite: -1,
+                    destination_metabolite: (source.volume * source.timeframe)
+                    / (destination.volume * destination.timeframe),
                 }
             )
+            print("Test")
+            print(reac)
 
             logging.info(f"The reaction {reac.id} was created")
             reactions2add.append(reac)
@@ -269,9 +268,7 @@ class Transports(ABC):
         return model
 
     @abstractmethod
-    def to_xml(self) -> Element:
-        ...
+    def to_xml(self) -> Element: ...
 
     @abstractmethod
-    def from_dict(self, data: List[dict]) -> Transports:
-        ...
+    def from_dict(self, data: List[dict]) -> Transports: ...

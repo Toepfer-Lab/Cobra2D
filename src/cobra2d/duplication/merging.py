@@ -1,5 +1,6 @@
 """Module for merging of COBRApy models
 """
+
 from copy import deepcopy
 from logging import getLogger
 from typing import List

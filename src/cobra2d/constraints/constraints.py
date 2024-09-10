@@ -1,6 +1,7 @@
 """
 Implementation of the Constraints class.
 """
+
 from __future__ import annotations
 
 import warnings

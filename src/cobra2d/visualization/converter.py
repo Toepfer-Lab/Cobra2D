@@ -535,7 +535,6 @@ def metexplore(
             total=total_size, unit_scale=True, unit="B", unit_divisor=1024
         )
 
-        zip: BytesIO
         with BytesIO() as f:
             for data in r.iter_content(block_size):
                 f.write(data)

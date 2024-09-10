@@ -1,5 +1,6 @@
 """Module for model duplication
 """
+
 from logging import StreamHandler, getLogger
 from pathlib import Path
 from typing import List, Optional, Union
@@ -173,9 +174,9 @@ def _main_placeholder(
         _model = _link_genes(_model, reactions, labels[0])
 
     # Meta-data
-    _model.notes[
-        "submodels-info"
-    ] = f"Modified with Cobra2D version {cobra2d.__version__}"
+    _model.notes["submodels-info"] = (
+        f"Modified with Cobra2D version {cobra2d.__version__}"
+    )
     _model.notes["submodels"] = ",".join(labels)
 
     logger.info(f"Model {model.id} successfully modified")

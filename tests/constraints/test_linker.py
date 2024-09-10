@@ -224,7 +224,6 @@ class TestLinkage(TestCase):
             )
         )
 
-
         model = phases.apply_phases(model)
         model = linkage.apply_linkage(model, phases)
 
@@ -254,10 +253,9 @@ class TestLinkage(TestCase):
             "gln__L_c_test_phase_2"
         )
 
-        self.assertEqual({
-            expected_metabolite: -1,
-            expected_metabolite_2: 1
-        }, metabolites)
+        self.assertEqual(
+            {expected_metabolite: -1, expected_metabolite_2: 1}, metabolites
+        )
 
         linker_reaction = model.reactions.get_by_id(
             f"{linker_non_default.metabolite_id}_L_{linker_non_default.source}"
@@ -278,11 +276,15 @@ class TestLinkage(TestCase):
 
         metabolites = linker_reaction.metabolites
         expected_metabolite = model.metabolites.get_by_id("nadp_c_test_phase")
-        expected_metabolite_2 = model.metabolites.get_by_id("nadp_c_test_phase_2")
+        expected_metabolite_2 = model.metabolites.get_by_id(
+            "nadp_c_test_phase_2"
+        )
 
         print(linker_reaction)
         print(metabolites)
-        self.assertEqual({expected_metabolite: -1, expected_metabolite_2: 1}, metabolites)
+        self.assertEqual(
+            {expected_metabolite: -1, expected_metabolite_2: 1}, metabolites
+        )
 
     def test_to_xml(self):
         linkage = Linkage()
