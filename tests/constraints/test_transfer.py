@@ -244,7 +244,7 @@ class TestTransfers(TestCase):
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root": -10, "gln__L_c_stem": 1},
+            {"gln__L_c_root": -1, "gln__L_c_stem": 0.1},
         )
 
     def test_apply_complex(self):

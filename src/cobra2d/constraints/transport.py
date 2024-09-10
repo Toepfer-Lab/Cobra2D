@@ -238,6 +238,17 @@ class Transports(ABC):
                 upper_bound=transport.upper_bound,
             )
 
+            if source_metabolite == destination_metabolite :
+                warnings.warn(
+                    f"Source and target metabolite are identical. "
+                    f"Generation of the reaction is skipped. \n "
+                    f"{str(transport)}",
+                    category=UserWarning,
+                    stacklevel=3,
+                )
+
+                continue
+
             reac.add_metabolites(
                 {
                     # source defined as one for visualisation purposes

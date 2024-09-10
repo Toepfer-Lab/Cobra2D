@@ -193,13 +193,13 @@ class TestLinkage(TestCase):
         linker_default = Linker(
             metabolite_id="gln__L_c",
             source="test_phase",
-            destination="test_phase",
+            destination="test_phase_2",
         )
 
         linker_non_default = Linker(
             metabolite_id="nadp_c",
             source="test_phase",
-            destination="test_phase",
+            destination="test_phase_2",
             upper_bound=564,
             lower_bound=-1234,
         )
@@ -215,6 +215,15 @@ class TestLinkage(TestCase):
                 volume=5,
             )
         )
+        phases.add_phase(
+            Phase(
+                id="test_phase_2",
+                light_dark="light",
+                timeframe=3,
+                volume=5,
+            )
+        )
+
 
         model = phases.apply_phases(model)
         model = linkage.apply_linkage(model, phases)
@@ -236,12 +245,19 @@ class TestLinkage(TestCase):
         self.assertEqual(0, linker_reaction.lower_bound)
         self.assertEqual(1000, linker_reaction.upper_bound)
 
+        print(phases)
         metabolites = linker_reaction.metabolites
         expected_metabolite = model.metabolites.get_by_id(
             "gln__L_c_test_phase"
         )
+        expected_metabolite_2 = model.metabolites.get_by_id(
+            "gln__L_c_test_phase_2"
+        )
 
-        self.assertEqual({expected_metabolite: 15}, metabolites)
+        self.assertEqual({
+            expected_metabolite: -1,
+            expected_metabolite_2: 1
+        }, metabolites)
 
         linker_reaction = model.reactions.get_by_id(
             f"{linker_non_default.metabolite_id}_L_{linker_non_default.source}"
@@ -262,8 +278,11 @@ class TestLinkage(TestCase):
 
         metabolites = linker_reaction.metabolites
         expected_metabolite = model.metabolites.get_by_id("nadp_c_test_phase")
+        expected_metabolite_2 = model.metabolites.get_by_id("nadp_c_test_phase_2")
 
-        self.assertEqual({expected_metabolite: 15}, metabolites)
+        print(linker_reaction)
+        print(metabolites)
+        self.assertEqual({expected_metabolite: -1, expected_metabolite_2: 1}, metabolites)
 
     def test_to_xml(self):
         linkage = Linkage()
