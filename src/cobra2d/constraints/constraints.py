@@ -448,67 +448,93 @@ class Constraints:
     def add_transfer_series(
         self,
         metabolite_id: str,
+        sub_models: List[str],
         lower_bound: int = 0,
         upper_bound: int = 1000,
         last2first: bool = False,
         reverse: bool = False,
         timeframes: Optional[List[str]] = None,
-        sub_models: Optional[List[str]] = None,
     ):
         """
-        Method to create linkers across all existing time periods.
+        Method to create transfers along a chain of sub_models.
+
+        In contrast to :py:meth:`add_linker_series`, which connects phases of
+        the same sub_model across consecutive time periods, this method connects
+        multiple sub_models within the same time period.
+
+        As there is no easy way to infer intended order to connect multiple
+        sub_model, the definition of the sub_model parameter is required and the 
+        order in this parameter defines the way we connect hte sub_model to one another.
 
         Args:
             metabolite_id: The ID to be used for the metabolite. This should match
                 the ID of the metabolite in the model.
+            sub_models: The ordered list of sub_models to connect. Each entry is
+                linked to the following one, so the order defines the spatial
+                chain (e.g. ``["leaf", "stem", "root"]`` connects leaf to stem
+                and stem to root).
             lower_bound: The 'lower_bound' to be used for the reaction.
                 For more information see :py:attr:`cobra.Reaction.lower_bound`
                 in :py:func:`cobra.Reaction`.
             upper_bound: The 'upper_bound' to be used for the reaction.
                 For more information see :py:attr:`lower_bound` in
                 :py:class:`cobra.Reaction.`.
-            last2first: Bool that determines whether a linker should be created
-                between the last and the first period.
-                If True said linker will be created.
-                If reverse equals True, a linker will be created
-                from the first to the last period.
-            reverse: Bool that specifies the orientation of the linkers.
-                If True, the linkers are created starting from the last to the
-                first time period and not from the first to the last as usual.
-            sub_models:
+            last2first: Bool that determines whether a transfer should be created
+                between the last and the first sub_model.
+                If True said transfer will be created.
+                If reverse equals True, a transfer will be created
+                from the first to the last sub_model.
+            reverse: Bool that specifies the orientation of the transfers.
+                If True, the transfers are created starting from the last to the
+                first sub_model and not from the first to the last as usual.
             timeframes:
+        Raises:
+            ValueError: If ``sub_models`` is empty, or contains a sub_model that
+                does not exist in the model.
         Examples:
-            Application to a four phase model:
+            Application to a model with three sub_models:
 
             >>> con = Constraints()
-            >>> con.add_time_slots(4, 1)
-            >>> con.add_transfer_series("ATP")
+            >>> con.add_sub_models(["leaf", "stem", "root"], [1, 1, 1])
+            >>> con.add_transfer_series("ATP", sub_models=["leaf", "stem", "root"])
             >>> print(con.transfers)
-            +-----+------+-----------+-------------+--------------+--------------+
-            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
-            +-----+------+-----------+-------------+--------------+--------------+
-            | ATP |      | default-0 |  default-1  |      0       |     1000     |
-            | ATP |      | default-1 |  default-2  |      0       |     1000     |
-            | ATP |      | default-2 |  default-3  |      0       |     1000     |
-            +-----+------+-----------+-------------+--------------+--------------+
+            +---------------+--------+-------------+--------------+--------------+
+            | Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |
+            +---------------+--------+-------------+--------------+--------------+
+            |      ATP      | leaf-0 |    stem-0   |      0       |     1000     |
+            |      ATP      | stem-0 |    root-0   |      0       |     1000     |
+            +---------------+--------+-------------+--------------+--------------+
         """  # noqa: E501
 
-        labels, times = self.__get_label_time(reverse=reverse)
+        if not sub_models:
+            raise ValueError(  
+                "sub_models is required and must contain at least one "
+                "sub_model, as its order defines the transfer chain."
+            )
 
-        if sub_models is not None:
-            labels = [label for label in labels if label in sub_models]
+        existing_labels, times = self.__get_label_time()
+
+        unknown = [
+            label for label in sub_models if label not in existing_labels
+        ]
+        if unknown:
+            raise ValueError(
+                f"The following sub_models do not exist in the model: "
+                f"{unknown}. Existing sub_models: {sorted(existing_labels)}."
+            )
+
+        labels = list(reversed(sub_models)) if reverse else list(sub_models)
 
         if timeframes is not None:
             times = [time for time in times if time in timeframes]
 
-        for label in labels:
-            for n in range(len(times) - 1):
-                time = times[n]
-                # try:
+        for time in times:
+            for n in range(len(labels) - 1):
+                label = labels[n]
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
                     source=f"{label}-{time}",
-                    destination=f"{label}-{times[n + 1]}",
+                    destination=f"{labels[n + 1]}-{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -525,8 +551,8 @@ class Constraints:
             if last2first:
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{times[-1]}",
-                    destination=f"{label}-{times[0]}",
+                    source=f"{labels[-1]}-{time}",
+                    destination=f"{labels[0]}-{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
