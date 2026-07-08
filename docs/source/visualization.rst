@@ -9,7 +9,7 @@ The following Code block is the basis for the visualizations on this page.
 
 .. doctest:: Viz
 
-    >>> from model_duplication.constraints.constraints import Constraints
+    >>> from cobra2d import Constraints, Linker
     >>> con = Constraints()
     >>> con.add_sub_models(["root", "leaf", "leaf_2"], [1, 2, 1])
     >>> con.add_time_slots(5, 2)
@@ -43,9 +43,7 @@ used inside the Jupyter Notebook.
 
 Cytoscape
 ----------
-As already described, GraphViz and Cytoscape visualize the phases. The visualization by Cytoscape is in contrast to GraphViz an
-in contrast to GraphViz, however, an interactive one. On the one hand more information is available but on the other hand there is an
-interface to open the model of a phase directly in MetExplore to examine it in more detail.
+As already described, GraphViz and Cytoscape visualize the phases. The visualization via Cytoscape, unlike GraphViz, is interactive. While the interactive interface provides more detail, it requires the user to select the phase of interest to display the additional information, which reduces its usability as a static representation.
 
 Below is a brief example of this visualization.
 
@@ -55,8 +53,8 @@ Below is a brief example of this visualization.
 
 .. figure:: ../../assets/media/ConInteractive.gif
    :scale: 50 %
-   :alt: Example of visualization using GraphViz
-    Example of visualization with GraphViz where ATP is transported to the following time period respectively.
+   :alt: Example of visualization using Cytoscape
+    Example of visualization with Cytoscape where ATP is transported to the following time period respectively.
 
 
 Metexplore
@@ -70,11 +68,11 @@ The pathways are sorted alphabetically and the metabolites are sorted based on t
 
 .. doctest:: Viz
 
-    >>> from model_duplication import metexplore_interface
+    >>> from cobra2d.visualization.helper import metexplore_interface
     >>> metexplore_interface(model)
 
 
 .. figure:: ../../assets/media/MetExploreVizInterface.png
    :scale: 50 %
-   :alt: Example of visualization using GraphViz
-    Example of visualization with GraphViz where ATP is transported to the following time period respectively.
+   :alt: Example of the MetExploreViz interface
+    Example of the interface used to select groups and hide metabolites before visualizing a COBRApy model with MetExploreViz.

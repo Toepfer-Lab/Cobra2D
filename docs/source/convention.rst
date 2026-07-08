@@ -39,4 +39,4 @@ Therefore, the general result is :
 
 ID: <item_id>_<sub_model>_<time>
 
-Linker and transfer reactions deviate from this structure, as either 2 submodels or 2 time periods must be specified as origin and destination.
+Linker and transfer reactions deviate from this structure, as either 2 submodels or 2 time periods must be specified as origin and destination, since they only act either across a time or space.
