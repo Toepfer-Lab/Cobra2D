@@ -71,21 +71,25 @@ def _link_genes(model: Model, reactions: List[str], suffix: str) -> Model:
 
     _model = model.copy()
 
-    try:
-        reaction: str
-        for reaction in reactions:
-            to_modify = _model.reactions.query(reaction)
+    reaction: str
+    for reaction in reactions:
+        try:
+            reference_rule = model.reactions.get_by_id(
+                f"{reaction}_{suffix}"
+            ).gene_reaction_rule
+        except KeyError:
+            logger.warning(
+                "No reaction '%s_%s' found to source the gene rule from; "
+                "skipping gene linkage for '%s'.",
+                reaction,
+                suffix,
+                reaction,
+            )
+            continue
 
-            item: Reaction
-            for item in to_modify:
-                item.gene_reaction_rule = model.reactions.get_by_id(
-                    f"{reaction}_{suffix}"
-                ).gene_reaction_rule
-                # TODO: add debug
-
-    except Exception:
-        # TODO: warning
-        return model
+        item: Reaction
+        for item in _model.reactions.query(reaction):
+            item.gene_reaction_rule = reference_rule
 
     logger.info("Linkage of genes between multiple same reactions completed")
 

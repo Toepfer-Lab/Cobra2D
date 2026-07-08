@@ -90,10 +90,11 @@ def _test(main: Model, submodel: Model) -> bool:
     main.objective_direction = submodel.objective_direction
 
     try:
+        # error_value=None makes slim_optimize return None instead of raising
+        # when the problem is infeasible.
         value: Optional[float] = main.slim_optimize(error_value=None)
-        assert value
 
-        if abs(value) > TOLERANCE:
+        if value is not None and abs(value) > TOLERANCE:
             passed = True
 
     except OptimizationError:
