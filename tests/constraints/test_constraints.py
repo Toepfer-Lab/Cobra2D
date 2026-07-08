@@ -260,10 +260,10 @@ class TestConstraints(TestCase):
         new_model = con.apply_to_model(model)
 
         created_linker: Reaction = new_model.reactions.get_by_id(
-            "amp_c_L_model0-0_model0-1"
+            "amp_c_lk_model0_[0|1]"
         )
 
-        self.assertEqual("amp_c_L_model0-0_model0-1", created_linker.id)
+        self.assertEqual("amp_c_lk_model0_[0|1]", created_linker.id)
         self.assertEqual("amp_c_model0-0", created_linker.reactants[0].id)
         self.assertEqual("amp_c_model0-1", created_linker.products[0].id)
         self.assertEqual(0, created_linker.lower_bound)

@@ -18,6 +18,30 @@ from prettytable import PrettyTable
 from cobra2d.constraints.phase import Phase, Phases
 
 
+def split_phase_id(phase_id: str) -> tuple[str, str]:
+    """Split a phase ID into its sub_model and time components.
+
+    Phase IDs follow the ``<sub_model>-<time>`` pattern (e.g. ``leaf-1``).
+
+    Args:
+        phase_id: The ID of the phase to split.
+
+    Returns:
+        A ``(sub_model, time)`` tuple.
+
+    Raises:
+        ValueError: If the ID does not contain a ``-`` separating the
+            sub_model from the time.
+    """
+    sub_model, sep, time = phase_id.partition("-")
+    if not sep:
+        raise ValueError(
+            f"Phase ID '{phase_id}' cannot be split into '<sub_model>-<time>'. "
+            f"Expected a '-' separating the sub_model from the time period."
+        )
+    return sub_model, time
+
+
 class Transport(ABC):
     """ """
 

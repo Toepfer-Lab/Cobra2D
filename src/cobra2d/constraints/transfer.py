@@ -6,7 +6,11 @@ from xml.etree.ElementTree import Element, SubElement
 from cobra.core.model import Model
 
 from cobra2d.constraints.phase import Phase, Phases
-from cobra2d.constraints.transport import Transport, Transports
+from cobra2d.constraints.transport import (
+    Transport,
+    Transports,
+    split_phase_id,
+)
 
 
 class Transfer(Transport):
@@ -70,7 +74,32 @@ class Transfer(Transport):
 
     @property
     def reac_id(self) -> str:
-        return f"TR_{self.metabolite_id}_{self.source}_{self.destination}"
+        """The reaction ID following the naming convention for transfers.
+
+        Transfers describe spatial transport, so source and destination differ
+        in their sub_model but share the same time period. The resulting ID has
+        the form ``<metabolite>_tr_[<source_sub_model>|<destination_sub_model>]_<time>``,
+        e.g. ``STARCH_p_tr_[leaf|root]_1``.
+
+        Raises:
+            ValueError: If a phase ID cannot be split into ``<sub_model>-<time>``,
+                or if source and destination do not share the same time period.
+        """  # noqa: E501
+        source_sub_model, source_time = split_phase_id(self.source)
+        dest_sub_model, dest_time = split_phase_id(self.destination)
+
+        if source_time != dest_time:
+            raise ValueError(
+                f"A transfer connects phases of the same time period, but "
+                f"source '{self.source}' and destination '{self.destination}' "
+                f"have different time periods ('{source_time}' vs. "
+                f"'{dest_time}')."
+            )
+
+        return (
+            f"{self.metabolite_id}_tr_"
+            f"[{source_sub_model}|{dest_sub_model}]_{source_time}"
+        )
 
     @property
     def reac_name(self) -> str:

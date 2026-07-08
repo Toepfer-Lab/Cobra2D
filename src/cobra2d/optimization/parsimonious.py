@@ -79,10 +79,13 @@ def add_adjusted_pfba_objective(
     reaction: Reaction
     for reaction in model.reactions:
         try:
-            # ToDo clear identification for Linker (Linker and Amino acids )
-            if re.match(r".*[^_]_L_[^_].*", reaction.id):
+            # Skip linker and transfer reactions, they only exist in the
+            # context of sub_models/time periods and are not weighted by a
+            # single phase. They are identified by the '_lk_[...|...]' and
+            # '_tr_[...|...]' markers of their naming convention.
+            if re.search(r"_lk_.*\[.*\|.*\]$", reaction.id):
                 continue
-            if re.match(r"^TR_.*$", reaction.id):
+            if re.search(r"_tr_\[.*\|.*\].*", reaction.id):
                 continue
         except IndexError:
             pass

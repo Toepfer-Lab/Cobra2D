@@ -109,7 +109,8 @@ class TestParsimonious(TestCase):
 
         add_adjusted_pfba_objective(constraints=con, model=model)
 
-        self.assertEqual(10316, len(model.objective.variables))
+        # Only the single linker reaction is excluded from the objective.
+        self.assertEqual(10332, len(model.objective.variables))
 
     def test_adjusted_pfba(self):
         model = self.ecoli.copy()

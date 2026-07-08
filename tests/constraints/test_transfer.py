@@ -218,10 +218,10 @@ class TestTransfers(TestCase):
         # Regular Phases
         phases = Phases()
         phases.add_phase(
-            Phase("root", "light"),
+            Phase("root-0", "light"),
         )
         phases.add_phase(
-            Phase("stem", "light", timeframe=5, volume=2),
+            Phase("stem-0", "light", timeframe=5, volume=2),
         )
 
         test_model = phases.apply_phases(model, True)
@@ -229,22 +229,22 @@ class TestTransfers(TestCase):
         transfers = Transfers()
         transfer = Transfer(
             "gln__L_c",
-            source=phases.phases.root,
-            destination=phases.phases.stem,
+            source=phases.phases.get_by_id("root-0"),
+            destination=phases.phases.get_by_id("stem-0"),
         )
 
         transfers.append(transfer)
         test_model = transfers.apply(test_model, phases)
 
         reaction: Reaction = test_model.reactions.get_by_id(
-            "TR_gln__L_c_root_stem"
+            "gln__L_c_tr_[root|stem]_0"
         )
         self.assertDictEqual(
             {
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root": -1, "gln__L_c_stem": 0.1},
+            {"gln__L_c_root-0": -1, "gln__L_c_stem-0": 0.1},
         )
 
     def test_apply_complex(self):
@@ -291,7 +291,7 @@ class TestTransfers(TestCase):
         model = linkage.apply_linkage(model, phases)
 
         reaction: Reaction = model.reactions.get_by_id(
-            "TR_gln__L_c_root-0_stem-0"
+            "gln__L_c_tr_[root|stem]_0"
         )
         self.assertDictEqual(
             {
@@ -302,7 +302,7 @@ class TestTransfers(TestCase):
         )
 
         reaction: Reaction = model.reactions.get_by_id(
-            "TR_gln__L_c_root-1_stem-1"
+            "gln__L_c_tr_[root|stem]_1"
         )
         self.assertDictEqual(
             {
