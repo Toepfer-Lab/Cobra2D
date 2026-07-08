@@ -666,7 +666,6 @@ class Constraints:
         # encoding cannot be used.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
-        print(data)
         constraints.phases = Phases.from_dict(data["phases"]["phase"])
         constraints.transfers = Transfers.from_dict(
             data["Transfers"]["transfer"]

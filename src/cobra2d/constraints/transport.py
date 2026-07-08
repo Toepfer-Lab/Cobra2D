@@ -277,9 +277,6 @@ class Transports(ABC):
                     / (destination.volume * destination.timeframe),
                 }
             )
-            print("Test")
-            print(reac)
-
             logging.info(f"The reaction {reac.id} was created")
             reactions2add.append(reac)
             logging.info(
