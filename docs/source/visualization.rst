@@ -42,7 +42,7 @@ Jupyter Notebook and Cytoscape is the visualization that is suitable if the visu
 used inside the Jupyter Notebook.
 
 Cytoscape
----------
+----------
 As already described, GraphViz and Cytoscape visualize the phases. The visualization by Cytoscape is in contrast to GraphViz an
 in contrast to GraphViz, however, an interactive one. On the one hand more information is available but on the other hand there is an
 interface to open the model of a phase directly in MetExplore to examine it in more detail.

@@ -10,7 +10,7 @@ Cobra2D
 
     README <self>
     Structural design <structure>
-    Metabolites transports <transport>
+    Linker and transfer reactions <transport>
     Visualisation <visualization>
     Naming convention <convention>
     Examples <example>

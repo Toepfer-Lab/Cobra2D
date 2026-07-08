@@ -25,6 +25,9 @@ author = 'Jan-Niklas Weder'
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
 
+# The text shown in the top-left brand of the docs (overrides "<project> <release> documentation")
+html_title = 'Cobra2D'
+
 
 # -- General configuration ---------------------------------------------------
 

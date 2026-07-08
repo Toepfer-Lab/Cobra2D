@@ -74,7 +74,7 @@ If we add sub_models instead we get the following:
 
 As we can see the default time period or sub_model is replaced as soon as we define times or sub_models ourselves.
 
-Adding new linker
+Adding new linker reactions
 --------------------
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_linker
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_linker_series

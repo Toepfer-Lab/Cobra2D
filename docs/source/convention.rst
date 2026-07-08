@@ -2,7 +2,7 @@ Naming Convention
 =============================================
 
 
-The following describes the nomenclature used in this package. Since we are only creating transports and linkers, we only describe these.
+The following describes the nomenclature used in this package. Since we are only creating transfer and linker reactions, we only describe these.
 
 Transfer reactions:
 ----------------------
@@ -11,7 +11,7 @@ These are reactions that transport for example metabolites between cells, tissue
 ID: <Metabolite_ID>_tr_[<source_sub_model>|<destination_sub_model>]_<time>
 
 **Example:**
-    | Description: Transfer of starch from leaf to root
+    | Description: Transfer reaction of starch from leaf to root
     | ID: STARCH_p_tr\_ [leaf|root]_1
     | STARCH_p_leaf_1 --> STARCH_p_root_1
 
@@ -23,7 +23,7 @@ These are reactions that represent the transport of metabolites between time per
 ID: <Metabolite_ID>_tr_[<source_sub_model>|<destination_sub_model>]_<time>
 
 **Example:**
-    | Description: Transfer of starch from leaf to root
+    | Description: Transfer reaction of starch from leaf to root
     | ID: STARCH_p_tr\_ [leaf|root]_1
     | STARCH_p_leaf_1 --> STARCH_p_root_1
 
