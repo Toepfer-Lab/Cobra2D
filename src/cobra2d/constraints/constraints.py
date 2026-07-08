@@ -389,13 +389,13 @@ class Constraints:
             >>> con.add_time_slots(4, 1)
             >>> con.add_linker_series("ATP")
             >>> print(con.linker)
-            +-----+------+-----------+-------------+--------------+--------------+
-            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
-            +-----+------+-----------+-------------+--------------+--------------+
-            | ATP |      | default-0 |  default-1  |      0       |     1000     |
-            | ATP |      | default-1 |  default-2  |      0       |     1000     |
-            | ATP |      | default-2 |  default-3  |      0       |     1000     |
-            +-----+------+-----------+-------------+--------------+--------------+
+            +---------------+-----------+-------------+--------------+--------------+
+            | Metabolite ID |   Source  | Destination | Lower Bounds | Upper Bounds |
+            +---------------+-----------+-------------+--------------+--------------+
+            |      ATP      | default-0 |  default-1  |      0       |     1000     |
+            |      ATP      | default-1 |  default-2  |      0       |     1000     |
+            |      ATP      | default-2 |  default-3  |      0       |     1000     |
+            +---------------+-----------+-------------+--------------+--------------+
         """  # noqa: E501
 
         labels, times = self.__get_label_time(reverse=reverse)
