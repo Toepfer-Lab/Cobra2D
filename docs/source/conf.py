@@ -12,9 +12,12 @@
 #
 import os
 import pathlib
+import re
 import sys
-sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, pathlib.Path(__file__).parents[2].joinpath("src").resolve().as_posix())
+
+# The package uses a src-layout, so the sources live in <repo>/src.
+_SRC = pathlib.Path(__file__).resolve().parents[2].joinpath("src")
+sys.path.insert(0, _SRC.as_posix())
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +25,21 @@ project = 'cobra2d'
 copyright = '2022, Jan-Niklas Weder'
 author = 'Jan-Niklas Weder'
 
-# The full version, including alpha/beta/rc tags
-release = '0.1.0'
+
+def _get_version() -> str:
+    """Read __version__ from the package without importing it.
+    """
+    init = _SRC.joinpath("cobra2d", "__init__.py").read_text()
+    match = re.search(
+        r'^__version__\s*=\s*["\']([^"\']+)["\']', init, re.MULTILINE
+    )
+    if match is None:
+        raise RuntimeError("Unable to find __version__ in cobra2d/__init__.py")
+    return match.group(1)
+
+
+# The full version, including alpha/beta/rc tags, derived from the package.
+release = _get_version()
 
 # The text shown in the top-left brand of the docs (overrides "<project> <release> documentation")
 html_title = 'Cobra2D'
