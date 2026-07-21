@@ -41,9 +41,17 @@ class MergingTest(TestCase):
         model: Model = self.textbook.copy()
         submodel: Model = self.textbook.copy()
 
-        self.assertRaises(
-            AssertionError, _merge, model=model, right=submodel, suffix=""
-        )
+        for invalid_suffix in ("", "_X"):
+            with self.subTest(suffix=invalid_suffix):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Suffix must be non-empty and must not start with '_'",
+                ):
+                    _merge(
+                        model=model,
+                        right=submodel,
+                        suffix=invalid_suffix,
+                    )
 
         # Grouping
         model: Model = self.textbook.copy()
@@ -54,7 +62,7 @@ class MergingTest(TestCase):
         ):
             item.id = f"{item.id}_X"
 
-        model = _merge(model, submodel, "_X")
+        model = _merge(model, submodel, "X")
 
         self.assertRaises(
             AssertionError,

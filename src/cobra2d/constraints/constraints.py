@@ -10,6 +10,7 @@ from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
+from shutil import which
 from typing import Any, List, Tuple, Union, TextIO, Optional, Dict
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -31,7 +32,12 @@ from cobra2d import resources
 from cobra2d.constraints.linker import Linkage, Linker
 from cobra2d.constraints.phase import Phase, Phases
 from cobra2d.constraints.transfer import Transfers, Transfer
-from cobra2d.error import InvalidLabel, PhaseNotFound
+from cobra2d.constraints.transport import split_phase_id
+from cobra2d.error import (
+    GraphvizNotInstalled,
+    InvalidLabel,
+    PhaseNotFound,
+)
 from cobra2d.utils import Matrix
 from cobra2d.visualization.helper import metexplore_interface
 
@@ -64,7 +70,7 @@ class Constraints:
         self.transfers = Transfers()
         self.order = Matrix()
         self.phases.add_phase(
-            Phase(id="default-0", name="Default Phase", light_dark="light")
+            Phase(id="default_0", name="Default Phase", light_dark="light")
         )
 
         self.default_time = True
@@ -86,10 +92,10 @@ class Constraints:
         times: List[int] = []
 
         for phase in self.phases.phases:
-            label_time = phase.id.split("-")
+            label, time = split_phase_id(phase.id)
 
-            labels.append(label_time[0])
-            times.append(int(label_time[1]))
+            labels.append(label)
+            times.append(int(time))
 
         labels = list(set(labels))
         times = list(set(times))
@@ -119,7 +125,7 @@ class Constraints:
             ]
 
             for time in times:
-                phase_id = f"{label}-{time}"
+                phase_id = f"{label}_{time}"
                 phase = self.get_phase_by_id(phase_id)
 
                 row.append(
@@ -195,7 +201,7 @@ class Constraints:
                 f"{label} {{ volume\n" + (" " * len(label)) + " time"
             ]
             for index, timeframe, light in self.time_ranges:
-                row.append(f"{label}-{index}\n" f"{volume}\n" f"{timeframe}")
+                row.append(f"{label}_{index}\n" f"{volume}\n" f"{timeframe}")
 
             output.add_row(*row)
 
@@ -233,7 +239,7 @@ class Constraints:
             for label, volume, name in self.sub_models:
                 self.phases.add_phase(
                     Phase(
-                        id=f"{label}-{i}",
+                        id=f"{label}_{i}",
                         volume=volume,
                         name=name or "",
                         light_dark=light_dark,
@@ -279,7 +285,7 @@ class Constraints:
             for index, timeframe, light_dark in self.time_ranges:
                 self.phases.add_phase(
                     Phase(
-                        id=f"{label}-{index}",
+                        id=f"{label}_{index}",
                         volume=volume,
                         name=name or "",
                         light_dark=light_dark,
@@ -392,9 +398,9 @@ class Constraints:
             +---------------+-----------+-------------+--------------+--------------+
             | Metabolite ID |   Source  | Destination | Lower Bounds | Upper Bounds |
             +---------------+-----------+-------------+--------------+--------------+
-            |      ATP      | default-0 |  default-1  |      0       |     1000     |
-            |      ATP      | default-1 |  default-2  |      0       |     1000     |
-            |      ATP      | default-2 |  default-3  |      0       |     1000     |
+            |      ATP      | default_0 |  default_1  |      0       |     1000     |
+            |      ATP      | default_1 |  default_2  |      0       |     1000     |
+            |      ATP      | default_2 |  default_3  |      0       |     1000     |
             +---------------+-----------+-------------+--------------+--------------+
         """  # noqa: E501
 
@@ -412,8 +418,8 @@ class Constraints:
                 # try:
                 linker = Linker(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{time}",
-                    destination=f"{label}-{times[n + 1]}",
+                    source=f"{label}_{time}",
+                    destination=f"{label}_{times[n + 1]}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -430,8 +436,8 @@ class Constraints:
             if last2first:
                 linker = Linker(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{times[-1]}",
-                    destination=f"{label}-{times[0]}",
+                    source=f"{label}_{times[-1]}",
+                    destination=f"{label}_{times[0]}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -501,8 +507,8 @@ class Constraints:
             +---------------+--------+-------------+--------------+--------------+
             | Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |
             +---------------+--------+-------------+--------------+--------------+
-            |      ATP      | leaf-0 |    stem-0   |      0       |     1000     |
-            |      ATP      | stem-0 |    root-0   |      0       |     1000     |
+            |      ATP      | leaf_0 |    stem_0   |      0       |     1000     |
+            |      ATP      | stem_0 |    root_0   |      0       |     1000     |
             +---------------+--------+-------------+--------------+--------------+
         """  # noqa: E501
 
@@ -533,8 +539,8 @@ class Constraints:
                 label = labels[n]
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{time}",
-                    destination=f"{labels[n + 1]}-{time}",
+                    source=f"{label}_{time}",
+                    destination=f"{labels[n + 1]}_{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -551,8 +557,8 @@ class Constraints:
             if last2first:
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
-                    source=f"{labels[-1]}-{time}",
-                    destination=f"{labels[0]}-{time}",
+                    source=f"{labels[-1]}_{time}",
+                    destination=f"{labels[0]}_{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -674,7 +680,7 @@ class Constraints:
 
         if (
             len(constraints.phases.phases) == 1
-            and constraints.phases.phases[0].id == "default-0"
+            and constraints.phases.phases[0].id == "default_0"
         ):
             return constraints
 
@@ -682,7 +688,7 @@ class Constraints:
         times: list = []
 
         for phase in constraints.phases.phases:
-            label, time = phase.id.split("-", maxsplit=1)
+            label, time = split_phase_id(phase.id)
             labels.append(label)
             times.append(time)
 
@@ -696,7 +702,7 @@ class Constraints:
         # in the XML. However, this would have the consequence that
         # this would be more difficult for a human being to work on.
 
-        if len(labels) == 1 and labels[0] == "default-0":
+        if len(labels) == 1 and labels[0] == "default_0":
             pass
         else:
             constraints.default_sub_model = False
@@ -704,7 +710,7 @@ class Constraints:
 
             for label in labels:
                 example_phase = constraints.phases.phases.get_by_id(
-                    f"{label}-{times[0]}"
+                    f"{label}_{times[0]}"
                 )
                 constraints.sub_models.append(
                     (
@@ -722,7 +728,7 @@ class Constraints:
 
             for time in times:
                 example_phase = constraints.phases.phases.get_by_id(
-                    f"{labels[0]}-{time}"
+                    f"{labels[0]}_{time}"
                 )
                 constraints.time_ranges.append(
                     (
@@ -737,6 +743,24 @@ class Constraints:
         return constraints
 
     def create_graph(self) -> Digraph:
+        """
+        Creates a :py:class:`graphviz.Digraph` of the defined phases and the
+        linker and transfer reactions connecting them.
+
+        Note:
+            Rendering or displaying the returned graph requires the Graphviz
+            system package, which is separate from the ``graphviz`` Python
+            package and cannot be installed with pip. If it is missing, a
+            :py:class:`cobra2d.error.GraphvizNotInstalled` warning is issued
+            and rendering will fail later. The graph itself is still built,
+            so ``str(graph)`` and ``graph.save(...)`` remain usable.
+
+        Returns:
+            A :py:class:`graphviz.Digraph` representing the phases.
+        """
+        if which("dot") is None:
+            warnings.warn(GraphvizNotInstalled(), stacklevel=2)
+
         g = Digraph(engine="dot")
         labels, times = self.__get_label_time()
         invis_connections: List[Tuple[str, str]] = []
@@ -746,9 +770,9 @@ class Constraints:
                 sub.attr(label=label)
                 last_label = None
                 for time in times:
-                    new_label = f"{label}-{time}"
+                    new_label = f"{label}_{time}"
                     if self.phases.phases.has_id(new_label):
-                        sub.node(f"{label}-{time}")
+                        sub.node(f"{label}_{time}")
 
                         if last_label is not None:
                             connection = (last_label, new_label)
@@ -910,7 +934,7 @@ class Constraints:
             nodes.append({"data": {"id": sub_model, "type": "sub_model"}})
 
         for phase in self.phases.phases:
-            sub_model, time = phase.id.split("-", maxsplit=1)
+            sub_model, time = split_phase_id(phase.id)
             model = getattr(phase, "model", None)
             model_name: str
 

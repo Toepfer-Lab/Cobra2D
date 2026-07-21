@@ -1,15 +1,15 @@
 <?xml version="1.0" ?>
 <Conf xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd">
     <phases>
-        <phase id="model0-0" light_dark="light" name="name" timeframe="1" volume="1"/>
-        <phase id="model0-1" light_dark="light" name="name" timeframe="1" volume="1"/>
-        <phase id="model1-0" light_dark="light" name="name" timeframe="1" volume="2"/>
-        <phase id="model1-1" light_dark="light" name="name" timeframe="1" volume="2"/>
+        <phase id="model0_0" light_dark="light" name="name" timeframe="1" volume="1"/>
+        <phase id="model0_1" light_dark="light" name="name" timeframe="1" volume="1"/>
+        <phase id="model1_0" light_dark="light" name="name" timeframe="1" volume="2"/>
+        <phase id="model1_1" light_dark="light" name="name" timeframe="1" volume="2"/>
     </phases>
     <linkage>
         <linker metabolite_id="amp_c" lower_bound="0" upper_bound="1000">
-            <destination refid="model0-1"/>
-            <source refid="model0-0"/>
+            <destination refid="model0_1"/>
+            <source refid="model0_0"/>
         </linker>
     </linkage>
 </Conf>

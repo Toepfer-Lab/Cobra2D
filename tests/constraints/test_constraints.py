@@ -42,7 +42,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(1, len(con.phases.phases))
         default_phase: Phase = con.phases.phases[0]
-        self.assertEqual("default-0", default_phase.id)
+        self.assertEqual("default_0", default_phase.id)
         self.assertEqual("Default Phase", default_phase.name)
         self.assertEqual("light", default_phase.light_dark)
 
@@ -53,7 +53,7 @@ class TestConstraints(TestCase):
             "+----------------------+-----------+\n"
             "| Sub-Model\\Time Index |     0     |\n"
             "+----------------------+-----------+\n"
-            "|           | id       | default-0 |\n"
+            "|           | id       | default_0 |\n"
             "|  default  | volume   |     1     |\n"
             "|           | time     |     1     |\n"
             "+----------------------+-----------+"
@@ -63,10 +63,10 @@ class TestConstraints(TestCase):
 
     def test_get_phase_by_id(self):
         con = Constraints()
-        phase = con.get_phase_by_id("default-0")
+        phase = con.get_phase_by_id("default_0")
 
         self.assertIsInstance(phase, Phase)
-        self.assertEqual("default-0", phase.id)
+        self.assertEqual("default_0", phase.id)
         self.assertEqual("Default Phase", phase.name)
         self.assertEqual("light", phase.light_dark)
 
@@ -77,8 +77,8 @@ class TestConstraints(TestCase):
             lower_bound=4,
             upper_bound=541,
         )
-        con.add_reaction_to_phase(reaction, "default-0")
-        phase = con.get_phase_by_id("default-0")
+        con.add_reaction_to_phase(reaction, "default_0")
+        phase = con.get_phase_by_id("default_0")
 
         self.assertEqual(1, len(phase.reaction_settings))
         self.assertEqual("test", phase.reaction_settings[0].id)
@@ -98,7 +98,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(3, len(con.phases.phases))
         for index, phase in enumerate(con.phases.phases):
-            self.assertEqual(f"default-{index}", phase.id)
+            self.assertEqual(f"default_{index}", phase.id)
             self.assertEqual(1, phase.volume)
             self.assertEqual(4, phase.timeframe)
 
@@ -116,7 +116,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(2, len(con.phases.phases))
         for index, phase in enumerate(con.phases.phases):
-            self.assertEqual(f"model{index}-0", phase.id)
+            self.assertEqual(f"model{index}_0", phase.id)
             self.assertEqual(index, phase.volume)
             self.assertEqual(1, phase.timeframe)
             self.assertEqual("light", phase.light_dark)
@@ -127,8 +127,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="test_id",
-            source="default-0",
-            destination="default-1",
+            source="default_0",
+            destination="default_1",
         )
 
         self.assertEqual(0, len(con.linker.linker))
@@ -141,7 +141,7 @@ class TestConstraints(TestCase):
         linker = Linker(
             metabolite_id="test_id",
             source="unknown",
-            destination="default-1",
+            destination="default_1",
         )
 
         with self.assertRaisesRegex(
@@ -151,7 +151,7 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="test_id",
-            source="default-0",
+            source="default_0",
             destination="unknown",
         )
 
@@ -166,8 +166,8 @@ class TestConstraints(TestCase):
         linker = []
 
         for n in range(4):
-            source = f"default-{n}"
-            destination = f"default-{n + 1}"
+            source = f"default_{n}"
+            destination = f"default_{n + 1}"
             linker.append(
                 Linker(
                     metabolite_id="test_id",
@@ -190,8 +190,8 @@ class TestConstraints(TestCase):
         linker.append(
             Linker(
                 metabolite_id="test_id",
-                source="default-4",
-                destination="default-0",
+                source="default_4",
+                destination="default_0",
             )
         )
 
@@ -203,8 +203,8 @@ class TestConstraints(TestCase):
         linker = []
 
         for n in range(4):
-            destination = f"default-{n}"
-            source = f"default-{n + 1}"
+            destination = f"default_{n}"
+            source = f"default_{n + 1}"
             linker.append(
                 Linker(
                     metabolite_id="test_id",
@@ -221,8 +221,8 @@ class TestConstraints(TestCase):
         linker.append(
             Linker(
                 metabolite_id="test_id",
-                source="default-0",
-                destination="default-4",
+                source="default_0",
+                destination="default_4",
             )
         )
         con = Constraints()
@@ -239,7 +239,7 @@ class TestConstraints(TestCase):
         del con.phases.phases[3]
 
         with self.assertRaisesRegex(
-            PhaseNotFound, "The destination: 'root-3' is unknown."
+            PhaseNotFound, "The destination: 'root_3' is unknown."
         ):
             con.add_linker_series("test_linker")
 
@@ -251,8 +251,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con.add_linker(linker)
 
@@ -264,8 +264,8 @@ class TestConstraints(TestCase):
         )
 
         self.assertEqual("amp_c_lk_model0_[0|1]", created_linker.id)
-        self.assertEqual("amp_c_model0-0", created_linker.reactants[0].id)
-        self.assertEqual("amp_c_model0-1", created_linker.products[0].id)
+        self.assertEqual("amp_c_model0_0", created_linker.reactants[0].id)
+        self.assertEqual("amp_c_model0_1", created_linker.products[0].id)
         self.assertEqual(0, created_linker.lower_bound)
         self.assertEqual(1000, created_linker.upper_bound)
 
@@ -279,7 +279,7 @@ class TestConstraints(TestCase):
         for label in con.sub_models:
             for time in con.time_ranges:
                 for metabolite in model.metabolites:
-                    new_id = f"{metabolite.id}_{label[0]}-{time[0]}"
+                    new_id = f"{metabolite.id}_{label[0]}_{time[0]}"
 
                     try:
                         new_model.metabolites.get_by_id(new_id)
@@ -290,7 +290,7 @@ class TestConstraints(TestCase):
                         )
 
                 for reaction in model.reactions:
-                    new_id = f"{reaction.id}_{label[0]}-{time[0]}"
+                    new_id = f"{reaction.id}_{label[0]}_{time[0]}"
 
                     try:
                         new_model.reactions.get_by_id(new_id)
@@ -303,7 +303,7 @@ class TestConstraints(TestCase):
 
         con = Constraints()
         con.add_time_slots(2, 1, "light")
-        phase = con.get_phase_by_id("default-0")
+        phase = con.get_phase_by_id("default_0")
         phase_model: Model = self.textbook.copy()
         phase.model = phase_model
         model = self.textbook.copy()
@@ -342,8 +342,8 @@ class TestConstraints(TestCase):
             summary = str(textbook_model.summary())
             self.assertEqual(expected.read(), summary)
 
-        con.get_phase_by_id("leaf-1").model = textbook_model.copy()
-        con.get_phase_by_id("root-2").model = textbook_model.copy()
+        con.get_phase_by_id("leaf_1").model = textbook_model.copy()
+        con.get_phase_by_id("root_2").model = textbook_model.copy()
 
         # no model given => Error
         with self.assertRaisesRegex(
@@ -371,8 +371,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con.add_linker(linker)
 
@@ -402,8 +402,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con.add_linker(linker)
 
@@ -427,8 +427,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con_exp.add_linker(linker)
         con_exp.save_as_xml("out.xml")
@@ -469,8 +469,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con_exp.add_linker(linker)
 
@@ -489,8 +489,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="leaf-0",
-            destination="leaf-1",
+            source="leaf_0",
+            destination="leaf_1",
         )
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)
@@ -498,16 +498,16 @@ class TestConstraints(TestCase):
         g = con._constraint2networkx()
         exp_edges = [
             (
-                "leaf-0",
-                "leaf-1",
+                "leaf_0",
+                "leaf_1",
                 {"label": "atp_c", "Metabolite": "amp_c\natp_c"},
             ),
-            ("leaf-1", "leaf-0", {"label": "atp_c", "Metabolite": "atp_c"}),
-            ("root-0", "root-1", {"label": "atp_c", "Metabolite": "atp_c"}),
-            ("root-1", "root-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("leaf_1", "leaf_0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root_0", "root_1", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root_1", "root_0", {"label": "atp_c", "Metabolite": "atp_c"}),
         ]
 
-        exp_nodes = ["leaf-0", "leaf-1", "root-0", "root-1"]
+        exp_nodes = ["leaf_0", "leaf_1", "root_0", "root_1"]
 
         self.assertCountEqual(exp_edges, list(g.edges.data()))
         self.assertCountEqual(exp_nodes, g.nodes)
@@ -520,8 +520,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="leaf-0",
-            destination="leaf-1",
+            source="leaf_0",
+            destination="leaf_1",
         )
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)

@@ -7,7 +7,7 @@
                 "type": "phase",
                 "time": "0",
                 "parent": "leaf",
-                "id": "leaf-0",
+                "id": "leaf_0",
                 "Volume": 1,
                 "Timeframe": 1,
                 "Number of Reactions": [],
@@ -19,7 +19,7 @@
                 "type": "phase",
                 "time": "1",
                 "parent": "leaf",
-                "id": "leaf-1",
+                "id": "leaf_1",
                 "Volume": 1,
                 "Timeframe": 1,
                 "Number of Reactions": [],
@@ -31,7 +31,7 @@
                 "type": "phase",
                 "time": "0",
                 "parent": "root",
-                "id": "root-0",
+                "id": "root_0",
                 "Volume": 2,
                 "Timeframe": 1,
                 "Number of Reactions": [],
@@ -43,7 +43,7 @@
                 "type": "phase",
                 "time": "1",
                 "parent": "root",
-                "id": "root-1",
+                "id": "root_1",
                 "Volume": 2,
                 "Timeframe": 1,
                 "Number of Reactions": [],
@@ -54,36 +54,36 @@
     "edges": [
         {
             "data": {
-                "id": "Linker from leaf-0 to leaf-1",
-                "source": "leaf-0",
-                "target": "leaf-1",
+                "id": "Linker from leaf_0 to leaf_1",
+                "source": "leaf_0",
+                "target": "leaf_1",
                 "Metabolite": ["amp_c"],
                 "isdirected": "true"
             }
         },
         {
             "data": {
-                "id": "Linker from leaf-1 to leaf-0",
-                "source": "leaf-1",
-                "target": "leaf-0",
+                "id": "Linker from leaf_1 to leaf_0",
+                "source": "leaf_1",
+                "target": "leaf_0",
                 "Metabolite": [],
                 "isdirected": "true"
             }
         },
         {
             "data": {
-                "id": "Linker from root-0 to root-1",
-                "source": "root-0",
-                "target": "root-1",
+                "id": "Linker from root_0 to root_1",
+                "source": "root_0",
+                "target": "root_1",
                 "Metabolite": [],
                 "isdirected": "true"
             }
         },
         {
             "data": {
-                "id": "Linker from root-1 to root-0",
-                "source": "root-1",
-                "target": "root-0",
+                "id": "Linker from root_1 to root_0",
+                "source": "root_1",
+                "target": "root_0",
                 "Metabolite": [],
                 "isdirected": "true"
             }

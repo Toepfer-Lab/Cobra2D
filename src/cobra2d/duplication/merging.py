@@ -12,6 +12,11 @@ logger = getLogger(__name__)
 
 
 def _merge(model: Model, right: Model, suffix: str) -> Model:
+    if not suffix or suffix.startswith("_"):
+        raise ValueError(
+            "Suffix must be non-empty and must not start with '_'"
+        )
+
     model.merge(right=right, prefix_existing="failed_", objective="sum")
 
     # add unused metabolites and check if duplicates are created
@@ -33,8 +38,12 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
     assert len(model.metabolites.query("failed_")) == 0
     assert len(model.reactions.query("failed_")) == 0
 
+    # Groups were suffixed with "_<suffix>" during renaming, so match by that
+    # exact ending instead of treating the suffix as a regex.
     group: Group
-    for group in right.groups.query(suffix):
+    for group in right.groups:
+        if not group.id.endswith(f"_{suffix}"):
+            continue
         new_group = Group(id=group.id, name=group.name, kind=group.kind)
         new_group.notes = group.notes.copy()
 
@@ -87,9 +96,13 @@ def _link_genes(model: Model, reactions: List[str], suffix: str) -> Model:
             )
             continue
 
+        # Match the base reaction and all its suffixed variants
+        # (e.g. "PGK" -> "PGK", "PGK_leaf_0", ...). Plain comparison avoids
+        # treating the reaction ID as a regex.
         item: Reaction
-        for item in _model.reactions.query(reaction):
-            item.gene_reaction_rule = reference_rule
+        for item in _model.reactions:
+            if item.id == reaction or item.id.startswith(f"{reaction}_"):
+                item.gene_reaction_rule = reference_rule
 
     logger.info("Linkage of genes between multiple same reactions completed")
 

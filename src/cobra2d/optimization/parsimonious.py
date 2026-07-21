@@ -79,10 +79,11 @@ def add_adjusted_pfba_objective(
     )
     linear_coefficients: Dict[Variable, int] = {}
 
-    # Phase IDs can contain underscores (e.g. sub_model "leaf_2" -> "leaf_2-0"),
-    # so the phase cannot be recovered by splitting on the last "_". Instead the
-    # reaction is matched against the known phase IDs by suffix. Longer phase
-    # IDs are tried first so the most specific match wins.
+    # Reaction IDs are "<item_id>_<sub_model>_<time>" and both the item_id
+    # and the sub_model may contain underscores, so the phase cannot be
+    # recovered by splitting the reaction ID. Instead the reaction is matched
+    # against the known phase IDs by suffix. Longer phase IDs are tried first
+    # so the most specific match wins.
     phases_by_length = sorted(
         constraints.phases.phases,
         key=lambda phase: len(phase.id),
@@ -113,7 +114,7 @@ def add_adjusted_pfba_objective(
 
         # 'matches' is sorted longest phase ID first, so the most specific
         # phase wins. Multiple matches mean one phase ID is a suffix of another
-        # (e.g. sub_models 'a' and 'x_a' both yield a '..._a-0' suffix), which
+        # (e.g. sub_models 'a' and 'x_a' both yield a '..._a_0' suffix), which
         # makes the ID ambiguous and points at a poor sub_model naming choice.
         if len(matches) > 1:
             logger.warning(

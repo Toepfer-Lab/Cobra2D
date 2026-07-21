@@ -14,12 +14,21 @@ The following Code block is the basis for the visualizations on this page.
     >>> con.add_sub_models(["root", "leaf", "leaf_2"], [1, 2, 1])
     >>> con.add_time_slots(5, 2)
     >>> con.add_linker_series("ATP",last2first=False)
-    >>> con.add_linker( Linker( "ADP", source="leaf_2-3", destination="leaf_2-4" ) )
+    >>> con.add_linker( Linker( "ADP", source="leaf_2_3", destination="leaf_2_4" ) )
 
 
 GraphViz
 ----------
 Visualization using GraphViz creates a static image that can later be used in other contexts.
+
+.. note::
+    Rendering the graph requires the Graphviz system package. It is separate from the
+    ``graphviz`` Python package and cannot be installed via pip, please refer to the
+    `documentation of graphviz <https://graphviz.readthedocs.io/en/stable/manual.html>`_.
+    If it is missing, :py:meth:`~cobra2d.constraints.constraints.Constraints.create_graph`
+    issues a :py:class:`~cobra2d.error.GraphvizNotInstalled` warning. The graph is still
+    built, so ``str(graph)`` and ``graph.save(...)`` remain usable; only rendering fails.
+
 The visualization can be created with the following command.
 
 .. doctest:: Viz

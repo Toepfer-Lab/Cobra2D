@@ -31,6 +31,30 @@ class InvalidLabel(Exception):
         return self.message or "A used label is invalid."
 
 
+class GraphvizNotInstalled(Warning):
+    """
+    Warning for cases in which the Graphviz system package is missing.
+
+    The ``graphviz`` Python package only provides the bindings; rendering
+    additionally needs the Graphviz executables (``dot``), which are a
+    separate, non-pip-installable dependency.
+    """
+
+    DEFAULT_MESSAGE = (
+        "Rendering a graph requires the Graphviz system package. It is "
+        "separate from the 'graphviz' Python package and cannot be "
+        "installed via pip, please refer to the documentation of "
+        "graphviz: https://graphviz.readthedocs.io/en/stable/manual.html"
+    )
+
+    def __init__(self, message: str = ""):
+        self.message = message or self.DEFAULT_MESSAGE
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
+
+
 class PhaseNotFound(Warning):
     """
     Raises a Warning in case that a phase is not available

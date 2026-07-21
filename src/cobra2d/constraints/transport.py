@@ -21,7 +21,10 @@ from cobra2d.constraints.phase import Phase, Phases
 def split_phase_id(phase_id: str) -> tuple[str, str]:
     """Split a phase ID into its sub_model and time components.
 
-    Phase IDs follow the ``<sub_model>-<time>`` pattern (e.g. ``leaf-1``).
+    Phase IDs follow the ``<sub_model>_<time>`` pattern (e.g. ``leaf_1``).
+    The sub_model may itself contain underscores (e.g. ``leaf_2_1`` is the
+    sub_model ``leaf_2`` at time ``1``), so the split is done on the *last*
+    underscore. The time period must therefore not contain an underscore.
 
     Args:
         phase_id: The ID of the phase to split.
@@ -30,14 +33,15 @@ def split_phase_id(phase_id: str) -> tuple[str, str]:
         A ``(sub_model, time)`` tuple.
 
     Raises:
-        ValueError: If the ID does not contain a ``-`` separating the
+        ValueError: If the ID does not contain a ``_`` separating the
             sub_model from the time.
     """
-    sub_model, sep, time = phase_id.partition("-")
+    sub_model, sep, time = phase_id.rpartition("_")
     if not sep:
         raise ValueError(
-            f"Phase ID '{phase_id}' cannot be split into '<sub_model>-<time>'. "
-            f"Expected a '-' separating the sub_model from the time period."
+            f"Phase ID '{phase_id}' cannot be split into "
+            f"'<sub_model>_<time>'. Expected a '_' separating the sub_model "
+            f"from the time period."
         )
     return sub_model, time
 

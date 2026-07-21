@@ -407,7 +407,7 @@ class Phases:
             .. code-block:: python
 
                 input = [{
-                    'id': 'leaf-0',
+                    'id': 'leaf_0',
                     'volume': 1,
                     'name': '',
                     'light_dark': 'light',

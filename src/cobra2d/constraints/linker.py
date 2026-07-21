@@ -102,7 +102,7 @@ class Linker(Transport):
         e.g. ``STARCH_p_lk_leaf_[1|2]``.
 
         Raises:
-            ValueError: If a phase ID cannot be split into ``<sub_model>-<time>``,
+            ValueError: If a phase ID cannot be split into ``<sub_model>_<time>``,
                 or if source and destination do not share the same sub_model.
         """  # noqa: E501
         source_sub_model, source_time = split_phase_id(self.source)

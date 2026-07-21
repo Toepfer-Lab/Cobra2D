@@ -344,7 +344,7 @@ class TestPhases(TestCase):
     def test_from_dict(self):
         dict_list = [
             {
-                "id": "leaf-0",
+                "id": "leaf_0",
                 "volume": 1,
                 "name": "",
                 "light_dark": "light",
@@ -361,7 +361,7 @@ class TestPhases(TestCase):
 
         phase: Phase = phases.phases[0]
 
-        self.assertEqual(phase.id, "leaf-0")
+        self.assertEqual(phase.id, "leaf_0")
         self.assertEqual(phase.light_dark, "light")
         self.assertEqual(phase.timeframe, 2)
         self.assertEqual(phase.volume, 1)

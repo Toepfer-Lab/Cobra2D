@@ -218,10 +218,10 @@ class TestTransfers(TestCase):
         # Regular Phases
         phases = Phases()
         phases.add_phase(
-            Phase("root-0", "light"),
+            Phase("root_0", "light"),
         )
         phases.add_phase(
-            Phase("stem-0", "light", timeframe=5, volume=2),
+            Phase("stem_0", "light", timeframe=5, volume=2),
         )
 
         test_model = phases.apply_phases(model, True)
@@ -229,8 +229,8 @@ class TestTransfers(TestCase):
         transfers = Transfers()
         transfer = Transfer(
             "gln__L_c",
-            source=phases.phases.get_by_id("root-0"),
-            destination=phases.phases.get_by_id("stem-0"),
+            source=phases.phases.get_by_id("root_0"),
+            destination=phases.phases.get_by_id("stem_0"),
         )
 
         transfers.append(transfer)
@@ -244,7 +244,7 @@ class TestTransfers(TestCase):
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root-0": -1, "gln__L_c_stem-0": 0.1},
+            {"gln__L_c_root_0": -1, "gln__L_c_stem_0": 0.1},
         )
 
     def test_apply_complex(self):
@@ -255,16 +255,16 @@ class TestTransfers(TestCase):
         # Should replicate behavior of add_sub_models and add_time_slots
         phases = Phases()
         phases.add_phase(
-            Phase("root-0", "light"),
+            Phase("root_0", "light"),
         )
         phases.add_phase(
-            Phase("stem-0", "light"),
+            Phase("stem_0", "light"),
         )
         phases.add_phase(
-            Phase("root-1", "light"),
+            Phase("root_1", "light"),
         )
         phases.add_phase(
-            Phase("stem-1", "light"),
+            Phase("stem_1", "light"),
         )
         model = phases.apply_phases(model, True)
 
@@ -273,21 +273,21 @@ class TestTransfers(TestCase):
         transfers.append(
             Transfer(
                 "gln__L_c",
-                phases.phases.get_by_id("root-0"),
-                phases.phases.get_by_id("stem-0"),
+                phases.phases.get_by_id("root_0"),
+                phases.phases.get_by_id("stem_0"),
             )
         )
         transfers.append(
             Transfer(
                 "gln__L_c",
-                phases.phases.get_by_id("root-1"),
-                phases.phases.get_by_id("stem-1"),
+                phases.phases.get_by_id("root_1"),
+                phases.phases.get_by_id("stem_1"),
             )
         )
         model = transfers.apply(model, phases)
 
-        linkage.add_linker(Linker("gln__L_c", "root-0", "root-1"))
-        linkage.add_linker(Linker("gln__L_c", "stem-0", "stem-1"))
+        linkage.add_linker(Linker("gln__L_c", "root_0", "root_1"))
+        linkage.add_linker(Linker("gln__L_c", "stem_0", "stem_1"))
         model = linkage.apply_linkage(model, phases)
 
         reaction: Reaction = model.reactions.get_by_id(
@@ -298,7 +298,7 @@ class TestTransfers(TestCase):
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root-0": -1, "gln__L_c_stem-0": 1},
+            {"gln__L_c_root_0": -1, "gln__L_c_stem_0": 1},
         )
 
         reaction: Reaction = model.reactions.get_by_id(
@@ -309,5 +309,5 @@ class TestTransfers(TestCase):
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root-1": -1, "gln__L_c_stem-1": 1},
+            {"gln__L_c_root_1": -1, "gln__L_c_stem_1": 1},
         )

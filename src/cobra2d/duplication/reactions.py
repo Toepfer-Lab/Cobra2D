@@ -19,9 +19,9 @@ def _read(file: Path) -> List[str]:
 
 def _check_reactions(model: Model, elements: List[str]) -> bool:
     for element in elements:
-        item = model.metabolites.query(element)
-
-        if not item:
+        try:
+            model.metabolites.get_by_id(element)
+        except KeyError:
             # FIXME: raise problem
             return False
 

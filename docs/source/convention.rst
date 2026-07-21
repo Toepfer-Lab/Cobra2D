@@ -5,7 +5,9 @@ Naming Convention
 The following describes the nomenclature used in this package. Since we are only creating transfer and linker reactions, we only describe these.
 
 Both source and destination refer to phase IDs, which follow the
-``<sub_model>-<time>`` pattern (e.g. ``leaf-1``).
+``<sub_model>_<time>`` pattern (e.g. ``leaf_1``). A sub_model may itself
+contain underscores, so a phase ID is split on its *last* underscore; the
+time period must therefore not contain one.
 
 Transfer reactions:
 ----------------------
@@ -16,7 +18,7 @@ ID: <Metabolite_ID>_tr_[<source_sub_model>|<destination_sub_model>]_<time>
 **Example:**
     | Description: Transfer of starch from leaf to root
     | ID: STARCH_p_tr_[leaf|root]_1
-    | STARCH_p_leaf-1 --> STARCH_p_root-1
+    | STARCH_p_leaf_1 --> STARCH_p_root_1
 
 
 Linker reactions:
@@ -28,7 +30,7 @@ ID: <Metabolite_ID>_lk_<sub_model>_[<origin_time>|<destination_time>]
 **Example:**
     | Description: Linker of starch in the leaf from time period 1 to 2
     | ID: STARCH_p_lk_leaf_[1|2]
-    | STARCH_p_leaf-1 --> STARCH_p_leaf-2
+    | STARCH_p_leaf_1 --> STARCH_p_leaf_2
 
 
 Order of suffixes:
