@@ -371,3 +371,33 @@ class TestPhases(TestCase):
         self.assertEqual("ATPM", reaction.id)
         self.assertEqual(456, reaction.lower_bound)
         self.assertEqual(765, reaction.upper_bound)
+
+    def test_apply_phases_creates_a_group_per_phase(self):
+        """Every phase must end up as a group in the extended model.
+
+        The visualization relies on model.groups to select a phase, so a
+        missing group silently removes that phase from the visualization.
+        The first phase is the regression-prone one: it forms the base of
+        the merged model and never passes through _merge.
+        """
+
+        model: Model = self.textbook.copy()
+        phases = Phases()
+        for phase_id in ("leaf_0", "root_0", "leaf_1"):
+            phases.add_phase(Phase(id=phase_id, light_dark="light"))
+
+        new_model = phases.apply_phases(model)
+
+        self.assertEqual(
+            {"leaf_0", "root_0", "leaf_1"},
+            {group.id for group in new_model.groups},
+        )
+
+        for phase_id in ("leaf_0", "root_0", "leaf_1"):
+            members = new_model.groups.get_by_id(phase_id).members
+
+            self.assertEqual(
+                len(model.reactions) + len(model.metabolites), len(members)
+            )
+            for member in members:
+                self.assertTrue(member.id.endswith(f"_{phase_id}"))

@@ -48,3 +48,5 @@ cd model_duplication
 
 pip install .
 ```
+
+The static GraphViz visualization (`Constraints.create_graph`) additionally requires the Graphviz system package. It is separate from the `graphviz` Python package and cannot be installed via pip, please refer to the [documentation of graphviz](https://graphviz.readthedocs.io/en/stable/manual.html). The other visualizations (Cytoscape, MetExplore) do not need it.

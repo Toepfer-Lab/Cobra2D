@@ -38,11 +38,14 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
     assert len(model.metabolites.query("failed_")) == 0
     assert len(model.reactions.query("failed_")) == 0
 
-    # Groups were suffixed with "_<suffix>" during renaming, so match by that
-    # exact ending instead of treating the suffix as a regex.
+    # Two kinds of group belong to `right`: the sub_model's own groups, which
+    # `_rename` suffixed with "_<suffix>", and the group representing the phase
+    # itself, which is added after renaming and is therefore named exactly
+    # "<suffix>". Both are carried over; comparing instead of using query()
+    # avoids treating the suffix as a regex.
     group: Group
     for group in right.groups:
-        if not group.id.endswith(f"_{suffix}"):
+        if group.id != suffix and not group.id.endswith(f"_{suffix}"):
             continue
         new_group = Group(id=group.id, name=group.name, kind=group.kind)
         new_group.notes = group.notes.copy()
@@ -71,11 +74,25 @@ def _merge(model: Model, right: Model, suffix: str) -> Model:
     return model
 
 
-def _link_genes(model: Model, reactions: List[str], suffix: str) -> Model:
+def _link_genes(
+    model: Model, reactions: List[str], suffix: str, labels: List[str]
+) -> Model:
     """
-    Links the gene to the same reactions that are under different suffixes.
-    Given reactions identifiers are passed as a list and the suffix of the
-    main/first submodel
+    Links the gene rule of a reaction to all of its copies in the sub_models.
+
+    Args:
+        model: The model containing every duplicated sub_model.
+        reactions: The identifiers of the reactions in the original,
+            unsuffixed model.
+        suffix: The label of the sub_model the gene rules are taken from.
+        labels: The labels of all sub_models present in ``model``. They are
+            required to rebuild the exact reaction IDs: matching by prefix
+            would let a reaction such as "PGK" also capture the unrelated
+            "PGK_2_<label>", overwriting its gene rule.
+
+    Returns:
+        A copy of ``model`` in which every copy of a reaction carries the
+        gene rule of its counterpart in the ``suffix`` sub_model.
     """
 
     _model = model.copy()
@@ -96,13 +113,14 @@ def _link_genes(model: Model, reactions: List[str], suffix: str) -> Model:
             )
             continue
 
-        # Match the base reaction and all its suffixed variants
-        # (e.g. "PGK" -> "PGK", "PGK_leaf_0", ...). Plain comparison avoids
-        # treating the reaction ID as a regex.
         item: Reaction
-        for item in _model.reactions:
-            if item.id == reaction or item.id.startswith(f"{reaction}_"):
-                item.gene_reaction_rule = reference_rule
+        for label in labels:
+            try:
+                item = _model.reactions.get_by_id(f"{reaction}_{label}")
+            except KeyError:
+                continue
+
+            item.gene_reaction_rule = reference_rule
 
     logger.info("Linkage of genes between multiple same reactions completed")
 

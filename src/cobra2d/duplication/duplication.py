@@ -120,6 +120,20 @@ def _main_placeholder(
     )
     logger.info(f"New suffix '{labels[0]}' for model added")
 
+    # The first sub_model forms the base of the merged model and is never
+    # passed to _merge as `right`, so unlike the sub_models below its phase
+    # group has to be added here.
+    _model.add_groups(
+        [
+            Group(
+                id=labels[0],
+                name="All reactions and metabolites of Phase: " + labels[0],
+                members=_model.reactions + _model.metabolites,
+                kind="partonomy",
+            )
+        ]
+    )
+
     if file:
         metabolites: List[str] = read_file(model, file)
 
@@ -172,7 +186,7 @@ def _main_placeholder(
     if genes:
         reactions: List[str] = [item.id for item in model.reactions]
 
-        _model = _link_genes(_model, reactions, labels[0])
+        _model = _link_genes(_model, reactions, labels[0], labels)
 
     # Meta-data
     _model.notes["submodels-info"] = (
