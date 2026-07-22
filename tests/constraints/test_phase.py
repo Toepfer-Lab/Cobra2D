@@ -8,6 +8,7 @@ from cobra.util import linear_reaction_coefficients
 from importlib_resources import files, as_file
 
 from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.error import GenesNotLinked
 
 
 class TestPhase(TestCase):
@@ -401,3 +402,90 @@ class TestPhases(TestCase):
             )
             for member in members:
                 self.assertTrue(member.id.endswith(f"_{phase_id}"))
+
+    def test_manual_phase_gene_rules_are_preserved_and_warned(self):
+        manual_a = self.textbook.copy()
+        manual_b = self.textbook.copy()
+        manual_a.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "manual_a_gene"
+        )
+        manual_b.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "manual_b_gene"
+        )
+
+        phases = Phases()
+        for phase_id, model in (
+            ("manual_a_0", manual_a),
+            ("manual_b_0", manual_b),
+        ):
+            phase = Phase(id=phase_id, light_dark="light")
+            phase.model = model
+            phases.add_phase(phase)
+
+        with self.assertWarns(GenesNotLinked) as context:
+            result = phases.apply_phases(link_genes=True)
+
+        # The warning has to name the phases it applies to, otherwise a
+        # mixed setup gives no clue which rules were left alone.
+        warning = context.warning
+        self.assertEqual(["manual_a_0", "manual_b_0"], warning.phases)
+        self.assertIn("manual_a_0, manual_b_0", str(warning))
+
+        for phase_id, expected_rule in (
+            ("manual_a_0", "manual_a_gene"),
+            ("manual_b_0", "manual_b_gene"),
+        ):
+            reaction = result.reactions.get_by_id(f"PGI_{phase_id}")
+            self.assertEqual(expected_rule, reaction.gene_reaction_rule)
+            self.assertEqual(
+                {expected_rule}, {gene.id for gene in reaction.genes}
+            )
+            self.assertIn(expected_rule, result.genes)
+
+    def test_manual_phase_models_share_genes_with_identical_ids(self):
+        """Same gene ID in two manual models: one Gene, two distinct rules."""
+        manual_a = self.textbook.copy()
+        manual_b = self.textbook.copy()
+        manual_a.reactions.get_by_id("PGI").gene_reaction_rule = "shared_gene"
+        manual_b.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "shared_gene and manual_b_gene"
+        )
+
+        phases = Phases()
+        for phase_id, model in (
+            ("manual_a_0", manual_a),
+            ("manual_b_0", manual_b),
+        ):
+            phase = Phase(id=phase_id, light_dark="light")
+            phase.model = model
+            phases.add_phase(phase)
+
+        with self.assertWarns(GenesNotLinked):
+            result = phases.apply_phases(link_genes=True)
+
+        reaction_a = result.reactions.get_by_id("PGI_manual_a_0")
+        reaction_b = result.reactions.get_by_id("PGI_manual_b_0")
+
+        # The rules stay phase specific, they are not synchronized.
+        self.assertEqual("shared_gene", reaction_a.gene_reaction_rule)
+        self.assertEqual(
+            "shared_gene and manual_b_gene", reaction_b.gene_reaction_rule
+        )
+
+        # Gene IDs are not phase suffixed, so both reactions reference the
+        # very same Gene, which now spans two phases.
+        shared = result.genes.get_by_id("shared_gene")
+        for reaction in (reaction_a, reaction_b):
+            gene = next(
+                gene for gene in reaction.genes if gene.id == "shared_gene"
+            )
+            self.assertIs(shared, gene)
+
+        self.assertEqual(
+            {"PGI_manual_a_0", "PGI_manual_b_0"},
+            {reaction.id for reaction in shared.reactions},
+        )
+        self.assertEqual(
+            {"manual_b_gene"},
+            {gene.id for gene in reaction_b.genes} - {"shared_gene"},
+        )

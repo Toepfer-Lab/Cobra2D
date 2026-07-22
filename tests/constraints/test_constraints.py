@@ -1,6 +1,7 @@
 import io
 import json
 import unittest
+import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -15,7 +16,7 @@ from importlib_resources import files, as_file, open_text
 from cobra2d.constraints.constraints import Constraints
 from cobra2d.constraints.linker import Linkage, Linker
 from cobra2d.constraints.phase import Phase, Phases
-from cobra2d.error import PhaseNotFound
+from cobra2d.error import GenesNotLinked, PhaseNotFound
 from tests import data
 
 
@@ -361,6 +362,34 @@ class TestConstraints(TestCase):
         with open_text(data, "summary.txt", encoding="UTF-8") as expected:
             self.maxDiff = None
             self.assertEqual(expected.read(), summary)
+
+    def test_apply_to_model_forwards_link_genes(self):
+        def build() -> Constraints:
+            con = Constraints()
+            con.add_time_slots(2, 1, "light")
+            con.get_phase_by_id("default_0").model = self.textbook.copy()
+            return con
+
+        model: Model = self.textbook.copy()
+
+        with self.assertWarns(GenesNotLinked) as context:
+            build().apply_to_model(model, link_genes=True)
+
+        self.assertEqual(["default_0"], context.warning.phases)
+
+        # The default stays False, so no warning is emitted.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            build().apply_to_model(model)
+
+        self.assertEqual(
+            [],
+            [
+                warning
+                for warning in caught
+                if issubclass(warning.category, GenesNotLinked)
+            ],
+        )
 
     @unittest.skip("XML")
     def test_to_xml(self):

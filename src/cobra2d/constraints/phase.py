@@ -5,6 +5,7 @@ Implementation of the phase and Phases classes.
 
 from __future__ import annotations
 import logging
+import warnings
 from inspect import isclass
 from typing import List, Union, Optional
 from xml.etree.ElementTree import Element
@@ -21,7 +22,7 @@ from cobra2d.duplication.duplication import (
     _test,
 )
 from cobra2d.duplication.merging import _merge
-from cobra2d.error import IdAlreadyInUse
+from cobra2d.error import GenesNotLinked, IdAlreadyInUse
 
 
 class Phase:
@@ -287,8 +288,10 @@ class Phases:
         Args:
             model: The model to which the phases are to be applied.
             link_genes: Boolean that determines whether the already existing
-                genes should be assigned to the differently named reactions
-                when duplicating the models.
+                gene-reaction rules should be synchronized across the copies
+                derived from the passed model. Manually assigned phase models
+                retain their own rules and issue a
+                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
 
         Returns:
             A Cobra model that consists of multiple copies of the original,
@@ -333,6 +336,12 @@ class Phases:
                 objective_factor=objective_factor,
             )
 
+        if link_genes and with_model:
+            warnings.warn(
+                GenesNotLinked(phase.id for phase in with_model),
+                stacklevel=2,
+            )
+
         for phase in with_model:
             copy = phase.model.copy()
 
@@ -358,8 +367,6 @@ class Phases:
             new_model = _merge(new_model, copy, phase.id)
             if not _test(new_model, copy):
                 raise Exception(f"Test for phase {copy.id} failed.")
-
-            # ToDo Genes wont be connected? no knowledge if Genes are identical
 
         model_objective = {}
         for reaction, coeff in linear_reaction_coefficients(new_model).items():

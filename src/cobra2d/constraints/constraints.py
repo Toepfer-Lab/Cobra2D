@@ -572,18 +572,25 @@ class Constraints:
                         source=warning.source,
                     )
 
-    def apply_to_model(self, model: Optional[Model] = None) -> Model:
+    def apply_to_model(
+        self, model: Optional[Model] = None, link_genes: bool = False
+    ) -> Model:
         """
         Method to apply all defined adjustments to a :py:class:`Model`.
 
         Args:
             model: The model that should be changed.
+            link_genes: Boolean that determines whether the gene-reaction
+                rules should be synchronized across the copies derived from
+                ``model``. Manually assigned phase models retain their own
+                rules and issue a
+                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
 
         Returns: A :py:class:`Model` that contains all defined adjustments.
 
         """
 
-        new_model = self.phases.apply_phases(model)
+        new_model = self.phases.apply_phases(model, link_genes=link_genes)
         # TODO: verify if transfers should be apply before linker
         new_model = self.transfers.apply(new_model, phases=self.phases)
         new_model = self.linker.apply(new_model, phases=self.phases)

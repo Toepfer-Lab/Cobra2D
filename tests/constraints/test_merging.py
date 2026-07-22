@@ -78,13 +78,7 @@ class MergingTest(TestCase):
         self.assertEqual(len(model.metabolites), len(submodel.metabolites) * 2)
 
     def test__merge_keeps_phase_group(self):
-        """A group named exactly after the suffix must survive the merge.
-
-        `_rename` suffixes the sub_model's own groups with "_<suffix>", but
-        the group representing the phase is added afterwards and is named
-        exactly "<suffix>". Matching only on the "_<suffix>" ending silently
-        dropped it, which emptied model.groups for the whole model.
-        """
+        """A group named exactly after the suffix must survive the merge."""
 
         model: Model = self.textbook.copy()
         submodel: Model = self.textbook.copy()

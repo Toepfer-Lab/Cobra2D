@@ -74,6 +74,31 @@ If we add sub_models instead we get the following:
 
 As we can see the default time period or sub_model is replaced as soon as we define times or sub_models ourselves.
 
+Applying phase models and synchronizing gene rules
+---------------------------------------------------
+
+When :py:meth:`cobra2d.constraints.phase.Phases.apply_phases` receives a
+reference model, ``link_genes=True`` synchronizes the gene-reaction rules of
+the phase copies derived from that model. The same parameter is available on
+:py:meth:`cobra2d.constraints.constraints.Constraints.apply_to_model`, which
+forwards it.
+
+A phase can instead use a manually assigned model through
+:py:attr:`cobra2d.constraints.phase.Phase.model`. Such a model retains its own
+reaction-specific gene rules. Cobra2D does not synchronize those rules across
+phases because genes from independently supplied models cannot safely be
+assumed to be equivalent. If ``link_genes=True`` is requested in this case, a
+:py:class:`cobra2d.error.GenesNotLinked` warning lists the affected phase IDs.
+Note that phases derived from the reference model are still linked in the same
+call; the warning concerns only the manually assigned ones.
+
+Gene IDs themselves are not phase-suffixed. Consequently, identical gene IDs
+from different models may be represented by the same COBRApy
+:py:class:`cobra.Gene` after merging, even though the gene-reaction rules on
+the phase-specific reactions remain unchanged. Applications that require
+cross-phase synchronization of manually assigned models must perform it
+explicitly.
+
 Adding new linker reactions
 --------------------
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_linker
