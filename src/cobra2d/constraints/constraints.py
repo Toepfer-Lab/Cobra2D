@@ -983,7 +983,7 @@ class Constraints:
                 linker_edge_dict_reverse[value] = [linker.metabolite_id]
 
         for transfer in self.transfers.transfers:
-            value: Tuple[str, str] = (linker.source, linker.destination)
+            value: Tuple[str, str] = (transfer.source, transfer.destination)
             if transfer.metabolite_id in transfer_edge_dict:
                 transfer_edge_dict[transfer.metabolite_id].append(value)
             else:

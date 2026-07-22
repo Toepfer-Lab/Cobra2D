@@ -567,3 +567,41 @@ class TestConstraints(TestCase):
             data, "con2json_result.JSON", encoding="UTF-8"
         ) as expected:
             self.assertEqual(json_string, json.load(expected))
+
+    def test__con2json_keys_transfers_by_their_own_phases(self):
+        """Each transfer must produce its own edge.
+
+        The transfer loop used to reuse ``linker`` from the loop above it,
+        which raised without linkers present and otherwise collapsed every
+        transfer onto the last linker's source/destination.
+        """
+        con = Constraints()
+        con.add_time_slots(2, 1)
+        con.add_sub_models(["leaf", "stem", "root"], [1, 1, 1])
+        con.add_transfer_series("suc_c", sub_models=["leaf", "stem", "root"])
+
+        # without any linker at all
+        graph, _, _ = con._con2json()
+
+        exp_edges = [
+            ("leaf_0", "stem_0"),
+            ("stem_0", "root_0"),
+            ("leaf_1", "stem_1"),
+            ("stem_1", "root_1"),
+        ]
+        edges = [
+            (edge["data"]["source"], edge["data"]["target"])
+            for edge in graph["edges"]
+        ]
+        self.assertCountEqual(exp_edges, edges)
+
+        # and unchanged once linkers exist to be picked up by mistake
+        con.add_linker_series("atp_c")
+        graph, _, _ = con._con2json()
+
+        transfer_edges = [
+            (edge["data"]["source"], edge["data"]["target"])
+            for edge in graph["edges"]
+            if edge["data"]["id"].startswith("Transfer")
+        ]
+        self.assertCountEqual(exp_edges, transfer_edges)
