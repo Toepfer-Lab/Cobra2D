@@ -244,6 +244,71 @@ class TestConstraints(TestCase):
         ):
             con.add_linker_series("test_linker")
 
+    def test_series_timeframes_are_integers(self):
+        """``timeframes`` restricts a series to the given time periods."""
+        con = Constraints()
+        con.add_time_slots(4, 1, "light")
+        con.add_sub_models(["leaf", "root"], [1, 1])
+
+        con.add_linker_series("atp_c", timeframes=[0, 1, 2], sub_models=["leaf"])
+        self.assertCountEqual(
+            [
+                ("leaf_0", "leaf_1"),
+                ("leaf_1", "leaf_2"),
+            ],
+            [(linker.source, linker.destination) for linker in con.linker.linker],
+        )
+
+        con.add_transfer_series(
+            "suc_c", sub_models=["leaf", "root"], timeframes=[0, 1, 2]
+        )
+        self.assertCountEqual(
+            [
+                ("leaf_0", "root_0"),
+                ("leaf_1", "root_1"),
+                ("leaf_2", "root_2"),
+            ],
+            [
+                (transfer.source, transfer.destination)
+                for transfer in con.transfers.transfers
+            ],
+        )
+
+    def test_series_reject_unknown_selections(self):
+        """A selection that does not exist must not silently yield nothing."""
+        con = Constraints()
+        con.add_time_slots(4, 1, "light")
+        con.add_sub_models(["leaf", "root"], [1, 1])
+
+        with self.assertRaisesRegex(
+            ValueError, r"The following timeframes do not exist in the model: \['0', '1'\]"
+        ):
+            # the times of a phase ID are int, so passing them as str is the
+            # mistake the old List[str] annotation invited
+            con.add_linker_series("atp_c", timeframes=["0", "1"])  # type: ignore[list-item]
+
+        with self.assertRaisesRegex(
+            ValueError, r"The following timeframes do not exist in the model: \[4\]"
+        ):
+            con.add_linker_series("atp_c", timeframes=[0, 4])
+
+        with self.assertRaisesRegex(
+            ValueError, r"The following sub_models do not exist in the model: \['stem'\]"
+        ):
+            con.add_linker_series("atp_c", sub_models=["leaf", "stem"])
+
+        with self.assertRaisesRegex(
+            ValueError, r"The following timeframes do not exist in the model: \['0'\]"
+        ):
+            con.add_transfer_series(
+                "suc_c",
+                sub_models=["leaf", "root"],
+                timeframes=["0"],  # type: ignore[list-item]
+            )
+
+        self.assertEqual(0, len(con.linker.linker))
+        self.assertEqual(0, len(con.transfers.transfers))
+
     def test_apply_to_model(self):
         con = Constraints()
         con.add_time_slots(2, 1, "light")

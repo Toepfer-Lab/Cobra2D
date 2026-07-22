@@ -363,7 +363,7 @@ class Constraints:
         upper_bound: int = 1000,
         last2first: bool = False,
         reverse: bool = False,
-        timeframes: Optional[List[str]] = None,
+        timeframes: Optional[List[int]] = None,
         sub_models: Optional[List[str]] = None,
     ):
         """
@@ -386,8 +386,19 @@ class Constraints:
             reverse: Bool that specifies the orientation of the linkers.
                 If True, the linkers are created starting from the last to the
                 first time period and not from the first to the last as usual.
-            sub_models:
-            timeframes:
+            sub_models: Restricts the linkers to these sub_models. If None,
+                every sub_model of the model is used. The order is irrelevant,
+                as each sub_model is linked to itself across time.
+            timeframes: Restricts the linkers to these time periods, given as
+                the integer indices used in the phase IDs (the ``<time>`` part
+                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` limits the series
+                to the first three periods. The linkers always connect
+                consecutive entries of the remaining list, so gaps are bridged
+                rather than skipped: ``[0, 2]`` links ``_0`` directly to
+                ``_2``. If None, every time period of the model is used.
+        Raises:
+            ValueError: If ``sub_models`` or ``timeframes`` contains an entry
+                that does not exist in the model.
         Examples:
             Application to a four phase model:
 
@@ -407,10 +418,36 @@ class Constraints:
         labels, times = self.__get_label_time(reverse=reverse)
 
         if sub_models is not None:
-            labels = [label for label in labels if label in sub_models]
+            selected_sub_models = [
+                label for label in labels if label in sub_models
+            ]
+
+            if len(selected_sub_models) != len(set(sub_models)):
+                unknown = [
+                    label
+                    for label in sub_models
+                    if label not in selected_sub_models
+                ]
+                raise ValueError(
+                    f"The following sub_models do not exist in the model: "
+                    f"{unknown}. Existing sub_models: {sorted(labels)}."
+                )
+
+            labels = selected_sub_models
 
         if timeframes is not None:
-            times = [time for time in times if time in timeframes]
+            selected_times = [time for time in times if time in timeframes]
+
+            if len(selected_times) != len(set(timeframes)):
+                unknown = [
+                    time for time in timeframes if time not in selected_times
+                ]
+                raise ValueError(
+                    f"The following timeframes do not exist in the model: "
+                    f"{unknown}. Existing timeframes: {sorted(times)}."
+                )
+
+            times = selected_times
 
         for label in labels:
             for n in range(len(times) - 1):
@@ -459,7 +496,7 @@ class Constraints:
         upper_bound: int = 1000,
         last2first: bool = False,
         reverse: bool = False,
-        timeframes: Optional[List[str]] = None,
+        timeframes: Optional[List[int]] = None,
     ):
         """
         Method to create transfers along a chain of sub_models.
@@ -493,10 +530,15 @@ class Constraints:
             reverse: Bool that specifies the orientation of the transfers.
                 If True, the transfers are created starting from the last to the
                 first sub_model and not from the first to the last as usual.
-            timeframes:
+            timeframes: Restricts the transfers to these time periods, given as
+                the integer indices used in the phase IDs (the ``<time>`` part
+                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` builds the
+                sub_model chain only in the first three periods. If None, every
+                time period of the model is used.
         Raises:
             ValueError: If ``sub_models`` is empty, or contains a sub_model that
-                does not exist in the model.
+                does not exist in the model, or if ``timeframes`` contains a
+                time period that does not exist in the model.
         Examples:
             Application to a model with three sub_models:
 
@@ -532,7 +574,18 @@ class Constraints:
         labels = list(reversed(sub_models)) if reverse else list(sub_models)
 
         if timeframes is not None:
-            times = [time for time in times if time in timeframes]
+            selected_times = [time for time in times if time in timeframes]
+
+            if len(selected_times) != len(set(timeframes)):
+                unknown = [
+                    time for time in timeframes if time not in selected_times
+                ]
+                raise ValueError(
+                    f"The following timeframes do not exist in the model: "
+                    f"{unknown}. Existing timeframes: {sorted(times)}."
+                )
+
+            times = selected_times
 
         for time in times:
             for n in range(len(labels) - 1):
