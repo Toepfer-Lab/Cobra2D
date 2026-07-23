@@ -1,5 +1,4 @@
-"""Module for merging of COBRApy models
-"""
+"""Module for merging of COBRApy models"""
 
 from copy import deepcopy
 from logging import getLogger

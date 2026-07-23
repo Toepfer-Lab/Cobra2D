@@ -465,12 +465,12 @@ class Constraints:
             selected_times = [time for time in times if time in timeframes]
 
             if len(selected_times) != len(set(timeframes)):
-                unknown = [
+                unknown_times = [
                     time for time in timeframes if time not in selected_times
                 ]
                 raise ValueError(
                     f"The following timeframes do not exist in the model: "
-                    f"{unknown}. Existing timeframes: {sorted(times)}."
+                    f"{unknown_times}. Existing timeframes: {sorted(times)}."
                 )
 
             times = selected_times
@@ -603,12 +603,12 @@ class Constraints:
             selected_times = [time for time in times if time in timeframes]
 
             if len(selected_times) != len(set(timeframes)):
-                unknown = [
+                unknown_times = [
                     time for time in timeframes if time not in selected_times
                 ]
                 raise ValueError(
                     f"The following timeframes do not exist in the model: "
-                    f"{unknown}. Existing timeframes: {sorted(times)}."
+                    f"{unknown_times}. Existing timeframes: {sorted(times)}."
                 )
 
             times = selected_times

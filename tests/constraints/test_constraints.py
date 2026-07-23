@@ -24,6 +24,9 @@ from tests import data
 
 
 class TestConstraints(TestCase):
+    textbook: Model
+    ecoli: Model
+
     @classmethod
     def setUpClass(cls):
         cobra_config = Configuration()

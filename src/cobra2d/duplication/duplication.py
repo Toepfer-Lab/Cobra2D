@@ -1,5 +1,4 @@
-"""Module for model duplication
-"""
+"""Module for model duplication"""
 
 from logging import StreamHandler, getLogger
 from typing import List, Optional, Union

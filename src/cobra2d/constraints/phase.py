@@ -348,6 +348,8 @@ class Phases:
             )
 
         for phase in with_model:
+            # Guaranteed by the partition above, but not visible to mypy.
+            assert phase.model is not None
             copy = phase.model.copy()
 
             # ToDo duplicate code from _main_placeholder should be refactored

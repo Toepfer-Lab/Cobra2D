@@ -227,9 +227,7 @@ class TestLinkage(TestCase):
         model = phases.apply_phases(model)
         model = linkage.apply_linkage(model, phases)
 
-        linker_reaction = model.reactions.get_by_id(
-            linker_default.reac_id
-        )
+        linker_reaction = model.reactions.get_by_id(linker_default.reac_id)
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
@@ -245,20 +243,14 @@ class TestLinkage(TestCase):
 
         print(phases)
         metabolites = linker_reaction.metabolites
-        expected_metabolite = model.metabolites.get_by_id(
-            "gln__L_c_leaf_1"
-        )
-        expected_metabolite_2 = model.metabolites.get_by_id(
-            "gln__L_c_leaf_2"
-        )
+        expected_metabolite = model.metabolites.get_by_id("gln__L_c_leaf_1")
+        expected_metabolite_2 = model.metabolites.get_by_id("gln__L_c_leaf_2")
 
         self.assertEqual(
             {expected_metabolite: -1, expected_metabolite_2: 1}, metabolites
         )
 
-        linker_reaction = model.reactions.get_by_id(
-            linker_non_default.reac_id
-        )
+        linker_reaction = model.reactions.get_by_id(linker_non_default.reac_id)
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
@@ -274,9 +266,7 @@ class TestLinkage(TestCase):
 
         metabolites = linker_reaction.metabolites
         expected_metabolite = model.metabolites.get_by_id("nadp_c_leaf_1")
-        expected_metabolite_2 = model.metabolites.get_by_id(
-            "nadp_c_leaf_2"
-        )
+        expected_metabolite_2 = model.metabolites.get_by_id("nadp_c_leaf_2")
 
         print(linker_reaction)
         print(metabolites)
