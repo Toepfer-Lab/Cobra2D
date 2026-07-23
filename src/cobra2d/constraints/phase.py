@@ -121,14 +121,17 @@ class Phase:
         element.set("id", self.id)
         element.set("light_dark", self.light_dark)
         element.set("name", self.name)
+        element.set("objective_factor", str(self.objective_factor))
         element.set("timeframe", str(self.timeframe))
         element.set("volume", str(self.volume))
 
         for reaction in self.reaction_settings:
             child = Element("reaction")
             child.set("id", reaction.id)
-            child.set("lower_bound", str(reaction.lower_bound))
-            child.set("upper_bound", str(reaction.upper_bound))
+            # COBRApy keeps whichever type a bound was given as, while the
+            # schema stores bounds as doubles.
+            child.set("lower_bound", str(float(reaction.lower_bound)))
+            child.set("upper_bound", str(float(reaction.upper_bound)))
 
             element.append(child)
 
@@ -163,8 +166,9 @@ class Phase:
                 dictionary = {
                     "id": "id",
                     "volume": "4",
-                    "light_dark": "500",
+                    "light_dark": "light",
                     "timeframe": "4",
+                    "objective_factor": "1",
                     "reaction":[{
                         "id":"reactions_id",
                         "lower_bound": "3",
@@ -177,9 +181,10 @@ class Phase:
         output = cls(
             id=data["id"],
             volume=int(data["volume"]),
-            name=data["name"],
+            name=data.get("name", ""),
             light_dark=data["light_dark"],
             timeframe=int(data["timeframe"]),
+            objective_factor=float(data.get("objective_factor", 1.0)),
         )
 
         if "reaction" not in data.keys():
@@ -188,8 +193,8 @@ class Phase:
         for reaction in data["reaction"]:
             new_reaction = Reaction(
                 id=reaction["id"],
-                lower_bound=reaction["lower_bound"],
-                upper_bound=reaction["upper_bound"],
+                lower_bound=float(reaction["lower_bound"]),
+                upper_bound=float(reaction["upper_bound"]),
             )
 
             output.add_reaction(new_reaction)

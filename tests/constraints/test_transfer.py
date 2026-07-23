@@ -51,7 +51,7 @@ class TestTransfer(TestCase):
                 "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
                 "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
                 "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-                "|   identifier  |  root  |     stem    |      50      |     600      |\n"  # noqa: E501
+                "|   identifier  |  root  |     stem    |     50.0     |    600.0     |\n"  # noqa: E501
                 "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
@@ -72,15 +72,15 @@ class TestTransfer(TestCase):
         self.assertDictEqual(
             xml.attrib,
             {
-                "metabolite": "identifier",
-                "lower_bound": "50",
-                "upper_bound": "600",
+                "metabolite_id": "identifier",
+                "lower_bound": "50.0",
+                "upper_bound": "600.0",
             },
         )
 
     def test_from_dict(self):
         dictionary = {
-            "metabolite": "identifier",
+            "metabolite_id": "identifier",
             "lower_bound": "50",
             "upper_bound": "600",
             "destination": {"refid": "stem"},
@@ -138,40 +138,37 @@ class TestTransfers(TestCase):
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
                 "|             ID            |                     Name                    | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-                "|  TR_metabolite_root_stem  |  Transfer for metabolite from root to stem  |  root  |     stem    |      0       |     1000     |\n"  # noqa: E501
-                "| TR_metabolite_root2_stem2 | Transfer for metabolite from root2 to stem2 | root2  |    stem2    |      0       |     1000     |\n"  # noqa: E501
+                "|  TR_metabolite_root_stem  |  Transfer for metabolite from root to stem  |  root  |     stem    |     0.0      |    1000.0    |\n"  # noqa: E501
+                "| TR_metabolite_root2_stem2 | Transfer for metabolite from root2 to stem2 | root2  |    stem2    |     0.0      |    1000.0    |\n"  # noqa: E501
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
 
-    @unittest.skip("XML")
     def test_from_dict(self):
         dictionary = [
             {
-                "metabolite": "identifier",
-                "lower_bound": "50",
-                "upper_bound": "600",
-                "destination": {"refid": "stem"},
-                "source": {"refid": "root"},
+                "metabolite_id": "identifier",
+                "lower_bound": "50.0",
+                "upper_bound": "600.0",
+                "destination": {"refid": "stem_0"},
+                "source": {"refid": "root_0"},
             },
             {
-                "metabolite": "identifier",
+                "metabolite_id": "identifier",
                 "lower_bound": "0",
                 "upper_bound": "1000",
-                "destination": {"refid": "stem2"},
-                "source": {"refid": "root2"},
+                "destination": {"refid": "stem_1"},
+                "source": {"refid": "root_1"},
             },
         ]
         transfers = Transfers.from_dict(dictionary)
 
-        self.assertEqual(len(transfers), 2)
-        self.assertEqual(
-            transfers[1].metabolite_id, "TR_identifier_root2_stem2"
-        )
-        self.assertEqual(transfers[1].source, "root2")
-        self.assertEqual(transfers[1].destination, "stem2")
-        self.assertEqual(transfers[1].lower_bound, 0)
-        self.assertEqual(transfers[1].upper_bound, 1000)
+        self.assertEqual(len(transfers.transfers), 2)
+        self.assertEqual(transfers.transfers[1].metabolite_id, "identifier")
+        self.assertEqual(transfers.transfers[1].source, "root_1")
+        self.assertEqual(transfers.transfers[1].destination, "stem_1")
+        self.assertEqual(transfers.transfers[1].lower_bound, 0)
+        self.assertEqual(transfers.transfers[1].upper_bound, 1000)
 
     def test_to_xml(self):
         transfers = Transfers()
@@ -192,23 +189,24 @@ class TestTransfers(TestCase):
         )
         element = transfers.to_xml()
 
+        self.assertEqual(element.tag, "transfers")
         for child in element:
             self.assertIsInstance(child, Element)
             self.assertEqual(child.tag, "transfer")
         self.assertEqual(
             element[1].attrib,
             {
-                "metabolite": "metabolite",
-                "lower_bound": "0",
-                "upper_bound": "1000",
+                "metabolite_id": "metabolite",
+                "lower_bound": "0.0",
+                "upper_bound": "1000.0",
             },
         )
         self.assertEqual(
             element[0].attrib,
             {
-                "metabolite": "metabolite",
-                "lower_bound": "0",
-                "upper_bound": "1000",
+                "metabolite_id": "metabolite",
+                "lower_bound": "0.0",
+                "upper_bound": "1000.0",
             },
         )
 

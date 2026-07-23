@@ -1,10 +1,10 @@
 import io
 import json
-import unittest
 import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
 import cobra
@@ -13,10 +13,13 @@ from cobra.io import read_sbml_model
 from graphviz import Digraph
 from importlib_resources import files, as_file, open_text
 
+from cobra2d import resources
 from cobra2d.constraints.constraints import Constraints
 from cobra2d.constraints.linker import Linkage, Linker
 from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.constraints.transfer import Transfer
 from cobra2d.error import GenesNotLinked, PhaseNotFound
+from cobra2d.resources import SCHEMA_NAMESPACE
 from tests import data
 
 
@@ -250,13 +253,18 @@ class TestConstraints(TestCase):
         con.add_time_slots(4, 1, "light")
         con.add_sub_models(["leaf", "root"], [1, 1])
 
-        con.add_linker_series("atp_c", timeframes=[0, 1, 2], sub_models=["leaf"])
+        con.add_linker_series(
+            "atp_c", timeframes=[0, 1, 2], sub_models=["leaf"]
+        )
         self.assertCountEqual(
             [
                 ("leaf_0", "leaf_1"),
                 ("leaf_1", "leaf_2"),
             ],
-            [(linker.source, linker.destination) for linker in con.linker.linker],
+            [
+                (linker.source, linker.destination)
+                for linker in con.linker.linker
+            ],
         )
 
         con.add_transfer_series(
@@ -281,24 +289,31 @@ class TestConstraints(TestCase):
         con.add_sub_models(["leaf", "root"], [1, 1])
 
         with self.assertRaisesRegex(
-            ValueError, r"The following timeframes do not exist in the model: \['0', '1'\]"
+            ValueError,
+            r"The following timeframes do not exist in the model: "
+            r"\['0', '1'\]",
         ):
             # the times of a phase ID are int, so passing them as str is the
             # mistake the old List[str] annotation invited
-            con.add_linker_series("atp_c", timeframes=["0", "1"])  # type: ignore[list-item]
+            con.add_linker_series(
+                "atp_c", timeframes=["0", "1"]  # type: ignore[list-item]
+            )
 
         with self.assertRaisesRegex(
-            ValueError, r"The following timeframes do not exist in the model: \[4\]"
+            ValueError,
+            r"The following timeframes do not exist in the model: \[4\]",
         ):
             con.add_linker_series("atp_c", timeframes=[0, 4])
 
         with self.assertRaisesRegex(
-            ValueError, r"The following sub_models do not exist in the model: \['stem'\]"
+            ValueError,
+            r"The following sub_models do not exist in the model: \['stem'\]",
         ):
             con.add_linker_series("atp_c", sub_models=["leaf", "stem"])
 
         with self.assertRaisesRegex(
-            ValueError, r"The following timeframes do not exist in the model: \['0'\]"
+            ValueError,
+            r"The following timeframes do not exist in the model: \['0'\]",
         ):
             con.add_transfer_series(
                 "suc_c",
@@ -456,50 +471,62 @@ class TestConstraints(TestCase):
             ],
         )
 
-    @unittest.skip("XML")
-    def test_to_xml(self):
+    @staticmethod
+    def _example_constraints() -> Constraints:
+        """The constraints object that 'tests/data/out.xml' describes."""
         con = Constraints()
         con.add_time_slots(2, 1, "light")
 
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0_0",
-            destination="model0_1",
+        con.add_linker(
+            Linker(
+                metabolite_id="amp_c",
+                source="model0_0",
+                destination="model0_1",
+            )
         )
-        con.add_linker(linker)
+        con.add_transfer(
+            Transfer(
+                metabolite_id="amp_c",
+                source="model0_0",
+                destination="model1_0",
+            )
+        )
+
+        return con
+
+    def test_to_xml(self):
+        con = self._example_constraints()
 
         xml = con.to_xml()
 
         self.assertIsInstance(xml, Element)
         self.assertEqual("Conf", xml.tag)
 
-        self.assertEqual(
-            {
-                "xmlns": "https://github.com/Toepfer-Lab/model_duplication/"
-                "blob/main/src/resources/schema.xsd"
-            },
-            xml.attrib,
-        )
+        self.assertEqual({"xmlns": SCHEMA_NAMESPACE}, xml.attrib)
         self.assertIsNone(xml.text)
         self.assertIsNone(xml.tail)
 
-        # ToDo check children
-
-    @unittest.skip("XML")
-    def test_save_as_xml(self):
-        con = Constraints()
-        con.add_time_slots(2, 1, "light")
-
-        con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
-
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0_0",
-            destination="model0_1",
+        self.assertEqual(
+            ["phases", "transfers", "linkage"],
+            [child.tag for child in xml],
         )
-        con.add_linker(linker)
+
+    def test_to_xml_declares_the_namespace_of_the_schema(self):
+        """The namespace written has to be the one 'schema.xsd' defines.
+
+        The two used to differ, which made every document written by
+        'save_as_xml' unloadable.
+        """
+        schema = ElementTree.parse(
+            files(resources).joinpath("schema.xsd")
+        ).getroot()
+
+        self.assertEqual(SCHEMA_NAMESPACE, schema.attrib["targetNamespace"])
+
+    def test_save_as_xml(self):
+        con = self._example_constraints()
 
         with TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "out.xml"
@@ -512,20 +539,8 @@ class TestConstraints(TestCase):
                         list(save),
                     )
 
-    @unittest.skip("XML")
     def test_load_from_xml(self):
-        con_exp = Constraints()
-        con_exp.add_time_slots(2, 1, "light")
-
-        con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
-
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0_0",
-            destination="model0_1",
-        )
-        con_exp.add_linker(linker)
-        con_exp.save_as_xml("out.xml")
+        con_exp = self._example_constraints()
 
         with open_text(data, "out.xml", encoding="UTF-8") as file:
             con_load = Constraints.load_from_xml(file)
@@ -535,6 +550,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(con_exp.time_ranges, con_load.time_ranges)
         self.assertEqual(con_exp.sub_models, con_load.sub_models)
+        self.assertEqual(con_exp.index_time_ranges, con_load.index_time_ranges)
 
         # compare phases
         # ToDo compare for Phase
@@ -550,10 +566,90 @@ class TestConstraints(TestCase):
             self.assertEqual(phase.light_dark, load_phase.light_dark)
             self.assertEqual(phase.timeframe, load_phase.timeframe)
             self.assertEqual(phase.volume, load_phase.volume)
+            self.assertEqual(
+                phase.objective_factor, load_phase.objective_factor
+            )
             # ToDo check reactions/testcase with reactions
 
-        # compare linker
+        # compare linker and transfers
         self.assertCountEqual(con_exp.linker.linker, con_load.linker.linker)
+        self.assertCountEqual(
+            con_exp.transfers.transfers, con_load.transfers.transfers
+        )
+
+    def test_xml_round_trip(self):
+        """Everything that is written has to survive being read back.
+
+        Transfers used to be written but were neither part of 'schema.xsd' nor
+        readable, so loading a saved document failed outright.
+        """
+        con = self._example_constraints()
+        con.phases.phases.get_by_id("model0_0").objective_factor = 0.5
+        con.add_reaction_to_phase(
+            Reaction(id="ATPM", lower_bound=-1.5, upper_bound=1000),
+            "model0_0",
+        )
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "round_trip.xml"
+            con.save_as_xml(path)
+            loaded = Constraints.load_from_xml(path)
+
+            self.assertEqual(con.sub_models, loaded.sub_models)
+            self.assertEqual(con.time_ranges, loaded.time_ranges)
+            self.assertEqual(con.index_time_ranges, loaded.index_time_ranges)
+            self.assertEqual(con.default_time, loaded.default_time)
+            self.assertEqual(con.default_sub_model, loaded.default_sub_model)
+            self.assertCountEqual(con.linker.linker, loaded.linker.linker)
+            self.assertCountEqual(
+                con.transfers.transfers, loaded.transfers.transfers
+            )
+
+            phase = loaded.phases.phases.get_by_id("model0_0")
+            self.assertEqual(0.5, phase.objective_factor)
+            self.assertEqual(1, len(phase.reaction_settings))
+            self.assertEqual("ATPM", phase.reaction_settings[0].id)
+            self.assertEqual(-1.5, phase.reaction_settings[0].lower_bound)
+            self.assertEqual(1000, phase.reaction_settings[0].upper_bound)
+
+            # Saving the loaded object again has to give the same document.
+            again = Path(temp_dir) / "round_trip_2.xml"
+            loaded.save_as_xml(again)
+            self.assertEqual(path.read_text(), again.read_text())
+
+    def test_xml_round_trip_of_an_untouched_constraints_object(self):
+        """The default phase, without transfers or linkers, round-trips too.
+
+        Both containers are written empty, which used to decode to 'None'.
+        """
+        con = Constraints()
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "default.xml"
+            con.save_as_xml(path)
+            loaded = Constraints.load_from_xml(path)
+
+        self.assertTrue(loaded.default_time)
+        self.assertTrue(loaded.default_sub_model)
+        self.assertEqual(con.sub_models, loaded.sub_models)
+        self.assertEqual(con.time_ranges, loaded.time_ranges)
+        self.assertEqual(["default_0"], [p.id for p in loaded.phases.phases])
+        self.assertEqual([], loaded.linker.linker)
+        self.assertEqual([], loaded.transfers.transfers)
+
+    def test_load_from_xml_rejects_unknown_phases(self):
+        """A linker or transfer may only refer to a phase of the document."""
+        con = self._example_constraints()
+        con.linker.linker[0].destination = "model0_2"
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "dangling.xml"
+            con.save_as_xml(path)
+
+            with self.assertRaises(PhaseNotFound) as context:
+                Constraints.load_from_xml(path)
+
+        self.assertIn("model0_2", str(context.exception))
 
     def test_create_graph(self):
         con_exp = Constraints()

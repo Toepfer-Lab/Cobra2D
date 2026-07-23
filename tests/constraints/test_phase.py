@@ -44,7 +44,7 @@ class TestPhase(TestCase):
         self.assertEqual(string, expected)
 
     def test_to_xml(self):
-        phase = Phase(id="test_id", light_dark="light")
+        phase = Phase(id="test_id", light_dark="light", objective_factor=0.5)
 
         xml = phase.to_xml()
 
@@ -58,6 +58,7 @@ class TestPhase(TestCase):
                 "name": "",
                 "light_dark": "light",
                 "timeframe": "1",
+                "objective_factor": "0.5",
             },
         )
         self.assertIsNone(xml.text)
@@ -70,6 +71,10 @@ class TestPhase(TestCase):
             "name": "",
             "light_dark": "dark",
             "timeframe": "13",
+            "objective_factor": "0.5",
+            "reaction": [
+                {"id": "R1", "lower_bound": "-1.5", "upper_bound": "1000"}
+            ],
         }
 
         phase = Phase.from_dict(dic)
@@ -78,7 +83,27 @@ class TestPhase(TestCase):
         self.assertEqual(phase.light_dark, "dark")
         self.assertEqual(phase.timeframe, 13)
         self.assertEqual(phase.volume, 7)
-        # ToDo check Reactions
+        self.assertEqual(phase.objective_factor, 0.5)
+
+        self.assertEqual(len(phase.reaction_settings), 1)
+        reaction = phase.reaction_settings[0]
+        self.assertEqual(reaction.id, "R1")
+        self.assertEqual(reaction.lower_bound, -1.5)
+        self.assertEqual(reaction.upper_bound, 1000)
+
+    def test_from_dict_uses_the_defaults_of_the_schema(self):
+        """Attributes the schema declares a default for may be omitted."""
+        phase = Phase.from_dict(
+            {
+                "id": "test_id",
+                "volume": "1",
+                "light_dark": "dark",
+                "timeframe": "1",
+            }
+        )
+
+        self.assertEqual(phase.name, "")
+        self.assertEqual(phase.objective_factor, 1.0)
 
 
 class TestPhases(TestCase):
@@ -335,6 +360,7 @@ class TestPhases(TestCase):
                     "id": "test_id",
                     "light_dark": "light",
                     "name": "",
+                    "objective_factor": "1.0",
                     "timeframe": "7",
                     "volume": "3",
                 },

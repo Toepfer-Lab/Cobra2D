@@ -52,8 +52,8 @@ class Transport(ABC):
     metabolite_id: str
     source: str
     destination: str
-    lower_bound: int
-    upper_bound: int
+    lower_bound: float
+    upper_bound: float
 
     @abstractmethod
     def __init__(
@@ -61,8 +61,8 @@ class Transport(ABC):
         metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
     ):
         if isinstance(source, Phase):
             source = source.id
@@ -73,8 +73,11 @@ class Transport(ABC):
         self.metabolite_id = metabolite_id
         self.source = source
         self.destination = destination
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        # Bounds are floats throughout, as COBRApy declares them. Converting
+        # here keeps a transport that was given whole bounds indistinguishable
+        # from the same transport read back from XML.
+        self.lower_bound = float(lower_bound)
+        self.upper_bound = float(upper_bound)
 
     @abstractmethod
     def __str__(self) -> str:

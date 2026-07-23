@@ -15,7 +15,7 @@ from cobra2d.constraints.transport import (
 
 class Transfer(Transport):
     """
-    Representation of a Transfer. It includes the attribute 'metabolite',
+    Representation of a Transfer. It includes the attribute 'metabolite_id',
     which refers to the metabolite that is transferred. Changing this
     attribute, it changes the corresponding internal identifier. It is
     recommended to use Phases when creating the Transfer to avoid KeyErrors
@@ -25,10 +25,10 @@ class Transfer(Transport):
                 the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
-        lower_bound (int): The 'lower_bound' to be used for the reaction.
+        lower_bound (float): The 'lower_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
-        upper_bound (int): The 'upper_bound' to be used for the reaction.
+        upper_bound (float): The 'upper_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
     """
@@ -38,8 +38,8 @@ class Transfer(Transport):
         metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
     ):
         """
         Initializes the Transfer.
@@ -50,8 +50,10 @@ class Transfer(Transport):
                 phase itself.
             destination: The ID of the source phase or the
                 source phase itself..
-            lower_bound (int): The 'lower_bound' to be used for the reaction.
-            upper_bound (int): The 'upper_bound' to be used for the reaction.
+            lower_bound (float): The 'lower_bound' to be used for the
+                reaction.
+            upper_bound (float): The 'upper_bound' to be used for the
+                reaction.
         """
 
         super().__init__(
@@ -109,11 +111,18 @@ class Transfer(Transport):
         )
 
     def to_xml(self) -> Element:
+        """
+        Converts a transfer to an :py:class:`xml.etree.ElementTree.Element`.
+
+        Returns:
+            The :py:class:`xml.etree.ElementTree.Element` representation of
+            a transfer.
+        """
         element = Element("transfer")
         SubElement(element, "destination").set("refid", self.destination)
         SubElement(element, "source").set("refid", self.source)
 
-        element.set("metabolite", self.metabolite_id)
+        element.set("metabolite_id", self.metabolite_id)
         element.set("lower_bound", str(self.lower_bound))
         element.set("upper_bound", str(self.upper_bound))
 
@@ -144,11 +153,11 @@ class Transfer(Transport):
                 transfers = Transfers.from_dict(input)
         """
         return cls(
-            metabolite_id=data["metabolite"],
+            metabolite_id=data["metabolite_id"],
             source=data["source"]["refid"],
             destination=data["destination"]["refid"],
-            lower_bound=int(data["lower_bound"]),
-            upper_bound=int(data["upper_bound"]),
+            lower_bound=float(data["lower_bound"]),
+            upper_bound=float(data["upper_bound"]),
         )
 
 
@@ -227,7 +236,7 @@ class Transfers(Transports):
         Converts Transfers to an :py:class:`xml.etree.ElementTree.Element`.
         """
 
-        root = Element("Transfers")
+        root = Element("transfers")
 
         item: Transfer
         for item in self:

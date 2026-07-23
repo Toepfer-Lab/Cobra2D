@@ -36,10 +36,10 @@ class Linker(Transport):
                 the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
-        lower_bound (int): The 'lower_bound' to be used for the reaction.
+        lower_bound (float): The 'lower_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
-        upper_bound (int): The 'upper_bound' to be used for the reaction.
+        upper_bound (float): The 'upper_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
     """
@@ -49,8 +49,8 @@ class Linker(Transport):
         metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
     ):
         """
         Initialize a Linker.
@@ -171,8 +171,8 @@ class Linker(Transport):
         """
         return cls(
             metabolite_id=data["metabolite_id"],
-            lower_bound=int(data["lower_bound"]),
-            upper_bound=int(data["upper_bound"]),
+            lower_bound=float(data["lower_bound"]),
+            upper_bound=float(data["upper_bound"]),
             destination=data["destination"]["refid"],
             source=data["source"]["refid"],
         )

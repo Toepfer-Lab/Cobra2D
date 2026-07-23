@@ -38,8 +38,31 @@ from cobra2d.error import (
     InvalidLabel,
     PhaseNotFound,
 )
+from cobra2d.resources import SCHEMA_NAMESPACE
 from cobra2d.utils import Matrix
 from cobra2d.visualization.helper import metexplore_interface
+
+
+def _entries(data: dict, container: str, item: str) -> List[dict]:
+    """Read the entries of one of the containers of a decoded document.
+
+    A container that is absent or empty (``<linkage/>``) is decoded as
+    ``None`` rather than as an empty dict, which this function turns back into
+    an empty list.
+
+    Args:
+        data: A document decoded by :py:class:`xmlschema.XMLSchema`.
+        container: The name of the container element, e.g. ``linkage``.
+        item: The name of the elements within the container, e.g. ``linker``.
+
+    Returns:
+        The decoded entries of the container.
+    """
+    content = data.get(container)
+    if not content:
+        return []
+
+    return content.get(item) or []
 
 
 class Constraints:
@@ -293,7 +316,10 @@ class Constraints:
                     )
                 )
 
-            self.sub_models.append((label, volume, name))
+            # 'name or ""' as for the phases above: an omitted name is stored
+            # as an empty string, which is what reading it back from XML
+            # yields.
+            self.sub_models.append((label, volume, name or ""))
 
     def remove_sub_model(self, id: str):
         raise NotImplementedError
@@ -359,8 +385,8 @@ class Constraints:
     def add_linker_series(
         self,
         metabolite_id: str,
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
         last2first: bool = False,
         reverse: bool = False,
         timeframes: Optional[List[int]] = None,
@@ -409,9 +435,9 @@ class Constraints:
             +---------------+-----------+-------------+--------------+--------------+
             | Metabolite ID |   Source  | Destination | Lower Bounds | Upper Bounds |
             +---------------+-----------+-------------+--------------+--------------+
-            |      ATP      | default_0 |  default_1  |      0       |     1000     |
-            |      ATP      | default_1 |  default_2  |      0       |     1000     |
-            |      ATP      | default_2 |  default_3  |      0       |     1000     |
+            |      ATP      | default_0 |  default_1  |     0.0      |    1000.0    |
+            |      ATP      | default_1 |  default_2  |     0.0      |    1000.0    |
+            |      ATP      | default_2 |  default_3  |     0.0      |    1000.0    |
             +---------------+-----------+-------------+--------------+--------------+
         """  # noqa: E501
 
@@ -492,8 +518,8 @@ class Constraints:
         self,
         metabolite_id: str,
         sub_models: List[str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
         last2first: bool = False,
         reverse: bool = False,
         timeframes: Optional[List[int]] = None,
@@ -506,7 +532,7 @@ class Constraints:
         multiple sub_models within the same time period.
 
         As there is no easy way to infer intended order to connect multiple
-        sub_model, the definition of the sub_model parameter is required and the 
+        sub_model, the definition of the sub_model parameter is required and the
         order in this parameter defines the way we connect hte sub_model to one another.
 
         Args:
@@ -549,13 +575,13 @@ class Constraints:
             +---------------+--------+-------------+--------------+--------------+
             | Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |
             +---------------+--------+-------------+--------------+--------------+
-            |      ATP      | leaf_0 |    stem_0   |      0       |     1000     |
-            |      ATP      | stem_0 |    root_0   |      0       |     1000     |
+            |      ATP      | leaf_0 |    stem_0   |     0.0      |    1000.0    |
+            |      ATP      | stem_0 |    root_0   |     0.0      |    1000.0    |
             +---------------+--------+-------------+--------------+--------------+
         """  # noqa: E501
 
         if not sub_models:
-            raise ValueError(  
+            raise ValueError(
                 "sub_models is required and must contain at least one "
                 "sub_model, as its order defines the transfer chain."
             )
@@ -654,17 +680,21 @@ class Constraints:
         """
         Converts a :py:class:`Constraints` object to an :py:class:`Element`.
 
+        The result follows ``schema.xsd`` and declares
+        :py:data:`cobra2d.resources.SCHEMA_NAMESPACE`.
+
+        Note:
+            A :py:class:`Model` assigned to a phase via
+            :py:attr:`Phase.model` is not part of the XML document and has to
+            be assigned again after loading.
+
         Returns:
             An :py:class:`Element` that represents a :py:class:`Constraints`
             object.
 
         """
         root = Element("Conf")
-        root.set(
-            "xmlns",
-            "https://github.com/Toepfer-Lab/"
-            "cobra2d/blob/main/src/resources/schema.xsd",
-        )
+        root.set("xmlns", SCHEMA_NAMESPACE)
 
         root.append(self.phases.to_xml())
         root.append(self.transfers.to_xml())
@@ -676,6 +706,11 @@ class Constraints:
         """
         Method to save the constraints object as XML file. Based on this file
         the constraints object can be reconstructed.
+
+        Note:
+            A :py:class:`Model` assigned to a phase via
+            :py:attr:`Phase.model` is not stored and has to be assigned again
+            after loading.
 
         Args:
             path: The file path where the created XML file should be saved.
@@ -704,7 +739,10 @@ class Constraints:
         """
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
-        https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
+        https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd.
+
+        Documents written by Cobra2D 0.5.0 or earlier declare a different
+        namespace and are not supported.
 
         Args:
             path: The path to the XML file to be used for creating a
@@ -714,12 +752,16 @@ class Constraints:
             The :py:class:`Constraints` object created on the properties in the
             XML file.
 
+        Raises:
+            PhaseNotFound: If a linker or transfer refers to a phase that the
+                document does not define.
+
         """  # nopep8
 
         if isclass(cls):
             constraints = cls()
         else:
-            assert isinstance(cls, Phases)
+            assert isinstance(cls, Constraints)
             constraints = cls
 
         if isinstance(path, str):
@@ -732,11 +774,34 @@ class Constraints:
         # encoding cannot be used.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
-        constraints.phases = Phases.from_dict(data["phases"]["phase"])
-        constraints.transfers = Transfers.from_dict(
-            data["Transfers"]["transfer"]
+        constraints.phases = Phases.from_dict(
+            _entries(data, "phases", "phase")
         )
-        constraints.linker = Linkage.from_dict(data["linkage"]["linker"])
+        constraints.transfers = Transfers.from_dict(
+            _entries(data, "transfers", "transfer")
+        )
+        constraints.linker = Linkage.from_dict(
+            _entries(data, "linkage", "linker")
+        )
+
+        # The schema cannot check that source and destination name a phase of
+        # this document: phase IDs are not xs:ID, since they are not
+        # restricted to XML names. See schema.xsd.
+        unknown = {
+            phase_id
+            for transport in [
+                *constraints.transfers.transfers,
+                *constraints.linker.linker,
+            ]
+            for phase_id in (transport.source, transport.destination)
+            if not constraints.phases.phases.has_id(phase_id)
+        }
+        if unknown:
+            raise PhaseNotFound(
+                f"The following phases are used as source or destination of a "
+                f"linker or transfer but are not defined by the document: "
+                f"{sorted(unknown)}."
+            )
 
         if (
             len(constraints.phases.phases) == 1
@@ -776,7 +841,7 @@ class Constraints:
                     (
                         label,
                         example_phase.volume,
-                        example_phase.name.split("-")[0],
+                        example_phase.name,
                     )
                 )
 
@@ -798,7 +863,10 @@ class Constraints:
                     )
                 )
 
-        constraints.index_time_ranges = max([int(x) for x in times])
+        # 'index_time_ranges' is the index the next time slot gets, not the
+        # index of the last one, so it has to be one past the highest time
+        # read from the document.
+        constraints.index_time_ranges = max([int(x) for x in times]) + 1
 
         return constraints
 

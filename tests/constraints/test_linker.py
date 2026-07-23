@@ -36,7 +36,7 @@ class TestLinker(TestCase):
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
             "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "|    test_id    | source | destination |     0.0      |    1000.0    |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
@@ -55,9 +55,9 @@ class TestLinker(TestCase):
         self.assertEqual(xml.tag, "linker")
         self.assertEqual(
             {
-                "lower_bound": "0",
+                "lower_bound": "0.0",
                 "metabolite_id": "test_id",
-                "upper_bound": "1000",
+                "upper_bound": "1000.0",
             },
             xml.attrib,
         )
@@ -134,7 +134,7 @@ class TestLinkage(TestCase):
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
             "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "|    test_id    | source | destination |     0.0      |    1000.0    |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
@@ -316,9 +316,9 @@ class TestLinkage(TestCase):
             self.assertEqual(child.tag, "linker")
             self.assertEqual(
                 {
-                    "lower_bound": "0",
+                    "lower_bound": "0.0",
                     "metabolite_id": "test_id",
-                    "upper_bound": "1000",
+                    "upper_bound": "1000.0",
                 },
                 child.attrib,
             )

@@ -1,23 +1,24 @@
 <?xml version="1.0" ?>
-<Conf xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd">
+<Conf xmlns="https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd">
     <phases>
-        <phase id="leaf_0" light_dark="light" name="" timeframe="2" volume="1">
-            <reaction id="ATPM" lower_bound="456" upper_bound="765"/>
+        <phase id="leaf_0" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1">
+            <reaction id="ATPM" lower_bound="456.0" upper_bound="765.0"/>
         </phase>
-        <phase id="root_0" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="leaf_1" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="root_1" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="leaf_2" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="root_2" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="leaf_3" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="root_3" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="leaf_4" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="root_4" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="leaf_5" light_dark="light" name="" timeframe="2" volume="1"/>
-        <phase id="root_5" light_dark="light" name="" timeframe="2" volume="1"/>
+        <phase id="root_0" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="leaf_1" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="root_1" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="leaf_2" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="root_2" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="leaf_3" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="root_3" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="leaf_4" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="root_4" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="leaf_5" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
+        <phase id="root_5" light_dark="light" name="" objective_factor="1.0" timeframe="2" volume="1"/>
     </phases>
+    <transfers/>
     <linkage>
-        <linker id="acald_e" lower_bound="0" upper_bound="1000">
+        <linker metabolite_id="acald_e" lower_bound="0.0" upper_bound="1000.0">
             <destination refid="leaf_1"/>
             <source refid="leaf_0"/>
         </linker>
