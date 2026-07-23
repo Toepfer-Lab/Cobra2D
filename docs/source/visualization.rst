@@ -26,8 +26,7 @@ Visualization using GraphViz creates a static image that can later be used in ot
     ``graphviz`` Python package and cannot be installed via pip, please refer to the
     `documentation of graphviz <https://graphviz.readthedocs.io/en/stable/manual.html>`_.
     If it is missing, :py:meth:`~cobra2d.constraints.constraints.Constraints.create_graph`
-    issues a :py:class:`~cobra2d.error.GraphvizNotInstalled` warning. The graph is still
-    built, so ``str(graph)`` and ``graph.save(...)`` remain usable; only rendering fails.
+    issues a :py:class:`~cobra2d.error.GraphvizNotInstalled` warning.
 
 The visualization can be created with the following command.
 
