@@ -6,5 +6,6 @@ Examples
 
     examples/Constraints
     examples/LinkageAndPhases
-    examples/Visualization/cytoscape.ipynb
-
+    examples/Visualization/classic
+    examples/Visualization/cytoscape
+    examples/converter

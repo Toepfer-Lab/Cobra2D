@@ -8,12 +8,13 @@ Cobra2D
     :glob:
     :maxdepth: 2
 
-    README <self>
+    Getting started <self>
     Structural design <structure>
     Linker and transfer reactions <transport>
     Visualisation <visualization>
     Naming convention <convention>
     Examples <example>
+    API reference <api>
 
 Indices and tables
 ==================

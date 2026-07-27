@@ -1,6 +1,9 @@
-name: Test
+name: Test, build and publish Cobra2D to PyPI
 on:
   workflow_dispatch:
+
+  schedule:
+    - cron: "0 5 * * 1"
 
   pull_request:
     types: [ opened, synchronize, reopened, closed ]
@@ -23,12 +26,11 @@ jobs:
           run: python -m tox -e format
 
   types:
-    needs: [lint-format]
+    needs: [ lint-format ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,7 +42,7 @@ jobs:
         run: python -m tox -e types
 
   test-dev:
-    needs: [lint-format, types]
+    needs: [ lint-format, types ]
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
@@ -52,38 +54,68 @@ jobs:
         - name: Run dev env test
           run: python -m tox -e py310-req
 
+  build:
+    needs: [ types ]
+    runs-on: ubuntu-latest
+    outputs:
+      file-path: ${{ steps.path.outputs.file-path }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip build
+      - name: Build package
+        run: python -m build
+      - name: Get wheel file name
+        id: path
+        run: echo "file-path=$(cd dist && find . -type f -iname 'cobra2d-*.whl')" >> "$GITHUB_OUTPUT"
+      - name: Archive package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobra2d-dist
+          path: dist
+
   test:
-    needs: [test-dev]
+    needs: [ build ]
     strategy:
       matrix:
         os: [ ubuntu-latest ]
         python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
-    runs-on: ${{ matrix.os}}
-
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Download built package
+        uses: actions/download-artifact@v4
+        with:
+          name: cobra2d-dist
+      - name: Install tox
         run: python -m pip install tox tox-uv
+      - name: Set up test suite (install the built wheel)
+        run: python -m tox -e py --notest --installpkg ${{ needs.build.outputs.file-path }}
       - name: Run tests
-        run: tox -e py
+        run: python -m tox -e py --skip-pkg-install
 
   create-tag:
-    needs: [test]
+    needs: [ test, test-dev ]
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          output=$(python setup.py --version)
-          echo "version=$output" >> "$GITHUB_OUTPUT"
+      - name: Get version
         id: version
-
+        run: |
+          version=$(grep -Po '(?<=^__version__ = ")[^"]+' src/cobra2d/__init__.py)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Create tag
-        if: github.event.pull_request.merged == true
-        uses: actions/github-script@v5
+        uses: actions/github-script@v7
         with:
           script: |
             github.rest.git.createRef({
@@ -93,30 +125,31 @@ jobs:
               sha: context.sha
             })
 
-  build-publish:
-    needs: [ lint-format, types, test ]
-    name: Build and publish the package to TestPyPI
+  publish-to-pypi:
+    needs: [ test, test-dev ]
+    name: Publish Cobra2D 📦 to PyPI
     if: github.event.pull_request.merged == true && github.event_name != 'schedule'
     runs-on: ubuntu-latest
-
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cobra2d
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Download built package
+        uses: actions/download-artifact@v4
+        with:
+          name: cobra2d-dist
+          path: dist
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install build twine
-      - name: Build package
-        run: python -m build
+          python-version: '3.13'
+      - name: Install twine
+        run: python -m pip install --upgrade pip twine
       - name: Check the package
         run: twine check dist/*
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run:
-          twine upload --non-interactive dist/*
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
