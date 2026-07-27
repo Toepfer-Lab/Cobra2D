@@ -1,9 +1,10 @@
 import io
 import json
-import unittest
+import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
 import cobra
@@ -12,14 +13,20 @@ from cobra.io import read_sbml_model
 from graphviz import Digraph
 from importlib_resources import files, as_file, open_text
 
+from cobra2d import resources
 from cobra2d.constraints.constraints import Constraints
 from cobra2d.constraints.linker import Linkage, Linker
 from cobra2d.constraints.phase import Phase, Phases
-from cobra2d.error import PhaseNotFound
+from cobra2d.constraints.transfer import Transfer
+from cobra2d.error import GenesNotLinked, PhaseNotFound
+from cobra2d.resources import SCHEMA_NAMESPACE
 from tests import data
 
 
 class TestConstraints(TestCase):
+    textbook: Model
+    ecoli: Model
+
     @classmethod
     def setUpClass(cls):
         cobra_config = Configuration()
@@ -42,7 +49,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(1, len(con.phases.phases))
         default_phase: Phase = con.phases.phases[0]
-        self.assertEqual("default-0", default_phase.id)
+        self.assertEqual("default_0", default_phase.id)
         self.assertEqual("Default Phase", default_phase.name)
         self.assertEqual("light", default_phase.light_dark)
 
@@ -53,7 +60,7 @@ class TestConstraints(TestCase):
             "+----------------------+-----------+\n"
             "| Sub-Model\\Time Index |     0     |\n"
             "+----------------------+-----------+\n"
-            "|           | id       | default-0 |\n"
+            "|           | id       | default_0 |\n"
             "|  default  | volume   |     1     |\n"
             "|           | time     |     1     |\n"
             "+----------------------+-----------+"
@@ -63,10 +70,10 @@ class TestConstraints(TestCase):
 
     def test_get_phase_by_id(self):
         con = Constraints()
-        phase = con.get_phase_by_id("default-0")
+        phase = con.get_phase_by_id("default_0")
 
         self.assertIsInstance(phase, Phase)
-        self.assertEqual("default-0", phase.id)
+        self.assertEqual("default_0", phase.id)
         self.assertEqual("Default Phase", phase.name)
         self.assertEqual("light", phase.light_dark)
 
@@ -77,8 +84,8 @@ class TestConstraints(TestCase):
             lower_bound=4,
             upper_bound=541,
         )
-        con.add_reaction_to_phase(reaction, "default-0")
-        phase = con.get_phase_by_id("default-0")
+        con.add_reaction_to_phase(reaction, "default_0")
+        phase = con.get_phase_by_id("default_0")
 
         self.assertEqual(1, len(phase.reaction_settings))
         self.assertEqual("test", phase.reaction_settings[0].id)
@@ -98,7 +105,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(3, len(con.phases.phases))
         for index, phase in enumerate(con.phases.phases):
-            self.assertEqual(f"default-{index}", phase.id)
+            self.assertEqual(f"default_{index}", phase.id)
             self.assertEqual(1, phase.volume)
             self.assertEqual(4, phase.timeframe)
 
@@ -116,7 +123,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(2, len(con.phases.phases))
         for index, phase in enumerate(con.phases.phases):
-            self.assertEqual(f"model{index}-0", phase.id)
+            self.assertEqual(f"model{index}_0", phase.id)
             self.assertEqual(index, phase.volume)
             self.assertEqual(1, phase.timeframe)
             self.assertEqual("light", phase.light_dark)
@@ -127,8 +134,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="test_id",
-            source="default-0",
-            destination="default-1",
+            source="default_0",
+            destination="default_1",
         )
 
         self.assertEqual(0, len(con.linker.linker))
@@ -141,7 +148,7 @@ class TestConstraints(TestCase):
         linker = Linker(
             metabolite_id="test_id",
             source="unknown",
-            destination="default-1",
+            destination="default_1",
         )
 
         with self.assertRaisesRegex(
@@ -151,7 +158,7 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="test_id",
-            source="default-0",
+            source="default_0",
             destination="unknown",
         )
 
@@ -166,8 +173,8 @@ class TestConstraints(TestCase):
         linker = []
 
         for n in range(4):
-            source = f"default-{n}"
-            destination = f"default-{n + 1}"
+            source = f"default_{n}"
+            destination = f"default_{n + 1}"
             linker.append(
                 Linker(
                     metabolite_id="test_id",
@@ -190,8 +197,8 @@ class TestConstraints(TestCase):
         linker.append(
             Linker(
                 metabolite_id="test_id",
-                source="default-4",
-                destination="default-0",
+                source="default_4",
+                destination="default_0",
             )
         )
 
@@ -203,8 +210,8 @@ class TestConstraints(TestCase):
         linker = []
 
         for n in range(4):
-            destination = f"default-{n}"
-            source = f"default-{n + 1}"
+            destination = f"default_{n}"
+            source = f"default_{n + 1}"
             linker.append(
                 Linker(
                     metabolite_id="test_id",
@@ -221,8 +228,8 @@ class TestConstraints(TestCase):
         linker.append(
             Linker(
                 metabolite_id="test_id",
-                source="default-0",
-                destination="default-4",
+                source="default_0",
+                destination="default_4",
             )
         )
         con = Constraints()
@@ -239,9 +246,86 @@ class TestConstraints(TestCase):
         del con.phases.phases[3]
 
         with self.assertRaisesRegex(
-            PhaseNotFound, "The destination: 'root-3' is unknown."
+            PhaseNotFound, "The destination: 'root_3' is unknown."
         ):
             con.add_linker_series("test_linker")
+
+    def test_series_timeframes_are_integers(self):
+        """``timeframes`` restricts a series to the given time periods."""
+        con = Constraints()
+        con.add_time_slots(4, 1, "light")
+        con.add_sub_models(["leaf", "root"], [1, 1])
+
+        con.add_linker_series(
+            "atp_c", timeframes=[0, 1, 2], sub_models=["leaf"]
+        )
+        self.assertCountEqual(
+            [
+                ("leaf_0", "leaf_1"),
+                ("leaf_1", "leaf_2"),
+            ],
+            [
+                (linker.source, linker.destination)
+                for linker in con.linker.linker
+            ],
+        )
+
+        con.add_transfer_series(
+            "suc_c", sub_models=["leaf", "root"], timeframes=[0, 1, 2]
+        )
+        self.assertCountEqual(
+            [
+                ("leaf_0", "root_0"),
+                ("leaf_1", "root_1"),
+                ("leaf_2", "root_2"),
+            ],
+            [
+                (transfer.source, transfer.destination)
+                for transfer in con.transfers.transfers
+            ],
+        )
+
+    def test_series_reject_unknown_selections(self):
+        """A selection that does not exist must not silently yield nothing."""
+        con = Constraints()
+        con.add_time_slots(4, 1, "light")
+        con.add_sub_models(["leaf", "root"], [1, 1])
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"The following timeframes do not exist in the model: "
+            r"\['0', '1'\]",
+        ):
+            # the times of a phase ID are int, so passing them as str is the
+            # mistake the old List[str] annotation invited
+            con.add_linker_series(
+                "atp_c", timeframes=["0", "1"]  # type: ignore[list-item]
+            )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"The following timeframes do not exist in the model: \[4\]",
+        ):
+            con.add_linker_series("atp_c", timeframes=[0, 4])
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"The following sub_models do not exist in the model: \['stem'\]",
+        ):
+            con.add_linker_series("atp_c", sub_models=["leaf", "stem"])
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"The following timeframes do not exist in the model: \['0'\]",
+        ):
+            con.add_transfer_series(
+                "suc_c",
+                sub_models=["leaf", "root"],
+                timeframes=["0"],  # type: ignore[list-item]
+            )
+
+        self.assertEqual(0, len(con.linker.linker))
+        self.assertEqual(0, len(con.transfers.transfers))
 
     def test_apply_to_model(self):
         con = Constraints()
@@ -251,8 +335,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con.add_linker(linker)
 
@@ -260,12 +344,12 @@ class TestConstraints(TestCase):
         new_model = con.apply_to_model(model)
 
         created_linker: Reaction = new_model.reactions.get_by_id(
-            "amp_c_L_model0-0_model0-1"
+            "amp_c_lk_model0_[0|1]"
         )
 
-        self.assertEqual("amp_c_L_model0-0_model0-1", created_linker.id)
-        self.assertEqual("amp_c_model0-0", created_linker.reactants[0].id)
-        self.assertEqual("amp_c_model0-1", created_linker.products[0].id)
+        self.assertEqual("amp_c_lk_model0_[0|1]", created_linker.id)
+        self.assertEqual("amp_c_model0_0", created_linker.reactants[0].id)
+        self.assertEqual("amp_c_model0_1", created_linker.products[0].id)
         self.assertEqual(0, created_linker.lower_bound)
         self.assertEqual(1000, created_linker.upper_bound)
 
@@ -279,7 +363,7 @@ class TestConstraints(TestCase):
         for label in con.sub_models:
             for time in con.time_ranges:
                 for metabolite in model.metabolites:
-                    new_id = f"{metabolite.id}_{label[0]}-{time[0]}"
+                    new_id = f"{metabolite.id}_{label[0]}_{time[0]}"
 
                     try:
                         new_model.metabolites.get_by_id(new_id)
@@ -290,7 +374,7 @@ class TestConstraints(TestCase):
                         )
 
                 for reaction in model.reactions:
-                    new_id = f"{reaction.id}_{label[0]}-{time[0]}"
+                    new_id = f"{reaction.id}_{label[0]}_{time[0]}"
 
                     try:
                         new_model.reactions.get_by_id(new_id)
@@ -303,7 +387,7 @@ class TestConstraints(TestCase):
 
         con = Constraints()
         con.add_time_slots(2, 1, "light")
-        phase = con.get_phase_by_id("default-0")
+        phase = con.get_phase_by_id("default_0")
         phase_model: Model = self.textbook.copy()
         phase.model = phase_model
         model = self.textbook.copy()
@@ -342,8 +426,8 @@ class TestConstraints(TestCase):
             summary = str(textbook_model.summary())
             self.assertEqual(expected.read(), summary)
 
-        con.get_phase_by_id("leaf-1").model = textbook_model.copy()
-        con.get_phase_by_id("root-2").model = textbook_model.copy()
+        con.get_phase_by_id("leaf_1").model = textbook_model.copy()
+        con.get_phase_by_id("root_2").model = textbook_model.copy()
 
         # no model given => Error
         with self.assertRaisesRegex(
@@ -362,50 +446,90 @@ class TestConstraints(TestCase):
             self.maxDiff = None
             self.assertEqual(expected.read(), summary)
 
-    @unittest.skip("XML")
-    def test_to_xml(self):
+    def test_apply_to_model_forwards_link_genes(self):
+        def build() -> Constraints:
+            con = Constraints()
+            con.add_time_slots(2, 1, "light")
+            con.get_phase_by_id("default_0").model = self.textbook.copy()
+            return con
+
+        model: Model = self.textbook.copy()
+
+        with self.assertWarns(GenesNotLinked) as context:
+            build().apply_to_model(model, link_genes=True)
+
+        self.assertEqual(["default_0"], context.warning.phases)
+
+        # The default stays False, so no warning is emitted.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            build().apply_to_model(model)
+
+        self.assertEqual(
+            [],
+            [
+                warning
+                for warning in caught
+                if issubclass(warning.category, GenesNotLinked)
+            ],
+        )
+
+    @staticmethod
+    def _example_constraints() -> Constraints:
+        """The constraints object that 'tests/data/out.xml' describes."""
         con = Constraints()
         con.add_time_slots(2, 1, "light")
 
         con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
 
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+        con.add_linker(
+            Linker(
+                metabolite_id="amp_c",
+                source="model0_0",
+                destination="model0_1",
+            )
         )
-        con.add_linker(linker)
+        con.add_transfer(
+            Transfer(
+                metabolite_id="amp_c",
+                source="model0_0",
+                destination="model1_0",
+            )
+        )
+
+        return con
+
+    def test_to_xml(self):
+        con = self._example_constraints()
 
         xml = con.to_xml()
 
         self.assertIsInstance(xml, Element)
         self.assertEqual("Conf", xml.tag)
 
-        self.assertEqual(
-            {
-                "xmlns": "https://github.com/Toepfer-Lab/model_duplication/"
-                "blob/main/src/resources/schema.xsd"
-            },
-            xml.attrib,
-        )
+        self.assertEqual({"xmlns": SCHEMA_NAMESPACE}, xml.attrib)
         self.assertIsNone(xml.text)
         self.assertIsNone(xml.tail)
 
-        # ToDo check children
-
-    @unittest.skip("XML")
-    def test_save_as_xml(self):
-        con = Constraints()
-        con.add_time_slots(2, 1, "light")
-
-        con.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
-
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+        self.assertEqual(
+            ["phases", "transfers", "linkage"],
+            [child.tag for child in xml],
         )
-        con.add_linker(linker)
+
+    def test_to_xml_declares_the_namespace_of_the_schema(self):
+        """The namespace written has to be the one 'schema.xsd' defines.
+
+        The two used to differ, which made every document written by
+        'save_as_xml' unloadable.
+        """
+        schema = ElementTree.parse(
+            files(resources).joinpath("schema.xsd")
+        ).getroot()
+
+        self.assertEqual(SCHEMA_NAMESPACE, schema.attrib["targetNamespace"])
+
+    def test_save_as_xml(self):
+        con = self._example_constraints()
 
         with TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "out.xml"
@@ -418,20 +542,8 @@ class TestConstraints(TestCase):
                         list(save),
                     )
 
-    @unittest.skip("XML")
     def test_load_from_xml(self):
-        con_exp = Constraints()
-        con_exp.add_time_slots(2, 1, "light")
-
-        con_exp.add_sub_models(["model0", "model1"], [1, 2], ["name", "name"])
-
-        linker = Linker(
-            metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
-        )
-        con_exp.add_linker(linker)
-        con_exp.save_as_xml("out.xml")
+        con_exp = self._example_constraints()
 
         with open_text(data, "out.xml", encoding="UTF-8") as file:
             con_load = Constraints.load_from_xml(file)
@@ -441,6 +553,7 @@ class TestConstraints(TestCase):
 
         self.assertEqual(con_exp.time_ranges, con_load.time_ranges)
         self.assertEqual(con_exp.sub_models, con_load.sub_models)
+        self.assertEqual(con_exp.index_time_ranges, con_load.index_time_ranges)
 
         # compare phases
         # ToDo compare for Phase
@@ -456,10 +569,90 @@ class TestConstraints(TestCase):
             self.assertEqual(phase.light_dark, load_phase.light_dark)
             self.assertEqual(phase.timeframe, load_phase.timeframe)
             self.assertEqual(phase.volume, load_phase.volume)
+            self.assertEqual(
+                phase.objective_factor, load_phase.objective_factor
+            )
             # ToDo check reactions/testcase with reactions
 
-        # compare linker
+        # compare linker and transfers
         self.assertCountEqual(con_exp.linker.linker, con_load.linker.linker)
+        self.assertCountEqual(
+            con_exp.transfers.transfers, con_load.transfers.transfers
+        )
+
+    def test_xml_round_trip(self):
+        """Everything that is written has to survive being read back.
+
+        Transfers used to be written but were neither part of 'schema.xsd' nor
+        readable, so loading a saved document failed outright.
+        """
+        con = self._example_constraints()
+        con.phases.phases.get_by_id("model0_0").objective_factor = 0.5
+        con.add_reaction_to_phase(
+            Reaction(id="ATPM", lower_bound=-1.5, upper_bound=1000),
+            "model0_0",
+        )
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "round_trip.xml"
+            con.save_as_xml(path)
+            loaded = Constraints.load_from_xml(path)
+
+            self.assertEqual(con.sub_models, loaded.sub_models)
+            self.assertEqual(con.time_ranges, loaded.time_ranges)
+            self.assertEqual(con.index_time_ranges, loaded.index_time_ranges)
+            self.assertEqual(con.default_time, loaded.default_time)
+            self.assertEqual(con.default_sub_model, loaded.default_sub_model)
+            self.assertCountEqual(con.linker.linker, loaded.linker.linker)
+            self.assertCountEqual(
+                con.transfers.transfers, loaded.transfers.transfers
+            )
+
+            phase = loaded.phases.phases.get_by_id("model0_0")
+            self.assertEqual(0.5, phase.objective_factor)
+            self.assertEqual(1, len(phase.reaction_settings))
+            self.assertEqual("ATPM", phase.reaction_settings[0].id)
+            self.assertEqual(-1.5, phase.reaction_settings[0].lower_bound)
+            self.assertEqual(1000, phase.reaction_settings[0].upper_bound)
+
+            # Saving the loaded object again has to give the same document.
+            again = Path(temp_dir) / "round_trip_2.xml"
+            loaded.save_as_xml(again)
+            self.assertEqual(path.read_text(), again.read_text())
+
+    def test_xml_round_trip_of_an_untouched_constraints_object(self):
+        """The default phase, without transfers or linkers, round-trips too.
+
+        Both containers are written empty, which used to decode to 'None'.
+        """
+        con = Constraints()
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "default.xml"
+            con.save_as_xml(path)
+            loaded = Constraints.load_from_xml(path)
+
+        self.assertTrue(loaded.default_time)
+        self.assertTrue(loaded.default_sub_model)
+        self.assertEqual(con.sub_models, loaded.sub_models)
+        self.assertEqual(con.time_ranges, loaded.time_ranges)
+        self.assertEqual(["default_0"], [p.id for p in loaded.phases.phases])
+        self.assertEqual([], loaded.linker.linker)
+        self.assertEqual([], loaded.transfers.transfers)
+
+    def test_load_from_xml_rejects_unknown_phases(self):
+        """A linker or transfer may only refer to a phase of the document."""
+        con = self._example_constraints()
+        con.linker.linker[0].destination = "model0_2"
+
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "dangling.xml"
+            con.save_as_xml(path)
+
+            with self.assertRaises(PhaseNotFound) as context:
+                Constraints.load_from_xml(path)
+
+        self.assertIn("model0_2", str(context.exception))
 
     def test_create_graph(self):
         con_exp = Constraints()
@@ -469,8 +662,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="model0-0",
-            destination="model0-1",
+            source="model0_0",
+            destination="model0_1",
         )
         con_exp.add_linker(linker)
 
@@ -489,8 +682,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="leaf-0",
-            destination="leaf-1",
+            source="leaf_0",
+            destination="leaf_1",
         )
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)
@@ -498,16 +691,16 @@ class TestConstraints(TestCase):
         g = con._constraint2networkx()
         exp_edges = [
             (
-                "leaf-0",
-                "leaf-1",
+                "leaf_0",
+                "leaf_1",
                 {"label": "atp_c", "Metabolite": "amp_c\natp_c"},
             ),
-            ("leaf-1", "leaf-0", {"label": "atp_c", "Metabolite": "atp_c"}),
-            ("root-0", "root-1", {"label": "atp_c", "Metabolite": "atp_c"}),
-            ("root-1", "root-0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("leaf_1", "leaf_0", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root_0", "root_1", {"label": "atp_c", "Metabolite": "atp_c"}),
+            ("root_1", "root_0", {"label": "atp_c", "Metabolite": "atp_c"}),
         ]
 
-        exp_nodes = ["leaf-0", "leaf-1", "root-0", "root-1"]
+        exp_nodes = ["leaf_0", "leaf_1", "root_0", "root_1"]
 
         self.assertCountEqual(exp_edges, list(g.edges.data()))
         self.assertCountEqual(exp_nodes, g.nodes)
@@ -520,8 +713,8 @@ class TestConstraints(TestCase):
 
         linker = Linker(
             metabolite_id="amp_c",
-            source="leaf-0",
-            destination="leaf-1",
+            source="leaf_0",
+            destination="leaf_1",
         )
         con.add_linker(linker)
         con.add_linker_series("atp_c", last2first=True)
@@ -538,3 +731,41 @@ class TestConstraints(TestCase):
             data, "con2json_result.JSON", encoding="UTF-8"
         ) as expected:
             self.assertEqual(json_string, json.load(expected))
+
+    def test__con2json_keys_transfers_by_their_own_phases(self):
+        """Each transfer must produce its own edge.
+
+        The transfer loop used to reuse ``linker`` from the loop above it,
+        which raised without linkers present and otherwise collapsed every
+        transfer onto the last linker's source/destination.
+        """
+        con = Constraints()
+        con.add_time_slots(2, 1)
+        con.add_sub_models(["leaf", "stem", "root"], [1, 1, 1])
+        con.add_transfer_series("suc_c", sub_models=["leaf", "stem", "root"])
+
+        # without any linker at all
+        graph, _, _ = con._con2json()
+
+        exp_edges = [
+            ("leaf_0", "stem_0"),
+            ("stem_0", "root_0"),
+            ("leaf_1", "stem_1"),
+            ("stem_1", "root_1"),
+        ]
+        edges = [
+            (edge["data"]["source"], edge["data"]["target"])
+            for edge in graph["edges"]
+        ]
+        self.assertCountEqual(exp_edges, edges)
+
+        # and unchanged once linkers exist to be picked up by mistake
+        con.add_linker_series("atp_c")
+        graph, _, _ = con._con2json()
+
+        transfer_edges = [
+            (edge["data"]["source"], edge["data"]["target"])
+            for edge in graph["edges"]
+            if edge["data"]["id"].startswith("Transfer")
+        ]
+        self.assertCountEqual(exp_edges, transfer_edges)

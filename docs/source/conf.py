@@ -12,18 +12,37 @@
 #
 import os
 import pathlib
+import re
 import sys
-sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, pathlib.Path(__file__).parents[2].joinpath("src").resolve().as_posix())
+
+# The package uses a src-layout, so the sources live in <repo>/src.
+_SRC = pathlib.Path(__file__).resolve().parents[2].joinpath("src")
+sys.path.insert(0, _SRC.as_posix())
 
 # -- Project information -----------------------------------------------------
 
-project = 'model-duplication'
+project = 'cobra2d'
 copyright = '2022, Jan-Niklas Weder'
 author = 'Jan-Niklas Weder'
 
-# The full version, including alpha/beta/rc tags
-release = '0.1.0'
+
+def _get_version() -> str:
+    """Read __version__ from the package without importing it.
+    """
+    init = _SRC.joinpath("cobra2d", "__init__.py").read_text()
+    match = re.search(
+        r'^__version__\s*=\s*["\']([^"\']+)["\']', init, re.MULTILINE
+    )
+    if match is None:
+        raise RuntimeError("Unable to find __version__ in cobra2d/__init__.py")
+    return match.group(1)
+
+
+# The full version, including alpha/beta/rc tags, derived from the package.
+release = _get_version()
+
+# The text shown in the top-left brand of the docs (overrides "<project> <release> documentation")
+html_title = 'Cobra2D'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,17 +51,31 @@ release = '0.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'nbsphinx',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
     'myst_parser',
 ]
+
+# Intersphinx
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "cobra": ("https://cobrapy.readthedocs.io/en/latest/", None),
+    "escher": ("https://escher.readthedocs.io/en/latest/", None),
+}
+
 # AutoSummary
-autosummary_generate = False
+autosummary_generate = True
 
 # autodoc settings
 add_module_names = False
+autoapi_generate_api_docs = False
+autoapi_add_toctree_entry = False
+
+autoapi_dirs = ["../../src/cobra2d"]
 
 
 # APIDoc
@@ -76,7 +109,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 
 html_theme_options = {
     'navigation_depth' : -1

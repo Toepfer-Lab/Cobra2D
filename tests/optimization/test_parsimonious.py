@@ -34,34 +34,34 @@ class TestParsimonious(TestCase):
         add_adjusted_pfba_objective(constraints=con, model=model)
 
         expected = (
-            "4.0*12DGR120tipp_default-0 "
-            "+ 4.0*12DGR120tipp_default-0_reverse_18e2b "
-            "+ 4.0*12DGR120tipp_default-1 "
-            "+ 4.0*12DGR120tipp_default-1_reverse_88a03 "
-            "+ 4.0*12DGR120tipp_default-2 "
-            "+ 4.0*12DGR120tipp_default-2_reverse_42b88 "
-            "+ 4.0*12DGR140tipp_default-0 "
-            "+ 4.0*12DGR140tipp_default-0_reverse_3d8d8 "
-            "+ 4.0*12DGR140tipp_default-1 "
-            "+ 4.0*12DGR140tipp_default-1_reverse_b7da9 "
-            "+ 4.0*12DGR140tipp_default-2 "
-            "+ 4.0*12DGR140tipp_default-2_reverse_479fe "
-            "+ 4.0*12DGR141tipp_default-0 "
-            "+ 4.0*12DGR141tipp_default-0_reverse_a4a7e "
-            "+ 4.0*12DGR141tipp_default-1 "
-            "+ 4.0*12DGR141tipp_default-1_reverse_ae833 "
-            "+ 4.0*12DGR141tipp_default-2 "
-            "+ 4.0*12DGR141tipp_default-2_reverse_970f8 "
-            "+ 4.0*12DGR160tipp_default-0 "
-            "+ 4.0*12DGR160tipp_default-0_reverse_6f278 "
-            "+ 4.0*12DGR160tipp_default-1 "
-            "+ 4.0*12DGR160tipp_default-1_reverse_d5dc0 "
-            "+ 4.0*12DGR160tipp_default-2 "
-            "+ 4.0*12DGR160tipp_default-2_reverse_9fb9b "
-            "+ 4.0*12DGR161tipp_default-0 "
-            "+ 4.0*12DGR161tipp_default-0_reverse_81cff "
-            "+ 4.0*12DGR161tipp_default-1 "
-            "+ 4.0*12DGR161tipp_default-1_reverse_"
+            "4.0*12DGR120tipp_default_0 "
+            "+ 4.0*12DGR120tipp_default_0_reverse_772b5 "
+            "+ 4.0*12DGR120tipp_default_1 "
+            "+ 4.0*12DGR120tipp_default_1_reverse_8c786 "
+            "+ 4.0*12DGR120tipp_default_2 "
+            "+ 4.0*12DGR120tipp_default_2_reverse_de4fd "
+            "+ 4.0*12DGR140tipp_default_0 "
+            "+ 4.0*12DGR140tipp_default_0_reverse_4cfd2 "
+            "+ 4.0*12DGR140tipp_default_1 "
+            "+ 4.0*12DGR140tipp_default_1_reverse_db595 "
+            "+ 4.0*12DGR140tipp_default_2 "
+            "+ 4.0*12DGR140tipp_default_2_reverse_2e5a9 "
+            "+ 4.0*12DGR141tipp_default_0 "
+            "+ 4.0*12DGR141tipp_default_0_reverse_e36a3 "
+            "+ 4.0*12DGR141tipp_default_1 "
+            "+ 4.0*12DGR141tipp_default_1_reverse_ab053 "
+            "+ 4.0*12DGR141tipp_default_2 "
+            "+ 4.0*12DGR141tipp_default_2_reverse_c5681 "
+            "+ 4.0*12DGR160tipp_default_0 "
+            "+ 4.0*12DGR160tipp_default_0_reverse_90889 "
+            "+ 4.0*12DGR160tipp_default_1 "
+            "+ 4.0*12DGR160tipp_default_1_reverse_ae3d3 "
+            "+ 4.0*12DGR160tipp_default_2 "
+            "+ 4.0*12DGR160tipp_default_2_reverse_cb384 "
+            "+ 4.0*12DGR161tipp_default_0 "
+            "+ 4.0*12DGR161tipp_default_0_reverse_f7abc "
+            "+ 4.0*12DGR161tipp_default_1 "
+            "+ 4.0*12DGR161tipp_default_1_reverse_"
         )
 
         self.assertEqual(expected, str(model.objective.expression)[:1000])
@@ -77,25 +77,25 @@ class TestParsimonious(TestCase):
 
         add_adjusted_pfba_objective(constraints=con, model=model)
         expected = (
-            "3.0*ACALD_leaf-0 + 3.0*ACALD_leaf-0_reverse_72443 "
-            "+ 3.0*ACALD_leaf-1 + 3.0*ACALD_leaf-1_reverse_da86c "
-            "+ 3.0*ACALD_leaf-2 + 3.0*ACALD_leaf-2_reverse_7a9cb "
-            "+ 12.0*ACALD_leaf-3 + 12.0*ACALD_leaf-3_reverse_daddf "
-            "+ 12.0*ACALD_leaf-4 + 12.0*ACALD_leaf-4_reverse_07b5d "
-            "+ 1.0*ACALD_root-0 + 1.0*ACALD_root-0_reverse_3e555 "
-            "+ 1.0*ACALD_root-1 + 1.0*ACALD_root-1_reverse_8c444 "
-            "+ 1.0*ACALD_root-2 + 1.0*ACALD_root-2_reverse_30749 "
-            "+ 4.0*ACALD_root-3 + 4.0*ACALD_root-3_reverse_2c4cf "
-            "+ 4.0*ACALD_root-4 + 4.0*ACALD_root-4_reverse_b0811 "
-            "+ 3.0*ACALDt_leaf-0 + 3.0*ACALDt_leaf-0_reverse_0f32d "
-            "+ 3.0*ACALDt_leaf-1 + 3.0*ACALDt_leaf-1_reverse_8f12e "
-            "+ 3.0*ACALDt_leaf-2 + 3.0*ACALDt_leaf-2_reverse_72061 "
-            "+ 12.0*ACALDt_leaf-3 + 12.0*ACALDt_leaf-3_reverse_dc5ef "
-            "+ 12.0*ACALDt_leaf-4 + 12.0*ACALDt_leaf-4_reverse_f1129 "
-            "+ 1.0*ACALDt_root-0 + 1.0*ACALDt_root-0_reverse_d4056 "
-            "+ 1.0*ACALDt_root-1 + 1.0*ACALDt_root-1_reverse_fd003 "
-            "+ 1.0*ACALDt_root-2 + 1.0*ACALDt_root-2_reverse_50e52 "
-            "+ 4.0*ACALDt_root-3 + 4.0*ACALDt_root-3_re"
+            "3.0*ACALD_leaf_0 + 3.0*ACALD_leaf_0_reverse_c7ccb "
+            "+ 3.0*ACALD_leaf_1 + 3.0*ACALD_leaf_1_reverse_e6e28 "
+            "+ 3.0*ACALD_leaf_2 + 3.0*ACALD_leaf_2_reverse_3a6c0 "
+            "+ 12.0*ACALD_leaf_3 + 12.0*ACALD_leaf_3_reverse_84e0d "
+            "+ 12.0*ACALD_leaf_4 + 12.0*ACALD_leaf_4_reverse_835f0 "
+            "+ 1.0*ACALD_root_0 + 1.0*ACALD_root_0_reverse_a6976 "
+            "+ 1.0*ACALD_root_1 + 1.0*ACALD_root_1_reverse_5eb64 "
+            "+ 1.0*ACALD_root_2 + 1.0*ACALD_root_2_reverse_1b718 "
+            "+ 4.0*ACALD_root_3 + 4.0*ACALD_root_3_reverse_0a0b8 "
+            "+ 4.0*ACALD_root_4 + 4.0*ACALD_root_4_reverse_0dc3a "
+            "+ 3.0*ACALDt_leaf_0 + 3.0*ACALDt_leaf_0_reverse_c6735 "
+            "+ 3.0*ACALDt_leaf_1 + 3.0*ACALDt_leaf_1_reverse_517cf "
+            "+ 3.0*ACALDt_leaf_2 + 3.0*ACALDt_leaf_2_reverse_63d61 "
+            "+ 12.0*ACALDt_leaf_3 + 12.0*ACALDt_leaf_3_reverse_f4155 "
+            "+ 12.0*ACALDt_leaf_4 + 12.0*ACALDt_leaf_4_reverse_314d1 "
+            "+ 1.0*ACALDt_root_0 + 1.0*ACALDt_root_0_reverse_0d9ed "
+            "+ 1.0*ACALDt_root_1 + 1.0*ACALDt_root_1_reverse_7df18 "
+            "+ 1.0*ACALDt_root_2 + 1.0*ACALDt_root_2_reverse_eeb63 "
+            "+ 4.0*ACALDt_root_3 + 4.0*ACALDt_root_3_re"
         )
 
         self.assertEqual(expected, str(model.objective.expression)[:1000])
@@ -109,7 +109,8 @@ class TestParsimonious(TestCase):
 
         add_adjusted_pfba_objective(constraints=con, model=model)
 
-        self.assertEqual(10316, len(model.objective.variables))
+        # Only the single linker reaction is excluded from the objective.
+        self.assertEqual(10332, len(model.objective.variables))
 
     def test_adjusted_pfba(self):
         model = self.ecoli.copy()

@@ -1,7 +1,6 @@
-"""Module for model duplication
-"""
+"""Module for model duplication"""
+
 from logging import StreamHandler, getLogger
-from pathlib import Path
 from typing import List, Optional, Union
 
 from cobra.core import Gene, Group, Metabolite, Model, Reaction
@@ -11,10 +10,6 @@ from cobra.util import linear_reaction_coefficients
 
 import cobra2d
 from cobra2d.duplication.merging import _merge, _link_genes
-from cobra2d.duplication.reactions import (
-    _create_reactions,
-    read_file,
-)
 
 TOLERANCE = Configuration().tolerance
 
@@ -48,35 +43,6 @@ def _rename(model: Model, suffix: str, objective_factor: float = 1.0):
     model.objective = new_objectives
 
 
-# TODO: deprecate
-def _connect_models(
-    main: Model,
-    secondary: Model,
-    left_suffix: str,
-    right_suffix: str,
-    metabolites: Optional[List[str]] = None,
-) -> Model:
-    try:
-        model: Model = _merge(model=main, right=secondary, suffix=right_suffix)
-
-        if metabolites:
-            inter_reactions = _create_reactions(
-                model,
-                metabolites,
-                left_suffix=left_suffix,
-                right_suffix=right_suffix,
-            )
-            # FIXME: add group? (e.g "commom pools")
-
-            model.add_reactions(inter_reactions)
-
-    except AssertionError as e:
-        # FIXME: warn
-        raise e
-
-    return model
-
-
 def _test(main: Model, submodel: Model) -> bool:
     passed = False
 
@@ -89,10 +55,11 @@ def _test(main: Model, submodel: Model) -> bool:
     main.objective_direction = submodel.objective_direction
 
     try:
+        # error_value=None makes slim_optimize return None instead of raising
+        # when the problem is infeasible.
         value: Optional[float] = main.slim_optimize(error_value=None)
-        assert value
 
-        if abs(value) > TOLERANCE:
+        if value is not None and abs(value) > TOLERANCE:
             passed = True
 
     except OptimizationError:
@@ -109,7 +76,6 @@ def _main_placeholder(
     model: Model,
     labels: List[str],
     objective_factor: List[float],
-    file: Optional[Path] = None,
     genes: bool = False,
 ) -> Model:
     _model = model.copy()
@@ -118,15 +84,19 @@ def _main_placeholder(
     )
     logger.info(f"New suffix '{labels[0]}' for model added")
 
-    if file:
-        metabolites: List[str] = read_file(model, file)
-
-    else:
-        logger.debug(
-            "No file for linker reactions was specified. "
-            + "Models will not be connected between them"
-        )
-        metabolites = []
+    # The first sub_model forms the base of the merged model and is never
+    # passed to _merge as `right`, so unlike the sub_models below its phase
+    # group has to be added here.
+    _model.add_groups(
+        [
+            Group(
+                id=labels[0],
+                name="All reactions and metabolites of Phase: " + labels[0],
+                members=_model.reactions + _model.metabolites,
+                kind="partonomy",
+            )
+        ]
+    )
 
     for i, label in enumerate(labels[1:], 1):
         # Use copy of original to avoid 2n reactions
@@ -149,13 +119,7 @@ def _main_placeholder(
             ]
         )
 
-        _model = _connect_models(
-            main=_model,
-            secondary=submodel,
-            left_suffix=f"{labels[i - 1]}",
-            right_suffix=f"{label}",
-            metabolites=metabolites,
-        )
+        _model = _merge(model=_model, right=submodel, suffix=label)
 
         # update objective function
         # TODO deprecated ?
@@ -170,12 +134,12 @@ def _main_placeholder(
     if genes:
         reactions: List[str] = [item.id for item in model.reactions]
 
-        _model = _link_genes(_model, reactions, labels[0])
+        _model = _link_genes(_model, reactions, labels[0], labels)
 
     # Meta-data
-    _model.notes[
-        "submodels-info"
-    ] = f"Modified with Cobra2D version {cobra2d.__version__}"
+    _model.notes["submodels-info"] = (
+        f"Modified with Cobra2D version {cobra2d.__version__}"
+    )
     _model.notes["submodels"] = ",".join(labels)
 
     logger.info(f"Model {model.id} successfully modified")

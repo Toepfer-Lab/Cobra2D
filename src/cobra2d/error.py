@@ -1,3 +1,6 @@
+from typing import Iterable, List
+
+
 class IdAlreadyInUse(Exception):
     """
     Exception used if an ID is already in use, preventing the addition of
@@ -31,6 +34,30 @@ class InvalidLabel(Exception):
         return self.message or "A used label is invalid."
 
 
+class GraphvizNotInstalled(Warning):
+    """
+    Warning for cases in which the Graphviz system package is missing.
+
+    The ``graphviz`` Python package only provides the bindings; rendering
+    additionally needs the Graphviz executables (``dot``), which are a
+    separate, non-pip-installable dependency.
+    """
+
+    DEFAULT_MESSAGE = (
+        "Rendering a graph requires the Graphviz system package. It is "
+        "separate from the 'graphviz' Python package and cannot be "
+        "installed via pip, please refer to the documentation of "
+        "graphviz: https://graphviz.readthedocs.io/en/stable/manual.html"
+    )
+
+    def __init__(self, message: str = ""):
+        self.message = message or self.DEFAULT_MESSAGE
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
+
+
 class PhaseNotFound(Warning):
     """
     Raises a Warning in case that a phase is not available
@@ -41,6 +68,43 @@ class PhaseNotFound(Warning):
 
     def __str__(self) -> str:
         return super().__str__()
+
+
+class GenesNotLinked(Warning):
+    """
+    Warning for manually assigned phase models whose gene-reaction rules are
+    not automatically synchronized.
+
+    Genes of independently supplied models cannot be assumed to be
+    equivalent, so their rules are left untouched. See the gene-rule section
+    of the Cobra2D constraints documentation for details.
+    """
+
+    DEFAULT_MESSAGE = (
+        "Gene-reaction rules of manually assigned phase models are not "
+        "automatically synchronized."
+    )
+
+    DOCUMENTATION_URL = (
+        "https://github.com/Toepfer-Lab/Cobra2D/blob/main/docs/source/"
+        "constraints.rst#applying-phase-models-and-synchronizing-gene-rules"
+    )
+
+    def __init__(self, phases: Iterable[str] = (), message: str = "") -> None:
+        self.phases: List[str] = list(phases)
+        self.message = message or self.DEFAULT_MESSAGE
+
+        if self.phases:
+            self.message += " Affected phases: {}.".format(
+                ", ".join(self.phases)
+            )
+
+        self.message += " See " + self.DOCUMENTATION_URL
+
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
 
 
 class NameWarning(Warning):

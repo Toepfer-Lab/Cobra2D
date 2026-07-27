@@ -18,14 +18,42 @@ from prettytable import PrettyTable
 from cobra2d.constraints.phase import Phase, Phases
 
 
+def split_phase_id(phase_id: str) -> tuple[str, str]:
+    """Split a phase ID into its sub_model and time components.
+
+    Phase IDs follow the ``<sub_model>_<time>`` pattern (e.g. ``leaf_1``).
+    The sub_model may itself contain underscores (e.g. ``leaf_2_1`` is the
+    sub_model ``leaf_2`` at time ``1``), so the split is done on the *last*
+    underscore. The time period must therefore not contain an underscore.
+
+    Args:
+        phase_id: The ID of the phase to split.
+
+    Returns:
+        A ``(sub_model, time)`` tuple.
+
+    Raises:
+        ValueError: If the ID does not contain a ``_`` separating the
+            sub_model from the time.
+    """
+    sub_model, sep, time = phase_id.rpartition("_")
+    if not sep:
+        raise ValueError(
+            f"Phase ID '{phase_id}' cannot be split into "
+            f"'<sub_model>_<time>'. Expected a '_' separating the sub_model "
+            f"from the time period."
+        )
+    return sub_model, time
+
+
 class Transport(ABC):
     """ """
 
     metabolite_id: str
     source: str
     destination: str
-    lower_bound: int
-    upper_bound: int
+    lower_bound: float
+    upper_bound: float
 
     @abstractmethod
     def __init__(
@@ -33,8 +61,8 @@ class Transport(ABC):
         metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
     ):
         if isinstance(source, Phase):
             source = source.id
@@ -45,8 +73,11 @@ class Transport(ABC):
         self.metabolite_id = metabolite_id
         self.source = source
         self.destination = destination
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        # Bounds are floats throughout, as COBRApy declares them. Converting
+        # here keeps a transport that was given whole bounds indistinguishable
+        # from the same transport read back from XML.
+        self.lower_bound = float(lower_bound)
+        self.upper_bound = float(upper_bound)
 
     @abstractmethod
     def __str__(self) -> str:
@@ -95,22 +126,18 @@ class Transport(ABC):
 
     @property
     @abstractmethod
-    def reac_id(self) -> str:
-        ...
+    def reac_id(self) -> str: ...
 
     @property
     @abstractmethod
-    def reac_name(self) -> str:
-        ...
+    def reac_name(self) -> str: ...
 
     @abstractmethod
-    def to_xml(self) -> Element:
-        ...
+    def to_xml(self) -> Element: ...
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, data: dict) -> Transport:
-        ...
+    def from_dict(cls, data: dict) -> Transport: ...
 
 
 class Transports(ABC):
@@ -238,14 +265,25 @@ class Transports(ABC):
                 upper_bound=transport.upper_bound,
             )
 
+            if source_metabolite == destination_metabolite:
+                warnings.warn(
+                    f"Source and target metabolite are identical. "
+                    f"Generation of the reaction is skipped. \n "
+                    f"{str(transport)}",
+                    category=UserWarning,
+                    stacklevel=3,
+                )
+
+                continue
+
             reac.add_metabolites(
                 {
-                    source_metabolite: -destination.volume
-                    * destination.timeframe,
-                    destination_metabolite: source.volume * source.timeframe,
+                    # source defined as one for visualisation purposes
+                    source_metabolite: -1,
+                    destination_metabolite: (source.volume * source.timeframe)
+                    / (destination.volume * destination.timeframe),
                 }
             )
-
             logging.info(f"The reaction {reac.id} was created")
             reactions2add.append(reac)
             logging.info(
@@ -258,9 +296,7 @@ class Transports(ABC):
         return model
 
     @abstractmethod
-    def to_xml(self) -> Element:
-        ...
+    def to_xml(self) -> Element: ...
 
     @abstractmethod
-    def from_dict(self, data: List[dict]) -> Transports:
-        ...
+    def from_dict(self, data: List[dict]) -> Transports: ...

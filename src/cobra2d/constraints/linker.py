@@ -13,7 +13,11 @@ from xml.etree.ElementTree import Element, SubElement
 from cobra import Model
 
 from cobra2d.constraints.phase import Phase, Phases
-from cobra2d.constraints.transport import Transport, Transports
+from cobra2d.constraints.transport import (
+    Transport,
+    Transports,
+    split_phase_id,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
@@ -32,10 +36,10 @@ class Linker(Transport):
                 the ID of the metabolite in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
-        lower_bound (int): The 'lower_bound' to be used for the reaction.
+        lower_bound (float): The 'lower_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
-        upper_bound (int): The 'upper_bound' to be used for the reaction.
+        upper_bound (float): The 'upper_bound' to be used for the reaction.
             For more information see 'lower_bound' in
             :py:func:`cobra.Reaction`.
     """
@@ -45,8 +49,8 @@ class Linker(Transport):
         metabolite_id: str,
         source: Union[Phase, str],
         destination: Union[Phase, str],
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
     ):
         """
         Initialize a Linker.
@@ -90,7 +94,32 @@ class Linker(Transport):
 
     @property
     def reac_id(self) -> str:
-        return f"{self.metabolite_id}_L_{self.source}_{self.destination}"
+        """The reaction ID following the naming convention for linkers.
+
+        Linkers describe temporal transport, so source and destination differ
+        in their time period but share the same sub_model. The resulting ID has
+        the form ``<metabolite>_lk_<sub_model>_[<origin_time>|<destination_time>]``,
+        e.g. ``STARCH_p_lk_leaf_[1|2]``.
+
+        Raises:
+            ValueError: If a phase ID cannot be split into ``<sub_model>_<time>``,
+                or if source and destination do not share the same sub_model.
+        """  # noqa: E501
+        source_sub_model, source_time = split_phase_id(self.source)
+        dest_sub_model, dest_time = split_phase_id(self.destination)
+
+        if source_sub_model != dest_sub_model:
+            raise ValueError(
+                f"A linker connects phases of the same sub_model, but source "
+                f"'{self.source}' and destination '{self.destination}' have "
+                f"different sub_models ('{source_sub_model}' vs. "
+                f"'{dest_sub_model}')."
+            )
+
+        return (
+            f"{self.metabolite_id}_lk_{source_sub_model}_"
+            f"[{source_time}|{dest_time}]"
+        )
 
     @property
     def reac_name(self) -> str:
@@ -142,8 +171,8 @@ class Linker(Transport):
         """
         return cls(
             metabolite_id=data["metabolite_id"],
-            lower_bound=int(data["lower_bound"]),
-            upper_bound=int(data["upper_bound"]),
+            lower_bound=float(data["lower_bound"]),
+            upper_bound=float(data["upper_bound"]),
             destination=data["destination"]["refid"],
             source=data["source"]["refid"],
         )

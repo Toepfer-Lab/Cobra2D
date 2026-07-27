@@ -1,14 +1,19 @@
-Welcome to Cobra2D documentation!
+Cobra2D
 =============================================	
 
 .. include:: ../../README.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
+    :glob:
     :maxdepth: 2
 
-    API <api>
-
-.. aut
+    README <self>
+    Structural design <structure>
+    Linker and transfer reactions <transport>
+    Visualisation <visualization>
+    Naming convention <convention>
+    Examples <example>
 
 Indices and tables
 ==================

@@ -2,8 +2,10 @@
 Implementation of the phase and Phases classes.
 
 """
+
 from __future__ import annotations
 import logging
+import warnings
 from inspect import isclass
 from typing import List, Union, Optional
 from xml.etree.ElementTree import Element
@@ -20,7 +22,7 @@ from cobra2d.duplication.duplication import (
     _test,
 )
 from cobra2d.duplication.merging import _merge
-from cobra2d.error import IdAlreadyInUse
+from cobra2d.error import GenesNotLinked, IdAlreadyInUse
 
 
 class Phase:
@@ -119,14 +121,17 @@ class Phase:
         element.set("id", self.id)
         element.set("light_dark", self.light_dark)
         element.set("name", self.name)
+        element.set("objective_factor", str(self.objective_factor))
         element.set("timeframe", str(self.timeframe))
         element.set("volume", str(self.volume))
 
         for reaction in self.reaction_settings:
             child = Element("reaction")
             child.set("id", reaction.id)
-            child.set("lower_bound", str(reaction.lower_bound))
-            child.set("upper_bound", str(reaction.upper_bound))
+            # COBRApy keeps whichever type a bound was given as, while the
+            # schema stores bounds as doubles.
+            child.set("lower_bound", str(float(reaction.lower_bound)))
+            child.set("upper_bound", str(float(reaction.upper_bound)))
 
             element.append(child)
 
@@ -161,8 +166,9 @@ class Phase:
                 dictionary = {
                     "id": "id",
                     "volume": "4",
-                    "light_dark": "500",
+                    "light_dark": "light",
                     "timeframe": "4",
+                    "objective_factor": "1",
                     "reaction":[{
                         "id":"reactions_id",
                         "lower_bound": "3",
@@ -175,9 +181,10 @@ class Phase:
         output = cls(
             id=data["id"],
             volume=int(data["volume"]),
-            name=data["name"],
+            name=data.get("name", ""),
             light_dark=data["light_dark"],
             timeframe=int(data["timeframe"]),
+            objective_factor=float(data.get("objective_factor", 1.0)),
         )
 
         if "reaction" not in data.keys():
@@ -186,8 +193,8 @@ class Phase:
         for reaction in data["reaction"]:
             new_reaction = Reaction(
                 id=reaction["id"],
-                lower_bound=reaction["lower_bound"],
-                upper_bound=reaction["upper_bound"],
+                lower_bound=float(reaction["lower_bound"]),
+                upper_bound=float(reaction["upper_bound"]),
             )
 
             output.add_reaction(new_reaction)
@@ -286,8 +293,10 @@ class Phases:
         Args:
             model: The model to which the phases are to be applied.
             link_genes: Boolean that determines whether the already existing
-                genes should be assigned to the differently named reactions
-                when duplicating the models.
+                gene-reaction rules should be synchronized across the copies
+                derived from the passed model. Manually assigned phase models
+                retain their own rules and issue a
+                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
 
         Returns:
             A Cobra model that consists of multiple copies of the original,
@@ -332,7 +341,15 @@ class Phases:
                 objective_factor=objective_factor,
             )
 
+        if link_genes and with_model:
+            warnings.warn(
+                GenesNotLinked(phase.id for phase in with_model),
+                stacklevel=2,
+            )
+
         for phase in with_model:
+            # Guaranteed by the partition above, but not visible to mypy.
+            assert phase.model is not None
             copy = phase.model.copy()
 
             # ToDo duplicate code from _main_placeholder should be refactored
@@ -357,8 +374,6 @@ class Phases:
             new_model = _merge(new_model, copy, phase.id)
             if not _test(new_model, copy):
                 raise Exception(f"Test for phase {copy.id} failed.")
-
-            # ToDo Genes wont be connected? no knowledge if Genes are identical
 
         model_objective = {}
         for reaction, coeff in linear_reaction_coefficients(new_model).items():
@@ -406,7 +421,7 @@ class Phases:
             .. code-block:: python
 
                 input = [{
-                    'id': 'leaf-0',
+                    'id': 'leaf_0',
                     'volume': 1,
                     'name': '',
                     'light_dark': 'light',

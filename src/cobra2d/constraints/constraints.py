@@ -1,6 +1,7 @@
 """
 Implementation of the Constraints class.
 """
+
 from __future__ import annotations
 
 import warnings
@@ -9,6 +10,7 @@ from importlib.resources import open_text
 from inspect import isclass
 from itertools import zip_longest
 from pathlib import Path
+from shutil import which
 from typing import Any, List, Tuple, Union, TextIO, Optional, Dict
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -30,9 +32,37 @@ from cobra2d import resources
 from cobra2d.constraints.linker import Linkage, Linker
 from cobra2d.constraints.phase import Phase, Phases
 from cobra2d.constraints.transfer import Transfers, Transfer
-from cobra2d.error import InvalidLabel, PhaseNotFound
+from cobra2d.constraints.transport import split_phase_id
+from cobra2d.error import (
+    GraphvizNotInstalled,
+    InvalidLabel,
+    PhaseNotFound,
+)
+from cobra2d.resources import SCHEMA_NAMESPACE
 from cobra2d.utils import Matrix
 from cobra2d.visualization.helper import metexplore_interface
+
+
+def _entries(data: dict, container: str, item: str) -> List[dict]:
+    """Read the entries of one of the containers of a decoded document.
+
+    A container that is absent or empty (``<linkage/>``) is decoded as
+    ``None`` rather than as an empty dict, which this function turns back into
+    an empty list.
+
+    Args:
+        data: A document decoded by :py:class:`xmlschema.XMLSchema`.
+        container: The name of the container element, e.g. ``linkage``.
+        item: The name of the elements within the container, e.g. ``linker``.
+
+    Returns:
+        The decoded entries of the container.
+    """
+    content = data.get(container)
+    if not content:
+        return []
+
+    return content.get(item) or []
 
 
 class Constraints:
@@ -45,9 +75,12 @@ class Constraints:
     based on such an XML file.
 
     Attributes:
-        phases(Phases) :
-        linker(Linkage) :
-        transfers(Transfers):
+        phases(Phases) : A :py:class:`Phases` object that manages the
+            individual :py:class:`Phase` objects.
+        linker(Linkage) : A :py:class:`Linkage` object that contains the
+            defined :py:class:`Linker`.
+        transfers(Transfers): A :py:class:`Transfers` object that contains
+            the defined :py:class:`Transfer` objects.
     """
 
     def __init__(self):
@@ -60,7 +93,7 @@ class Constraints:
         self.transfers = Transfers()
         self.order = Matrix()
         self.phases.add_phase(
-            Phase(id="default-0", name="Default Phase", light_dark="light")
+            Phase(id="default_0", name="Default Phase", light_dark="light")
         )
 
         self.default_time = True
@@ -82,10 +115,10 @@ class Constraints:
         times: List[int] = []
 
         for phase in self.phases.phases:
-            label_time = phase.id.split("-")
+            label, time = split_phase_id(phase.id)
 
-            labels.append(label_time[0])
-            times.append(int(label_time[1]))
+            labels.append(label)
+            times.append(int(time))
 
         labels = list(set(labels))
         times = list(set(times))
@@ -115,7 +148,7 @@ class Constraints:
             ]
 
             for time in times:
-                phase_id = f"{label}-{time}"
+                phase_id = f"{label}_{time}"
                 phase = self.get_phase_by_id(phase_id)
 
                 row.append(
@@ -191,7 +224,7 @@ class Constraints:
                 f"{label} {{ volume\n" + (" " * len(label)) + " time"
             ]
             for index, timeframe, light in self.time_ranges:
-                row.append(f"{label}-{index}\n" f"{volume}\n" f"{timeframe}")
+                row.append(f"{label}_{index}\n" f"{volume}\n" f"{timeframe}")
 
             output.add_row(*row)
 
@@ -229,7 +262,7 @@ class Constraints:
             for label, volume, name in self.sub_models:
                 self.phases.add_phase(
                     Phase(
-                        id=f"{label}-{i}",
+                        id=f"{label}_{i}",
                         volume=volume,
                         name=name or "",
                         light_dark=light_dark,
@@ -275,7 +308,7 @@ class Constraints:
             for index, timeframe, light_dark in self.time_ranges:
                 self.phases.add_phase(
                     Phase(
-                        id=f"{label}-{index}",
+                        id=f"{label}_{index}",
                         volume=volume,
                         name=name or "",
                         light_dark=light_dark,
@@ -283,7 +316,10 @@ class Constraints:
                     )
                 )
 
-            self.sub_models.append((label, volume, name))
+            # 'name or ""' as for the phases above: an omitted name is stored
+            # as an empty string, which is what reading it back from XML
+            # yields.
+            self.sub_models.append((label, volume, name or ""))
 
     def remove_sub_model(self, id: str):
         raise NotImplementedError
@@ -349,11 +385,11 @@ class Constraints:
     def add_linker_series(
         self,
         metabolite_id: str,
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
         last2first: bool = False,
         reverse: bool = False,
-        timeframes: Optional[List[str]] = None,
+        timeframes: Optional[List[int]] = None,
         sub_models: Optional[List[str]] = None,
     ):
         """
@@ -376,8 +412,19 @@ class Constraints:
             reverse: Bool that specifies the orientation of the linkers.
                 If True, the linkers are created starting from the last to the
                 first time period and not from the first to the last as usual.
-            sub_models:
-            timeframes:
+            sub_models: Restricts the linkers to these sub_models. If None,
+                every sub_model of the model is used. The order is irrelevant,
+                as each sub_model is linked to itself across time.
+            timeframes: Restricts the linkers to these time periods, given as
+                the integer indices used in the phase IDs (the ``<time>`` part
+                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` limits the series
+                to the first three periods. The linkers always connect
+                consecutive entries of the remaining list, so gaps are bridged
+                rather than skipped: ``[0, 2]`` links ``_0`` directly to
+                ``_2``. If None, every time period of the model is used.
+        Raises:
+            ValueError: If ``sub_models`` or ``timeframes`` contains an entry
+                that does not exist in the model.
         Examples:
             Application to a four phase model:
 
@@ -385,22 +432,48 @@ class Constraints:
             >>> con.add_time_slots(4, 1)
             >>> con.add_linker_series("ATP")
             >>> print(con.linker)
-            +-----+------+-----------+-------------+--------------+--------------+
-            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
-            +-----+------+-----------+-------------+--------------+--------------+
-            | ATP |      | default-0 |  default-1  |      0       |     1000     |
-            | ATP |      | default-1 |  default-2  |      0       |     1000     |
-            | ATP |      | default-2 |  default-3  |      0       |     1000     |
-            +-----+------+-----------+-------------+--------------+--------------+
+            +---------------+-----------+-------------+--------------+--------------+
+            | Metabolite ID |   Source  | Destination | Lower Bounds | Upper Bounds |
+            +---------------+-----------+-------------+--------------+--------------+
+            |      ATP      | default_0 |  default_1  |     0.0      |    1000.0    |
+            |      ATP      | default_1 |  default_2  |     0.0      |    1000.0    |
+            |      ATP      | default_2 |  default_3  |     0.0      |    1000.0    |
+            +---------------+-----------+-------------+--------------+--------------+
         """  # noqa: E501
 
         labels, times = self.__get_label_time(reverse=reverse)
 
         if sub_models is not None:
-            labels = [label for label in labels if label in sub_models]
+            selected_sub_models = [
+                label for label in labels if label in sub_models
+            ]
+
+            if len(selected_sub_models) != len(set(sub_models)):
+                unknown = [
+                    label
+                    for label in sub_models
+                    if label not in selected_sub_models
+                ]
+                raise ValueError(
+                    f"The following sub_models do not exist in the model: "
+                    f"{unknown}. Existing sub_models: {sorted(labels)}."
+                )
+
+            labels = selected_sub_models
 
         if timeframes is not None:
-            times = [time for time in times if time in timeframes]
+            selected_times = [time for time in times if time in timeframes]
+
+            if len(selected_times) != len(set(timeframes)):
+                unknown_times = [
+                    time for time in timeframes if time not in selected_times
+                ]
+                raise ValueError(
+                    f"The following timeframes do not exist in the model: "
+                    f"{unknown_times}. Existing timeframes: {sorted(times)}."
+                )
+
+            times = selected_times
 
         for label in labels:
             for n in range(len(times) - 1):
@@ -408,8 +481,8 @@ class Constraints:
                 # try:
                 linker = Linker(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{time}",
-                    destination=f"{label}-{times[n + 1]}",
+                    source=f"{label}_{time}",
+                    destination=f"{label}_{times[n + 1]}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -426,8 +499,8 @@ class Constraints:
             if last2first:
                 linker = Linker(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{times[-1]}",
-                    destination=f"{label}-{times[0]}",
+                    source=f"{label}_{times[-1]}",
+                    destination=f"{label}_{times[0]}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -444,67 +517,109 @@ class Constraints:
     def add_transfer_series(
         self,
         metabolite_id: str,
-        lower_bound: int = 0,
-        upper_bound: int = 1000,
+        sub_models: List[str],
+        lower_bound: float = 0.0,
+        upper_bound: float = 1000.0,
         last2first: bool = False,
         reverse: bool = False,
-        timeframes: Optional[List[str]] = None,
-        sub_models: Optional[List[str]] = None,
+        timeframes: Optional[List[int]] = None,
     ):
         """
-        Method to create linkers across all existing time periods.
+        Method to create transfers along a chain of sub_models.
+
+        In contrast to :py:meth:`add_linker_series`, which connects phases of
+        the same sub_model across consecutive time periods, this method connects
+        multiple sub_models within the same time period.
+
+        As there is no easy way to infer intended order to connect multiple
+        sub_model, the definition of the sub_model parameter is required and the
+        order in this parameter defines the way we connect hte sub_model to one another.
 
         Args:
             metabolite_id: The ID to be used for the metabolite. This should match
                 the ID of the metabolite in the model.
+            sub_models: The ordered list of sub_models to connect. Each entry is
+                linked to the following one, so the order defines the spatial
+                chain (e.g. ``["leaf", "stem", "root"]`` connects leaf to stem
+                and stem to root).
             lower_bound: The 'lower_bound' to be used for the reaction.
                 For more information see :py:attr:`cobra.Reaction.lower_bound`
                 in :py:func:`cobra.Reaction`.
             upper_bound: The 'upper_bound' to be used for the reaction.
                 For more information see :py:attr:`lower_bound` in
                 :py:class:`cobra.Reaction.`.
-            last2first: Bool that determines whether a linker should be created
-                between the last and the first period.
-                If True said linker will be created.
-                If reverse equals True, a linker will be created
-                from the first to the last period.
-            reverse: Bool that specifies the orientation of the linkers.
-                If True, the linkers are created starting from the last to the
-                first time period and not from the first to the last as usual.
-            sub_models:
-            timeframes:
+            last2first: Bool that determines whether a transfer should be created
+                between the last and the first sub_model.
+                If True said transfer will be created.
+                If reverse equals True, a transfer will be created
+                from the first to the last sub_model.
+            reverse: Bool that specifies the orientation of the transfers.
+                If True, the transfers are created starting from the last to the
+                first sub_model and not from the first to the last as usual.
+            timeframes: Restricts the transfers to these time periods, given as
+                the integer indices used in the phase IDs (the ``<time>`` part
+                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` builds the
+                sub_model chain only in the first three periods. If None, every
+                time period of the model is used.
+        Raises:
+            ValueError: If ``sub_models`` is empty, or contains a sub_model that
+                does not exist in the model, or if ``timeframes`` contains a
+                time period that does not exist in the model.
         Examples:
-            Application to a four phase model:
+            Application to a model with three sub_models:
 
             >>> con = Constraints()
-            >>> con.add_time_slots(4, 1)
-            >>> con.add_transfer_series("ATP")
+            >>> con.add_sub_models(["leaf", "stem", "root"], [1, 1, 1])
+            >>> con.add_transfer_series("ATP", sub_models=["leaf", "stem", "root"])
             >>> print(con.transfers)
-            +-----+------+-----------+-------------+--------------+--------------+
-            |  ID | Name |   Source  | Destination | Lower Bounds | Upper Bounds |
-            +-----+------+-----------+-------------+--------------+--------------+
-            | ATP |      | default-0 |  default-1  |      0       |     1000     |
-            | ATP |      | default-1 |  default-2  |      0       |     1000     |
-            | ATP |      | default-2 |  default-3  |      0       |     1000     |
-            +-----+------+-----------+-------------+--------------+--------------+
+            +---------------+--------+-------------+--------------+--------------+
+            | Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |
+            +---------------+--------+-------------+--------------+--------------+
+            |      ATP      | leaf_0 |    stem_0   |     0.0      |    1000.0    |
+            |      ATP      | stem_0 |    root_0   |     0.0      |    1000.0    |
+            +---------------+--------+-------------+--------------+--------------+
         """  # noqa: E501
 
-        labels, times = self.__get_label_time(reverse=reverse)
+        if not sub_models:
+            raise ValueError(
+                "sub_models is required and must contain at least one "
+                "sub_model, as its order defines the transfer chain."
+            )
 
-        if sub_models is not None:
-            labels = [label for label in labels if label in sub_models]
+        existing_labels, times = self.__get_label_time()
+
+        unknown = [
+            label for label in sub_models if label not in existing_labels
+        ]
+        if unknown:
+            raise ValueError(
+                f"The following sub_models do not exist in the model: "
+                f"{unknown}. Existing sub_models: {sorted(existing_labels)}."
+            )
+
+        labels = list(reversed(sub_models)) if reverse else list(sub_models)
 
         if timeframes is not None:
-            times = [time for time in times if time in timeframes]
+            selected_times = [time for time in times if time in timeframes]
 
-        for label in labels:
-            for n in range(len(times) - 1):
-                time = times[n]
-                # try:
+            if len(selected_times) != len(set(timeframes)):
+                unknown_times = [
+                    time for time in timeframes if time not in selected_times
+                ]
+                raise ValueError(
+                    f"The following timeframes do not exist in the model: "
+                    f"{unknown_times}. Existing timeframes: {sorted(times)}."
+                )
+
+            times = selected_times
+
+        for time in times:
+            for n in range(len(labels) - 1):
+                label = labels[n]
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{time}",
-                    destination=f"{label}-{times[n + 1]}",
+                    source=f"{label}_{time}",
+                    destination=f"{labels[n + 1]}_{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -521,8 +636,8 @@ class Constraints:
             if last2first:
                 transfer = Transfer(
                     metabolite_id=metabolite_id,
-                    source=f"{label}-{times[-1]}",
-                    destination=f"{label}-{times[0]}",
+                    source=f"{labels[-1]}_{time}",
+                    destination=f"{labels[0]}_{time}",
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
                 )
@@ -536,18 +651,25 @@ class Constraints:
                         source=warning.source,
                     )
 
-    def apply_to_model(self, model: Optional[Model] = None) -> Model:
+    def apply_to_model(
+        self, model: Optional[Model] = None, link_genes: bool = False
+    ) -> Model:
         """
         Method to apply all defined adjustments to a :py:class:`Model`.
 
         Args:
             model: The model that should be changed.
+            link_genes: Boolean that determines whether the gene-reaction
+                rules should be synchronized across the copies derived from
+                ``model``. Manually assigned phase models retain their own
+                rules and issue a
+                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
 
         Returns: A :py:class:`Model` that contains all defined adjustments.
 
         """
 
-        new_model = self.phases.apply_phases(model)
+        new_model = self.phases.apply_phases(model, link_genes=link_genes)
         # TODO: verify if transfers should be apply before linker
         new_model = self.transfers.apply(new_model, phases=self.phases)
         new_model = self.linker.apply(new_model, phases=self.phases)
@@ -558,17 +680,21 @@ class Constraints:
         """
         Converts a :py:class:`Constraints` object to an :py:class:`Element`.
 
+        The result follows ``schema.xsd`` and declares
+        :py:data:`cobra2d.resources.SCHEMA_NAMESPACE`.
+
+        Note:
+            A :py:class:`Model` assigned to a phase via
+            :py:attr:`Phase.model` is not part of the XML document and has to
+            be assigned again after loading.
+
         Returns:
             An :py:class:`Element` that represents a :py:class:`Constraints`
             object.
 
         """
         root = Element("Conf")
-        root.set(
-            "xmlns",
-            "https://github.com/Toepfer-Lab/"
-            "cobra2d/blob/main/src/resources/schema.xsd",
-        )
+        root.set("xmlns", SCHEMA_NAMESPACE)
 
         root.append(self.phases.to_xml())
         root.append(self.transfers.to_xml())
@@ -580,6 +706,11 @@ class Constraints:
         """
         Method to save the constraints object as XML file. Based on this file
         the constraints object can be reconstructed.
+
+        Note:
+            A :py:class:`Model` assigned to a phase via
+            :py:attr:`Phase.model` is not stored and has to be assigned again
+            after loading.
 
         Args:
             path: The file path where the created XML file should be saved.
@@ -608,7 +739,10 @@ class Constraints:
         """
         Method to create a :py:class:`Constraints` object from an XML file.
         This must match the format of the XSD found at
-        https://github.com/Toepfer-Lab/model_duplication/blob/main/src/recources/schema.xsd.
+        https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd.
+
+        Documents written by Cobra2D 0.5.0 or earlier declare a different
+        namespace and are not supported.
 
         Args:
             path: The path to the XML file to be used for creating a
@@ -618,12 +752,16 @@ class Constraints:
             The :py:class:`Constraints` object created on the properties in the
             XML file.
 
+        Raises:
+            PhaseNotFound: If a linker or transfer refers to a phase that the
+                document does not define.
+
         """  # nopep8
 
         if isclass(cls):
             constraints = cls()
         else:
-            assert isinstance(cls, Phases)
+            assert isinstance(cls, Constraints)
             constraints = cls
 
         if isinstance(path, str):
@@ -636,16 +774,38 @@ class Constraints:
         # encoding cannot be used.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
-        print(data)
-        constraints.phases = Phases.from_dict(data["phases"]["phase"])
-        constraints.transfers = Transfers.from_dict(
-            data["Transfers"]["transfer"]
+        constraints.phases = Phases.from_dict(
+            _entries(data, "phases", "phase")
         )
-        constraints.linker = Linkage.from_dict(data["linkage"]["linker"])
+        constraints.transfers = Transfers.from_dict(
+            _entries(data, "transfers", "transfer")
+        )
+        constraints.linker = Linkage.from_dict(
+            _entries(data, "linkage", "linker")
+        )
+
+        # The schema cannot check that source and destination name a phase of
+        # this document: phase IDs are not xs:ID, since they are not
+        # restricted to XML names. See schema.xsd.
+        unknown = {
+            phase_id
+            for transport in [
+                *constraints.transfers.transfers,
+                *constraints.linker.linker,
+            ]
+            for phase_id in (transport.source, transport.destination)
+            if not constraints.phases.phases.has_id(phase_id)
+        }
+        if unknown:
+            raise PhaseNotFound(
+                f"The following phases are used as source or destination of a "
+                f"linker or transfer but are not defined by the document: "
+                f"{sorted(unknown)}."
+            )
 
         if (
             len(constraints.phases.phases) == 1
-            and constraints.phases.phases[0].id == "default-0"
+            and constraints.phases.phases[0].id == "default_0"
         ):
             return constraints
 
@@ -653,7 +813,7 @@ class Constraints:
         times: list = []
 
         for phase in constraints.phases.phases:
-            label, time = phase.id.split("-", maxsplit=1)
+            label, time = split_phase_id(phase.id)
             labels.append(label)
             times.append(time)
 
@@ -667,7 +827,7 @@ class Constraints:
         # in the XML. However, this would have the consequence that
         # this would be more difficult for a human being to work on.
 
-        if len(labels) == 1 and labels[0] == "default-0":
+        if len(labels) == 1 and labels[0] == "default_0":
             pass
         else:
             constraints.default_sub_model = False
@@ -675,13 +835,13 @@ class Constraints:
 
             for label in labels:
                 example_phase = constraints.phases.phases.get_by_id(
-                    f"{label}-{times[0]}"
+                    f"{label}_{times[0]}"
                 )
                 constraints.sub_models.append(
                     (
                         label,
                         example_phase.volume,
-                        example_phase.name.split("-")[0],
+                        example_phase.name,
                     )
                 )
 
@@ -693,7 +853,7 @@ class Constraints:
 
             for time in times:
                 example_phase = constraints.phases.phases.get_by_id(
-                    f"{labels[0]}-{time}"
+                    f"{labels[0]}_{time}"
                 )
                 constraints.time_ranges.append(
                     (
@@ -703,11 +863,32 @@ class Constraints:
                     )
                 )
 
-        constraints.index_time_ranges = max([int(x) for x in times])
+        # 'index_time_ranges' is the index the next time slot gets, not the
+        # index of the last one, so it has to be one past the highest time
+        # read from the document.
+        constraints.index_time_ranges = max([int(x) for x in times]) + 1
 
         return constraints
 
     def create_graph(self) -> Digraph:
+        """
+        Creates a :py:class:`graphviz.Digraph` of the defined phases and the
+        linker and transfer reactions connecting them.
+
+        Note:
+            Rendering or displaying the returned graph requires the Graphviz
+            system package, which is separate from the ``graphviz`` Python
+            package and cannot be installed with pip. If it is missing, a
+            :py:class:`cobra2d.error.GraphvizNotInstalled` warning is issued
+            and rendering will fail later. The graph itself is still built,
+            so ``str(graph)`` and ``graph.save(...)`` remain usable.
+
+        Returns:
+            A :py:class:`graphviz.Digraph` representing the phases.
+        """
+        if which("dot") is None:
+            warnings.warn(GraphvizNotInstalled(), stacklevel=2)
+
         g = Digraph(engine="dot")
         labels, times = self.__get_label_time()
         invis_connections: List[Tuple[str, str]] = []
@@ -717,9 +898,9 @@ class Constraints:
                 sub.attr(label=label)
                 last_label = None
                 for time in times:
-                    new_label = f"{label}-{time}"
+                    new_label = f"{label}_{time}"
                     if self.phases.phases.has_id(new_label):
-                        sub.node(f"{label}-{time}")
+                        sub.node(f"{label}_{time}")
 
                         if last_label is not None:
                             connection = (last_label, new_label)
@@ -881,7 +1062,7 @@ class Constraints:
             nodes.append({"data": {"id": sub_model, "type": "sub_model"}})
 
         for phase in self.phases.phases:
-            sub_model, time = phase.id.split("-", maxsplit=1)
+            sub_model, time = split_phase_id(phase.id)
             model = getattr(phase, "model", None)
             model_name: str
 
@@ -923,7 +1104,7 @@ class Constraints:
                 linker_edge_dict_reverse[value] = [linker.metabolite_id]
 
         for transfer in self.transfers.transfers:
-            value: Tuple[str, str] = (linker.source, linker.destination)
+            value: Tuple[str, str] = (transfer.source, transfer.destination)
             if transfer.metabolite_id in transfer_edge_dict:
                 transfer_edge_dict[transfer.metabolite_id].append(value)
             else:

@@ -36,7 +36,7 @@ class TestLinker(TestCase):
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
             "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "|    test_id    | source | destination |     0.0      |    1000.0    |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
@@ -55,9 +55,9 @@ class TestLinker(TestCase):
         self.assertEqual(xml.tag, "linker")
         self.assertEqual(
             {
-                "lower_bound": "0",
+                "lower_bound": "0.0",
                 "metabolite_id": "test_id",
-                "upper_bound": "1000",
+                "upper_bound": "1000.0",
             },
             xml.attrib,
         )
@@ -134,7 +134,7 @@ class TestLinkage(TestCase):
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
             "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-            "|    test_id    | source | destination |      0       |     1000     |\n"  # noqa: E501
+            "|    test_id    | source | destination |     0.0      |    1000.0    |\n"  # noqa: E501
             "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
         )
 
@@ -192,14 +192,14 @@ class TestLinkage(TestCase):
         linkage = Linkage()
         linker_default = Linker(
             metabolite_id="gln__L_c",
-            source="test_phase",
-            destination="test_phase",
+            source="leaf_1",
+            destination="leaf_2",
         )
 
         linker_non_default = Linker(
             metabolite_id="nadp_c",
-            source="test_phase",
-            destination="test_phase",
+            source="leaf_1",
+            destination="leaf_2",
             upper_bound=564,
             lower_bound=-1234,
         )
@@ -209,7 +209,15 @@ class TestLinkage(TestCase):
         phases = Phases()
         phases.add_phase(
             Phase(
-                id="test_phase",
+                id="leaf_1",
+                light_dark="light",
+                timeframe=3,
+                volume=5,
+            )
+        )
+        phases.add_phase(
+            Phase(
+                id="leaf_2",
                 light_dark="light",
                 timeframe=3,
                 volume=5,
@@ -219,10 +227,7 @@ class TestLinkage(TestCase):
         model = phases.apply_phases(model)
         model = linkage.apply_linkage(model, phases)
 
-        linker_reaction = model.reactions.get_by_id(
-            f"{linker_default.metabolite_id}_L_{linker_default.source}"
-            f"_{linker_default.destination}"
-        )
+        linker_reaction = model.reactions.get_by_id(linker_default.reac_id)
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
@@ -236,17 +241,16 @@ class TestLinkage(TestCase):
         self.assertEqual(0, linker_reaction.lower_bound)
         self.assertEqual(1000, linker_reaction.upper_bound)
 
+        print(phases)
         metabolites = linker_reaction.metabolites
-        expected_metabolite = model.metabolites.get_by_id(
-            "gln__L_c_test_phase"
+        expected_metabolite = model.metabolites.get_by_id("gln__L_c_leaf_1")
+        expected_metabolite_2 = model.metabolites.get_by_id("gln__L_c_leaf_2")
+
+        self.assertEqual(
+            {expected_metabolite: -1, expected_metabolite_2: 1}, metabolites
         )
 
-        self.assertEqual({expected_metabolite: 15}, metabolites)
-
-        linker_reaction = model.reactions.get_by_id(
-            f"{linker_non_default.metabolite_id}_L_{linker_non_default.source}"
-            f"_{linker_non_default.destination}"
-        )
+        linker_reaction = model.reactions.get_by_id(linker_non_default.reac_id)
 
         self.assertIsInstance(linker_reaction, Reaction)
         self.assertEqual(
@@ -261,9 +265,14 @@ class TestLinkage(TestCase):
         self.assertEqual(564, linker_reaction.upper_bound)
 
         metabolites = linker_reaction.metabolites
-        expected_metabolite = model.metabolites.get_by_id("nadp_c_test_phase")
+        expected_metabolite = model.metabolites.get_by_id("nadp_c_leaf_1")
+        expected_metabolite_2 = model.metabolites.get_by_id("nadp_c_leaf_2")
 
-        self.assertEqual({expected_metabolite: 15}, metabolites)
+        print(linker_reaction)
+        print(metabolites)
+        self.assertEqual(
+            {expected_metabolite: -1, expected_metabolite_2: 1}, metabolites
+        )
 
     def test_to_xml(self):
         linkage = Linkage()
@@ -297,9 +306,9 @@ class TestLinkage(TestCase):
             self.assertEqual(child.tag, "linker")
             self.assertEqual(
                 {
-                    "lower_bound": "0",
+                    "lower_bound": "0.0",
                     "metabolite_id": "test_id",
-                    "upper_bound": "1000",
+                    "upper_bound": "1000.0",
                 },
                 child.attrib,
             )

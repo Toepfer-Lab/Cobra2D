@@ -51,7 +51,7 @@ class TestTransfer(TestCase):
                 "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
                 "| Metabolite ID | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
                 "+---------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-                "|   identifier  |  root  |     stem    |      50      |     600      |\n"  # noqa: E501
+                "|   identifier  |  root  |     stem    |     50.0     |    600.0     |\n"  # noqa: E501
                 "+---------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
@@ -72,15 +72,15 @@ class TestTransfer(TestCase):
         self.assertDictEqual(
             xml.attrib,
             {
-                "metabolite": "identifier",
-                "lower_bound": "50",
-                "upper_bound": "600",
+                "metabolite_id": "identifier",
+                "lower_bound": "50.0",
+                "upper_bound": "600.0",
             },
         )
 
     def test_from_dict(self):
         dictionary = {
-            "metabolite": "identifier",
+            "metabolite_id": "identifier",
             "lower_bound": "50",
             "upper_bound": "600",
             "destination": {"refid": "stem"},
@@ -138,40 +138,37 @@ class TestTransfers(TestCase):
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
                 "|             ID            |                     Name                    | Source | Destination | Lower Bounds | Upper Bounds |\n"  # noqa: E501
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+\n"  # noqa: E501
-                "|  TR_metabolite_root_stem  |  Transfer for metabolite from root to stem  |  root  |     stem    |      0       |     1000     |\n"  # noqa: E501
-                "| TR_metabolite_root2_stem2 | Transfer for metabolite from root2 to stem2 | root2  |    stem2    |      0       |     1000     |\n"  # noqa: E501
+                "|  TR_metabolite_root_stem  |  Transfer for metabolite from root to stem  |  root  |     stem    |     0.0      |    1000.0    |\n"  # noqa: E501
+                "| TR_metabolite_root2_stem2 | Transfer for metabolite from root2 to stem2 | root2  |    stem2    |     0.0      |    1000.0    |\n"  # noqa: E501
                 "+---------------------------+---------------------------------------------+--------+-------------+--------------+--------------+"  # noqa: E501
             ),
         )
 
-    @unittest.skip("XML")
     def test_from_dict(self):
         dictionary = [
             {
-                "metabolite": "identifier",
-                "lower_bound": "50",
-                "upper_bound": "600",
-                "destination": {"refid": "stem"},
-                "source": {"refid": "root"},
+                "metabolite_id": "identifier",
+                "lower_bound": "50.0",
+                "upper_bound": "600.0",
+                "destination": {"refid": "stem_0"},
+                "source": {"refid": "root_0"},
             },
             {
-                "metabolite": "identifier",
+                "metabolite_id": "identifier",
                 "lower_bound": "0",
                 "upper_bound": "1000",
-                "destination": {"refid": "stem2"},
-                "source": {"refid": "root2"},
+                "destination": {"refid": "stem_1"},
+                "source": {"refid": "root_1"},
             },
         ]
         transfers = Transfers.from_dict(dictionary)
 
-        self.assertEqual(len(transfers), 2)
-        self.assertEqual(
-            transfers[1].metabolite_id, "TR_identifier_root2_stem2"
-        )
-        self.assertEqual(transfers[1].source, "root2")
-        self.assertEqual(transfers[1].destination, "stem2")
-        self.assertEqual(transfers[1].lower_bound, 0)
-        self.assertEqual(transfers[1].upper_bound, 1000)
+        self.assertEqual(len(transfers.transfers), 2)
+        self.assertEqual(transfers.transfers[1].metabolite_id, "identifier")
+        self.assertEqual(transfers.transfers[1].source, "root_1")
+        self.assertEqual(transfers.transfers[1].destination, "stem_1")
+        self.assertEqual(transfers.transfers[1].lower_bound, 0)
+        self.assertEqual(transfers.transfers[1].upper_bound, 1000)
 
     def test_to_xml(self):
         transfers = Transfers()
@@ -192,23 +189,24 @@ class TestTransfers(TestCase):
         )
         element = transfers.to_xml()
 
+        self.assertEqual(element.tag, "transfers")
         for child in element:
             self.assertIsInstance(child, Element)
             self.assertEqual(child.tag, "transfer")
         self.assertEqual(
             element[1].attrib,
             {
-                "metabolite": "metabolite",
-                "lower_bound": "0",
-                "upper_bound": "1000",
+                "metabolite_id": "metabolite",
+                "lower_bound": "0.0",
+                "upper_bound": "1000.0",
             },
         )
         self.assertEqual(
             element[0].attrib,
             {
-                "metabolite": "metabolite",
-                "lower_bound": "0",
-                "upper_bound": "1000",
+                "metabolite_id": "metabolite",
+                "lower_bound": "0.0",
+                "upper_bound": "1000.0",
             },
         )
 
@@ -218,10 +216,10 @@ class TestTransfers(TestCase):
         # Regular Phases
         phases = Phases()
         phases.add_phase(
-            Phase("root", "light"),
+            Phase("root_0", "light"),
         )
         phases.add_phase(
-            Phase("stem", "light", timeframe=5, volume=2),
+            Phase("stem_0", "light", timeframe=5, volume=2),
         )
 
         test_model = phases.apply_phases(model, True)
@@ -229,22 +227,22 @@ class TestTransfers(TestCase):
         transfers = Transfers()
         transfer = Transfer(
             "gln__L_c",
-            source=phases.phases.root,
-            destination=phases.phases.stem,
+            source=phases.phases.get_by_id("root_0"),
+            destination=phases.phases.get_by_id("stem_0"),
         )
 
         transfers.append(transfer)
         test_model = transfers.apply(test_model, phases)
 
         reaction: Reaction = test_model.reactions.get_by_id(
-            "TR_gln__L_c_root_stem"
+            "gln__L_c_tr_[root|stem]_0"
         )
         self.assertDictEqual(
             {
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root": -10, "gln__L_c_stem": 1},
+            {"gln__L_c_root_0": -1, "gln__L_c_stem_0": 0.1},
         )
 
     def test_apply_complex(self):
@@ -255,16 +253,16 @@ class TestTransfers(TestCase):
         # Should replicate behavior of add_sub_models and add_time_slots
         phases = Phases()
         phases.add_phase(
-            Phase("root-0", "light"),
+            Phase("root_0", "light"),
         )
         phases.add_phase(
-            Phase("stem-0", "light"),
+            Phase("stem_0", "light"),
         )
         phases.add_phase(
-            Phase("root-1", "light"),
+            Phase("root_1", "light"),
         )
         phases.add_phase(
-            Phase("stem-1", "light"),
+            Phase("stem_1", "light"),
         )
         model = phases.apply_phases(model, True)
 
@@ -273,41 +271,41 @@ class TestTransfers(TestCase):
         transfers.append(
             Transfer(
                 "gln__L_c",
-                phases.phases.get_by_id("root-0"),
-                phases.phases.get_by_id("stem-0"),
+                phases.phases.get_by_id("root_0"),
+                phases.phases.get_by_id("stem_0"),
             )
         )
         transfers.append(
             Transfer(
                 "gln__L_c",
-                phases.phases.get_by_id("root-1"),
-                phases.phases.get_by_id("stem-1"),
+                phases.phases.get_by_id("root_1"),
+                phases.phases.get_by_id("stem_1"),
             )
         )
         model = transfers.apply(model, phases)
 
-        linkage.add_linker(Linker("gln__L_c", "root-0", "root-1"))
-        linkage.add_linker(Linker("gln__L_c", "stem-0", "stem-1"))
+        linkage.add_linker(Linker("gln__L_c", "root_0", "root_1"))
+        linkage.add_linker(Linker("gln__L_c", "stem_0", "stem_1"))
         model = linkage.apply_linkage(model, phases)
 
         reaction: Reaction = model.reactions.get_by_id(
-            "TR_gln__L_c_root-0_stem-0"
+            "gln__L_c_tr_[root|stem]_0"
         )
         self.assertDictEqual(
             {
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root-0": -1, "gln__L_c_stem-0": 1},
+            {"gln__L_c_root_0": -1, "gln__L_c_stem_0": 1},
         )
 
         reaction: Reaction = model.reactions.get_by_id(
-            "TR_gln__L_c_root-1_stem-1"
+            "gln__L_c_tr_[root|stem]_1"
         )
         self.assertDictEqual(
             {
                 metabolite.id: value
                 for metabolite, value in reaction.metabolites.items()
             },
-            {"gln__L_c_root-1": -1, "gln__L_c_stem-1": 1},
+            {"gln__L_c_root_1": -1, "gln__L_c_stem_1": 1},
         )

@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd"
-           xmlns="https://github.com/Toepfer-Lab/model_duplication/blob/main/src/resources/schema.xsd">
+           targetNamespace="https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd"
+           xmlns="https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd">
+
+  <!-- IDs are plain strings rather than xs:ID/xs:IDREF: metabolite and
+       sub_model identifiers taken from a model are not restricted to XML
+       names (e.g. '2pg_c' starts with a digit) and the same metabolite is
+       transported by more than one linker, which xs:ID forbids. Dangling
+       source/destination references are reported by Constraints.load_from_xml
+       instead. -->
 
   <xs:element name="Conf" type="ConfType"/>
 
@@ -10,8 +17,8 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute type="xs:string" name="id"/>
-        <xs:attribute type="xs:integer" name="lower_bound"/>
-        <xs:attribute type="xs:integer" name="upper_bound"/>
+        <xs:attribute type="xs:double" name="lower_bound"/>
+        <xs:attribute type="xs:double" name="upper_bound"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -20,11 +27,12 @@
     <xs:sequence>
       <xs:element type="reactionType" name="reaction" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-      <xs:attribute type="xs:ID" name="id" use="required"/>
+      <xs:attribute type="xs:string" name="id" use="required"/>
       <xs:attribute type="xs:integer" name="volume" default="1"/>
-      <xs:attribute type="xs:string" name="name"/>
+      <xs:attribute type="xs:string" name="name" default=""/>
       <xs:attribute type="xs:string" name="light_dark" use="required"/>
       <xs:attribute type="xs:integer" name="timeframe" default="1"/>
+      <xs:attribute type="xs:double" name="objective_factor" default="1"/>
   </xs:complexType>
 
   <xs:complexType name="phasesType">
@@ -36,7 +44,7 @@
   <xs:complexType name="destinationType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:IDREF" name="refid"/>
+        <xs:attribute type="xs:string" name="refid"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -44,7 +52,7 @@
   <xs:complexType name="sourceType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute type="xs:IDREF" name="refid"/>
+        <xs:attribute type="xs:string" name="refid"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -54,9 +62,9 @@
       <xs:element type="destinationType" name="destination"/>
       <xs:element type="sourceType" name="source"/>
     </xs:sequence>
-    <xs:attribute type="xs:ID" name="metabolite_id"/>
-    <xs:attribute type="xs:integer" name="lower_bound"/>
-    <xs:attribute type="xs:integer" name="upper_bound"/>
+    <xs:attribute type="xs:string" name="metabolite_id"/>
+    <xs:attribute type="xs:double" name="lower_bound"/>
+    <xs:attribute type="xs:double" name="upper_bound"/>
   </xs:complexType>
 
   <xs:complexType name="linkageType">
@@ -65,10 +73,29 @@
     </xs:sequence>
   </xs:complexType>
 
+  <!-- Transfers use the same attributes as linkers; only the element names
+       differ, so that a document states which of the two it describes. -->
+  <xs:complexType name="transferType">
+    <xs:sequence>
+      <xs:element type="destinationType" name="destination"/>
+      <xs:element type="sourceType" name="source"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="metabolite_id"/>
+    <xs:attribute type="xs:double" name="lower_bound"/>
+    <xs:attribute type="xs:double" name="upper_bound"/>
+  </xs:complexType>
+
+  <xs:complexType name="transfersType">
+    <xs:sequence>
+      <xs:element type="transferType" name="transfer" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="ConfType">
     <xs:sequence>
       <xs:element type="phasesType" name="phases"/>
-      <xs:element type="linkageType" name="linkage"/>
+      <xs:element type="transfersType" name="transfers" minOccurs="0"/>
+      <xs:element type="linkageType" name="linkage" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

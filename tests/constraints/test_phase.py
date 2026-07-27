@@ -8,6 +8,7 @@ from cobra.util import linear_reaction_coefficients
 from importlib_resources import files, as_file
 
 from cobra2d.constraints.phase import Phase, Phases
+from cobra2d.error import GenesNotLinked
 
 
 class TestPhase(TestCase):
@@ -43,7 +44,7 @@ class TestPhase(TestCase):
         self.assertEqual(string, expected)
 
     def test_to_xml(self):
-        phase = Phase(id="test_id", light_dark="light")
+        phase = Phase(id="test_id", light_dark="light", objective_factor=0.5)
 
         xml = phase.to_xml()
 
@@ -57,6 +58,7 @@ class TestPhase(TestCase):
                 "name": "",
                 "light_dark": "light",
                 "timeframe": "1",
+                "objective_factor": "0.5",
             },
         )
         self.assertIsNone(xml.text)
@@ -69,6 +71,10 @@ class TestPhase(TestCase):
             "name": "",
             "light_dark": "dark",
             "timeframe": "13",
+            "objective_factor": "0.5",
+            "reaction": [
+                {"id": "R1", "lower_bound": "-1.5", "upper_bound": "1000"}
+            ],
         }
 
         phase = Phase.from_dict(dic)
@@ -77,7 +83,27 @@ class TestPhase(TestCase):
         self.assertEqual(phase.light_dark, "dark")
         self.assertEqual(phase.timeframe, 13)
         self.assertEqual(phase.volume, 7)
-        # ToDo check Reactions
+        self.assertEqual(phase.objective_factor, 0.5)
+
+        self.assertEqual(len(phase.reaction_settings), 1)
+        reaction = phase.reaction_settings[0]
+        self.assertEqual(reaction.id, "R1")
+        self.assertEqual(reaction.lower_bound, -1.5)
+        self.assertEqual(reaction.upper_bound, 1000)
+
+    def test_from_dict_uses_the_defaults_of_the_schema(self):
+        """Attributes the schema declares a default for may be omitted."""
+        phase = Phase.from_dict(
+            {
+                "id": "test_id",
+                "volume": "1",
+                "light_dark": "dark",
+                "timeframe": "1",
+            }
+        )
+
+        self.assertEqual(phase.name, "")
+        self.assertEqual(phase.objective_factor, 1.0)
 
 
 class TestPhases(TestCase):
@@ -334,6 +360,7 @@ class TestPhases(TestCase):
                     "id": "test_id",
                     "light_dark": "light",
                     "name": "",
+                    "objective_factor": "1.0",
                     "timeframe": "7",
                     "volume": "3",
                 },
@@ -344,7 +371,7 @@ class TestPhases(TestCase):
     def test_from_dict(self):
         dict_list = [
             {
-                "id": "leaf-0",
+                "id": "leaf_0",
                 "volume": 1,
                 "name": "",
                 "light_dark": "light",
@@ -361,7 +388,7 @@ class TestPhases(TestCase):
 
         phase: Phase = phases.phases[0]
 
-        self.assertEqual(phase.id, "leaf-0")
+        self.assertEqual(phase.id, "leaf_0")
         self.assertEqual(phase.light_dark, "light")
         self.assertEqual(phase.timeframe, 2)
         self.assertEqual(phase.volume, 1)
@@ -371,3 +398,120 @@ class TestPhases(TestCase):
         self.assertEqual("ATPM", reaction.id)
         self.assertEqual(456, reaction.lower_bound)
         self.assertEqual(765, reaction.upper_bound)
+
+    def test_apply_phases_creates_a_group_per_phase(self):
+        """Every phase must end up as a group in the extended model.
+
+        The visualization relies on model.groups to select a phase, so a
+        missing group silently removes that phase from the visualization.
+        The first phase is the regression-prone one: it forms the base of
+        the merged model and never passes through _merge.
+        """
+
+        model: Model = self.textbook.copy()
+        phases = Phases()
+        for phase_id in ("leaf_0", "root_0", "leaf_1"):
+            phases.add_phase(Phase(id=phase_id, light_dark="light"))
+
+        new_model = phases.apply_phases(model)
+
+        self.assertEqual(
+            {"leaf_0", "root_0", "leaf_1"},
+            {group.id for group in new_model.groups},
+        )
+
+        for phase_id in ("leaf_0", "root_0", "leaf_1"):
+            members = new_model.groups.get_by_id(phase_id).members
+
+            self.assertEqual(
+                len(model.reactions) + len(model.metabolites), len(members)
+            )
+            for member in members:
+                self.assertTrue(member.id.endswith(f"_{phase_id}"))
+
+    def test_manual_phase_gene_rules_are_preserved_and_warned(self):
+        manual_a = self.textbook.copy()
+        manual_b = self.textbook.copy()
+        manual_a.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "manual_a_gene"
+        )
+        manual_b.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "manual_b_gene"
+        )
+
+        phases = Phases()
+        for phase_id, model in (
+            ("manual_a_0", manual_a),
+            ("manual_b_0", manual_b),
+        ):
+            phase = Phase(id=phase_id, light_dark="light")
+            phase.model = model
+            phases.add_phase(phase)
+
+        with self.assertWarns(GenesNotLinked) as context:
+            result = phases.apply_phases(link_genes=True)
+
+        # The warning has to name the phases it applies to, otherwise a
+        # mixed setup gives no clue which rules were left alone.
+        warning = context.warning
+        self.assertEqual(["manual_a_0", "manual_b_0"], warning.phases)
+        self.assertIn("manual_a_0, manual_b_0", str(warning))
+
+        for phase_id, expected_rule in (
+            ("manual_a_0", "manual_a_gene"),
+            ("manual_b_0", "manual_b_gene"),
+        ):
+            reaction = result.reactions.get_by_id(f"PGI_{phase_id}")
+            self.assertEqual(expected_rule, reaction.gene_reaction_rule)
+            self.assertEqual(
+                {expected_rule}, {gene.id for gene in reaction.genes}
+            )
+            self.assertIn(expected_rule, result.genes)
+
+    def test_manual_phase_models_share_genes_with_identical_ids(self):
+        """Same gene ID in two manual models: one Gene, two distinct rules."""
+        manual_a = self.textbook.copy()
+        manual_b = self.textbook.copy()
+        manual_a.reactions.get_by_id("PGI").gene_reaction_rule = "shared_gene"
+        manual_b.reactions.get_by_id("PGI").gene_reaction_rule = (
+            "shared_gene and manual_b_gene"
+        )
+
+        phases = Phases()
+        for phase_id, model in (
+            ("manual_a_0", manual_a),
+            ("manual_b_0", manual_b),
+        ):
+            phase = Phase(id=phase_id, light_dark="light")
+            phase.model = model
+            phases.add_phase(phase)
+
+        with self.assertWarns(GenesNotLinked):
+            result = phases.apply_phases(link_genes=True)
+
+        reaction_a = result.reactions.get_by_id("PGI_manual_a_0")
+        reaction_b = result.reactions.get_by_id("PGI_manual_b_0")
+
+        # The rules stay phase specific, they are not synchronized.
+        self.assertEqual("shared_gene", reaction_a.gene_reaction_rule)
+        self.assertEqual(
+            "shared_gene and manual_b_gene", reaction_b.gene_reaction_rule
+        )
+
+        # Gene IDs are not phase suffixed, so both reactions reference the
+        # very same Gene, which now spans two phases.
+        shared = result.genes.get_by_id("shared_gene")
+        for reaction in (reaction_a, reaction_b):
+            gene = next(
+                gene for gene in reaction.genes if gene.id == "shared_gene"
+            )
+            self.assertIs(shared, gene)
+
+        self.assertEqual(
+            {"PGI_manual_a_0", "PGI_manual_b_0"},
+            {reaction.id for reaction in shared.reactions},
+        )
+        self.assertEqual(
+            {"manual_b_gene"},
+            {gene.id for gene in reaction_b.genes} - {"shared_gene"},
+        )
