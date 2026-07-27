@@ -38,7 +38,9 @@ The visualization can be created with the following command.
 .. figure:: ../../assets/media/GraphViz.png
    :scale: 50 %
    :alt: Example of visualization using GraphViz
-    Example of visualization with GraphViz where ATP is transported to the following time period respectively.
+
+   Example of a GraphViz visualization in which ATP is transported to each
+   following time period.
 
 Cytoscape visualizes the same as GraphViz but in an interactive environment. Thus, much more information is available
 than is available when using Graphviz. However, this information is not all displayed at the same time,
@@ -62,7 +64,9 @@ Below is a brief example of this visualization.
 .. figure:: ../../assets/media/ConInteractive.gif
    :scale: 50 %
    :alt: Example of visualization using Cytoscape
-    Example of visualization with Cytoscape where ATP is transported to the following time period respectively.
+
+   Example of an interactive Cytoscape visualization in which ATP is
+   transported to each following time period.
 
 
 Metexplore
@@ -83,4 +87,6 @@ The pathways are sorted alphabetically and the metabolites are sorted based on t
 .. figure:: ../../assets/media/MetExploreVizInterface.png
    :scale: 50 %
    :alt: Example of the MetExploreViz interface
-    Example of the interface used to select groups and hide metabolites before visualizing a COBRApy model with MetExploreViz.
+
+   Interface for selecting groups and hiding metabolites before visualizing a
+   COBRApy model with MetExploreViz.

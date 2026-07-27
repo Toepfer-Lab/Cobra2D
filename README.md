@@ -1,14 +1,16 @@
-![Generic badge](<https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue>)
-![Tests](https://github.com/Toepfer-Lab/model_duplication/actions/workflows/test.yml/badge.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/model_duplication)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/model_duplication)
+# Cobra2D
+
+![Python versions](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)
+![Tests](https://github.com/Toepfer-Lab/Cobra2D/actions/workflows/test.yml/badge.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/Cobra2D)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/Cobra2D)
 
 Cobra2D is a Python package that extends COBRApy to automatically reconstruct time-resolved and/or multi-subsystem metabolic models. It generates context-specific submodels, adds linker and/or transfer reactions to connect them, and scales reactions to account for the lengths of the respective time intervals and the sizes of the subsystems. Cobra2D also provides a time interval- and subsystem size-aware weighted pFBA function.
 
-### General process:
+### General process
 
 * Define time intervals (phases) and subsystems (e.g. cell types, tissues or organs)
-* Contextualizing sub-models
+* Contextualize submodels
   * Adjusting compartment sizes
   * Adjusting time intervals
   * Defining linker reactions (auxiliary reactions that connect phases and allow storage metabolites to be transferred across consecutive phases)
@@ -19,32 +21,52 @@ Cobra2D is a Python package that extends COBRApy to automatically reconstruct ti
 For this process, this package provides functionalities to not only simplify this process, but also to easily save and
 share the defined settings with other people.
 
-### Use cases for this package
+### Quick start
 
-There are two ways to use this package: functions implemented in Python can be used to define phases and constraints directly, or an XML file can be created and read in to generate a new model.
+Define the spatial submodels and time slots, connect phases, and apply the resulting constraints to a COBRApy model:
+
+```python
+from cobra2d import Constraints
+from cobra.io import load_model
+
+model = load_model("textbook")
+
+constraints = Constraints()
+constraints.add_sub_models(["leaf", "root"], [2, 1])
+constraints.add_time_slots(n_ranges=2, time=12)
+constraints.add_linker_series("atp_c")
+constraints.add_transfer_series("glc__D_e", ["leaf", "root"])
+
+resolved_model = constraints.apply_to_model(model)
+```
+
+Constraints can also be saved as XML and shared:
+
+```python
+constraints.save_as_xml("constraints.xml")
+restored = Constraints.load_from_xml("constraints.xml")
+```
+
+See the [constraints notebook](docs/source/examples/Constraints.ipynb) for a complete introduction and [linkage and phases](docs/source/examples/LinkageAndPhases.ipynb) for more advanced model construction.
 
 ### Examples
 
-Examples of package usage can be found in the examples folder, including scripts that demonstrate the core functions and a sample XML file showing how parameters are stored. 
+The documentation includes notebooks for [constraints](docs/source/examples/Constraints.ipynb), [linkage and phases](docs/source/examples/LinkageAndPhases.ipynb), and [visualization](docs/source/examples/Visualization/cytoscape.ipynb). A sample XML configuration is available at [docs/source/examples/data/conf.xml](docs/source/examples/data/conf.xml).
 
 ### Visualization
 
 The package also provides the possibility to obtain an overview of the created settings via an animated or static graphic.
 
-<object data="../../assets/media/ConInteractive.gif" type="image/gif">
-      <object data="https://github.com/Toepfer-Lab/model_duplication/blob/c42dfdac52524a93323e78e1f3d996aef5e01714/assets/media/ConInteractive.gif" type="image/gif">
-        <img src="./assets/media/ConInteractive.gif" alt="ConInteractive.gif">
-      </object>
-</object>
+![Interactive Cytoscape visualization of Cobra2D constraints](assets/media/ConInteractive.gif)
 
 ### Installation
 
 After cloning the repository, the package can be installed in the current Python environment using pip. In a terminal, this can be done with the following commands: 
 
 ```
-git clone https://github.com/Toepfer-Lab/model_duplication
+git clone https://github.com/Toepfer-Lab/Cobra2D.git
 
-cd model_duplication
+cd Cobra2D
 
 pip install .
 ```
