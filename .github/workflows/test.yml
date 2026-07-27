@@ -5,8 +5,12 @@ on:
   schedule:
     - cron: "0 5 * * 1"
 
+  push:
+    branches:
+      - main
+
   pull_request:
-    types: [ opened, synchronize, reopened, closed ]
+    types: [ opened, synchronize, reopened ]
     branches:
       - main
 
@@ -106,7 +110,7 @@ jobs:
   create-tag:
     needs: [ test, test-dev ]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - name: Get version
@@ -118,17 +122,27 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/v${{ steps.version.outputs.version }}",
-              sha: context.sha
-            })
+            const tag = "refs/tags/v${{ steps.version.outputs.version }}";
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: tag,
+                sha: context.sha
+              });
+              core.info(`Created ${tag}`);
+            } catch (err) {
+              if (err.status === 422) {
+                core.info(`Tag ${tag} already exists, skipping.`);
+              } else {
+                throw err;
+              }
+            }
 
   publish-to-pypi:
     needs: [ test, test-dev ]
     name: Publish Cobra2D 📦 to PyPI
-    if: github.event.pull_request.merged == true && github.event_name != 'schedule'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: pypi
