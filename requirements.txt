@@ -42,7 +42,7 @@ nest-asyncio==1.5.6       # via ipykernel
 networkx==3.0             # via Cobra2D (./setup.cfg)
 numpy==1.23.5             # via cobra, pandas
 optlang==1.6.1            # via cobra
-packaging==23.0           # via ipykernel
+packaging==26.2           # via ipykernel
 pandas==1.5.3             # via cobra
 parso==0.8.3              # via jedi
 pexpect==4.8.0            # via ipython
