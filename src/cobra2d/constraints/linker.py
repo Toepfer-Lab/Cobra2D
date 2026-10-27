@@ -229,7 +229,7 @@ class Linkage(Transports):
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
-            Use :py:method:`linkage.linker.append` instead.
+            Use :py:meth:`Linkage.append` instead.
         """
         warnings.warn(
             "'add_linker' is deprecated and will be removed in "
@@ -268,12 +268,12 @@ class Linkage(Transports):
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
-            Use :py:method:`linkage.linker.remove` instead.
+            Use :py:meth:`Linkage.remove` instead.
 
         """
         warnings.warn(
-            "'add_linker' is deprecated and will be removed in "
-            "version 1.0.0. Use `linkage.append` instead.",
+            "'remove_linker' is deprecated and will be removed in "
+            "version 1.0.0. Use 'linkage.remove' instead.",
             DeprecationWarning,
         )
 
@@ -307,14 +307,15 @@ class Linkage(Transports):
 
         Returns:
             A :py:class:`cobra.model` that contains the Linker.
+
         Note:
             This method is deprecated and will be removed in version 1.0.0.
-            Use :py:method:`linkage.linker.apply` instead.
+            Use :py:meth:`Linkage.apply` instead.
         """
 
         warnings.warn(
             "'apply_linkage' is deprecated and will be removed in "
-            "version 1.0.0. Use `linkage.linker.apply` instead.",
+            "version 1.0.0. Use 'linkage.apply' instead.",
             DeprecationWarning,
         )
 

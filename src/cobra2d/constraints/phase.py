@@ -39,17 +39,22 @@ class Phase:
         id(str): The ID of the phase.
         name(str): The name of the phase.
         light_dark(Literal["light","dark"]): Definition of the lighting
-            conditions.
+            conditions. This is metadata only: it is stored and written to
+            XML, but not used when constructing the model.
+        timeframe(int): The length of the time period of the phase.
         volume(int): The volume of the organ.
         model(Model): This attribute can be used to assign a model to the
-            phase. This guarantees that :py:func:`apply_phases` does not create
-            a duplicate of the passed model but uses the one associated with
-            the phase.
+            phase. This guarantees that :py:meth:`Phases.apply_phases` (and
+            therefore :py:meth:`Constraints.apply_to_model`, which forwards
+            to it) does not create a duplicate of the passed model but uses
+            the one associated with the phase.
         reaction_settings(Reaction): Definition of reactions to be adjusted
             identically to those defined here within the phase.
-        objective_factor(float): A factor that scales the value of the
-            objective_function of this phase before summing all objective
-            functions to form the final one.
+        objective_factor(float): A factor that scales the objective
+            coefficients of this phase before summing all objective
+            functions to form the final one. The coefficients are multiplied
+            by ``objective_factor * timeframe * volume``, so the length of
+            the time period and the volume are always taken into account.
     """
 
     id: str
@@ -78,11 +83,13 @@ class Phase:
 
         Args:
             id: The ID to be used for the phase.
-            light_dark: Definition of the lighting
-                conditions and thus the energy consumed for maintenance??
-            timeframe:
+            light_dark: Definition of the lighting conditions. Stored as
+                metadata only.
+            timeframe: The length of the time period of the phase.
             volume: The volume of the organ.
             name: The name of the phase.
+            objective_factor: A factor that scales the objective
+                coefficients of this phase, see :py:attr:`objective_factor`.
         """
         self.id = id
         self.volume = volume
@@ -143,9 +150,9 @@ class Phase:
         reactions within the phase.
 
         Args:
-            reaction: A reaction whose parameters are applied to the reaction
-            with identical name in the phase. The name must not contain the
-            phase ID.
+            reaction: A reaction whose parameters are applied to the
+                reaction with identical ID in the phase. The ID must not
+                contain the phase ID.
         """
         self.reaction_settings.append(reaction)
 
@@ -266,8 +273,10 @@ class Phases:
         Method to remove individual phases.
 
         Args:
-            phase: The phase itself or its position in the internal list
-            that is to be removed
+            phase: The phase that is to be removed, or its ID.
+
+        Raises:
+            KeyError: If there is no phase with this ID.
 
         """
 
@@ -391,7 +400,7 @@ class Phases:
 
     def to_xml(self) -> Element:
         """
-        Converts a linkage to an :py:class:`Element`.
+        Converts a phases object to an :py:class:`Element`.
 
         Returns:
             A :py:class:`Element` representing a phases
