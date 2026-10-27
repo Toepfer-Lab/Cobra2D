@@ -11,10 +11,10 @@ The following Code block is the basis for the visualizations on this page.
 
     >>> from cobra2d import Constraints, Linker
     >>> con = Constraints()
-    >>> con.add_sub_models(["root", "leaf", "leaf_2"], [1, 2, 1])
+    >>> con.add_sub_models(["root", "leaf", "stem"], [1, 2, 1])
     >>> con.add_time_slots(5, 2)
     >>> con.add_linker_series("ATP",last2first=False)
-    >>> con.add_linker( Linker( "ADP", source="leaf_2_3", destination="leaf_2_4" ) )
+    >>> con.add_linker( Linker( "ADP", source="stem_3", destination="stem_4" ) )
 
 
 GraphViz
@@ -41,8 +41,8 @@ which is displayed directly in a Jupyter Notebook.
    :alt: Example of visualization using GraphViz
 
    Example of a GraphViz visualization in which ATP is transported to each
-   following time period and ADP is transported from ``leaf_2_3`` to
-   ``leaf_2_4``.
+   following time period and ADP is transported from ``stem_3`` to
+   ``stem_4``.
 
 Cytoscape visualizes the same as GraphViz but in an interactive environment. Thus, much more information is available
 than is available when using Graphviz. However, this information is not all displayed at the same time,
@@ -68,9 +68,7 @@ Below is a brief example of this visualization.
    :scale: 50 %
    :alt: Example of visualization using Cytoscape
 
-   Example of an interactive Cytoscape visualization in which ATP is
-   transported to each following time period and ADP is transported from
-   ``leaf_2_3`` to ``leaf_2_4``.
+   Example of an interactive Cytoscape visualization.
 
 
 Metexplore
