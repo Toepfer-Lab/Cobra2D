@@ -67,6 +67,9 @@ intersphinx_mapping = {
     "escher": ("https://escher.readthedocs.io/en/latest/", None),
 }
 
+# Doctest: names used by the examples in the docstrings
+doctest_global_setup = "from cobra2d import Constraints"
+
 # AutoSummary
 autosummary_generate = True
 

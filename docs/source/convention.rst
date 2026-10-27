@@ -32,6 +32,12 @@ ID: <Metabolite_ID>_lk_<sub_model>_[<origin_time>|<destination_time>]
     | ID: STARCH_p_lk_leaf_[1|2]
     | STARCH_p_leaf_1 --> STARCH_p_leaf_2
 
+.. note::
+    The examples above show the reactions with a coefficient of 1 for both
+    metabolites. This only applies if source and destination have the same
+    volume and timeframe. Otherwise the coefficient of the destination
+    metabolite is scaled, see :ref:`scaling`.
+
 
 Order of suffixes:
 -----------------------------------

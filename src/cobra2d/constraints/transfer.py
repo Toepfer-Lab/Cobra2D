@@ -131,14 +131,14 @@ class Transfer(Transport):
     @classmethod
     def from_dict(cls, data: dict) -> Transfer:
         """
-        Creates an object from given dictionary
+        Creates a transfer object based on the data encoded in a dict.
 
         Args:
             data: A dict that contains the necessary data to create
-                a transport.
+                a transfer.
 
         Returns:
-            A transport based on the data from the dict.
+            A transfer based on the data from the dict.
 
         Examples:
             .. code-block:: python
@@ -150,7 +150,7 @@ class Transfer(Transport):
                     "destination": {"refid": "destination"},
                     "source": {"refid": "source"}
                 }
-                transfers = Transfers.from_dict(input)
+                transfer = Transfer.from_dict(input)
         """
         return cls(
             metabolite_id=data["metabolite_id"],
@@ -163,11 +163,12 @@ class Transfer(Transport):
 
 class Transfers(Transports):
     """
-    DictList with the Transfers. Refer to :py:class:`cobra.DictList`
-    for its methods.
+    Transfers as a class represents multiple Transfer objects. Furthermore it
+    implements the applying of transfers to a :py:class:`cobra.Model`.
 
-    Additionally it includes the following methods: apply, from_dict
-    and to_xml
+    Transfers can be added with :py:meth:`append`, removed with
+    :py:meth:`remove` and iterated over. The contained transfers are
+    accessible as a list via the ``transfers`` property.
     """
 
     def __init__(self):
@@ -175,11 +176,11 @@ class Transfers(Transports):
 
     def __str__(self):
         """
-        The toString method of the Transfer class.
+        The toString method of the Transfers class.
 
         Returns:
             The ID, name, source, destination, lower bound and upper
-            bound of all linker objects as a formatted string.
+            bound of all transfer objects as a formatted string.
         """
 
         return super(Transfers, self).__str__()
@@ -203,8 +204,7 @@ class Transfers(Transports):
     def remove(self, obj_pos: Union[Transport, int]):
         """
         Function to remove a transfer. Either the position of the transfer in
-        the :py:attr:`linkage.transfer` list can be specified or the respective
-        linker.
+        the ``transfers`` list can be specified or the respective transfer.
 
         Args:
             obj_pos: The position of the transfer object to be deleted or

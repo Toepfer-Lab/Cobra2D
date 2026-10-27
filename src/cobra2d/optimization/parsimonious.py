@@ -25,6 +25,11 @@ def adjusted_pfba(
     It differs in that it takes into account the time periods and
     volumes defined through a Constraints object.
 
+    The flux of each reaction is weighted by ``timeframe * volume`` of the
+    phase it belongs to. Linker and transfer reactions (identified by the
+    ``_lk_`` and ``_tr_`` markers of the naming convention) are not
+    minimized. See :py:func:`add_adjusted_pfba_objective` for details.
+
     Args:
         constraints: The Constraints object that defines the entire model.
         model: The COBRApy model created by the constraints object.
@@ -32,14 +37,15 @@ def adjusted_pfba(
             More precisely, a constraint is defined that the original
             objective function must be greater than the product of
             fraction_of_optimum and flux of the original objective.
-        objective: Additional objectives that can be defined in addition to
-            minimizing the flux values.
-        reactions: Reactions that should be minimized. The default are
-            all "real" reactions. This means that transports and
-            linkers are not minimized.
+        objective: An objective that replaces the current objective of the
+            model before it is fixed as a constraint. By default, the
+            current objective of the model is used.
+        reactions: Reactions whose fluxes are included in the returned
+            solution. By default, all reactions of the model are included.
+            This does not affect which reactions are minimized.
 
     Returns:
-
+        The :py:class:`cobra.Solution` of the weighted pFBA.
     """
     reactions = (
         model.reactions
@@ -66,6 +72,29 @@ def add_adjusted_pfba_objective(
     objective: Optional[Union[Dict, Objective]] = None,
     fraction_of_optimum: float = 1.0,
 ) -> None:
+    """
+    Adds the objective of the weighted pFBA to a model.
+
+    The current objective is fixed as a constraint (scaled by
+    ``fraction_of_optimum``) and replaced by the minimization of the sum of
+    all fluxes. The flux of each reaction is weighted by
+    ``timeframe * volume`` of the phase it belongs to, which is determined
+    by matching the end of the reaction ID against the phase IDs. Linker and
+    transfer reactions (identified by the ``_lk_`` and ``_tr_`` markers of
+    the naming convention) are not minimized.
+
+    Args:
+        constraints: The Constraints object that defines the entire model.
+        model: The COBRApy model created by the constraints object.
+        objective: An objective that replaces the current objective of the
+            model before it is fixed as a constraint.
+        fraction_of_optimum: The fraction of the optimum of the original
+            objective that must be achieved.
+
+    Raises:
+        ValueError: If the model already has a pFBA objective.
+        KeyError: If a reaction cannot be matched to any phase.
+    """
     if objective is not None:
         model.objective = objective
 

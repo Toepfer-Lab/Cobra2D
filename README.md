@@ -5,7 +5,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/Cobra2D)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/Cobra2D)
 
-Cobra2D is a Python package that extends COBRApy to automatically reconstruct time-resolved and/or multi-subsystem metabolic models. It generates context-specific submodels, adds linker and/or transfer reactions to connect them, and scales reactions to account for the lengths of the respective time intervals and the sizes of the subsystems. Cobra2D also provides a time interval- and subsystem size-aware weighted pFBA function.
+Cobra2D is a Python package that extends COBRApy to automatically reconstruct time-resolved and/or multi-subsystem metabolic models. It generates context-specific submodels, adds linker and/or transfer reactions to connect them, and scales the stoichiometry of these linker and transfer reactions as well as the objective coefficients of each submodel to account for the lengths of the respective time intervals and the sizes of the subsystems. The bounds of the remaining reactions are not scaled. For details, see [Linker and transfer reactions](https://cobra2d.readthedocs.io/stable/transport.html#scaling). Cobra2D also provides a time interval- and subsystem size-aware weighted pFBA function.
 
 ### General process
 
@@ -47,17 +47,17 @@ constraints.save_as_xml("constraints.xml")
 restored = Constraints.load_from_xml("constraints.xml")
 ```
 
-See the [constraints notebook](docs/source/examples/Constraints.ipynb) for a complete introduction and [linkage and phases](docs/source/examples/LinkageAndPhases.ipynb) for more advanced model construction.
+See the [constraints notebook](https://cobra2d.readthedocs.io/stable/examples/Constraints.html) for a complete introduction and [linkage and phases](https://cobra2d.readthedocs.io/stable/examples/LinkageAndPhases.html) for more advanced model construction.
 
 ### Examples
 
-The documentation includes notebooks for [constraints](docs/source/examples/Constraints.ipynb), [linkage and phases](docs/source/examples/LinkageAndPhases.ipynb), and [visualization](docs/source/examples/Visualization/cytoscape.ipynb). A sample XML configuration is available at [docs/source/examples/data/conf.xml](docs/source/examples/data/conf.xml).
+The documentation includes notebooks for [constraints](https://cobra2d.readthedocs.io/stable/examples/Constraints.html), [linkage and phases](https://cobra2d.readthedocs.io/stable/examples/LinkageAndPhases.html), and [visualization](https://cobra2d.readthedocs.io/stable/examples/Visualization/cytoscape.html). A sample XML configuration is available at [docs/source/examples/data/conf.xml](https://github.com/Toepfer-Lab/Cobra2D/blob/main/docs/source/examples/data/conf.xml).
 
 ### Visualization
 
 The package also provides the possibility to obtain an overview of the created settings via an animated or static graphic.
 
-![Interactive Cytoscape visualization of Cobra2D constraints](assets/media/ConInteractive.gif)
+![Interactive Cytoscape visualization of Cobra2D constraints](https://raw.githubusercontent.com/Toepfer-Lab/Cobra2D/main/assets/media/ConInteractive.gif)
 
 ### Installation
 

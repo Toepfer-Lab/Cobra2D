@@ -67,10 +67,12 @@ def _entries(data: dict, container: str, item: str) -> List[dict]:
 
 class Constraints:
     """
-    This class bundles the functionalities of :py:class:`Linker` and
-    :py:class:`Linkage`. So the application of these is not only possible with
-    a single line but there are also helper functions to simplify the creation
-    of organs and time periods. Last but not least it realizes a storage of a
+    This class bundles the functionalities of :py:class:`Phases`,
+    :py:class:`Linkage` (with its :py:class:`Linker` objects) and
+    :py:class:`Transfers` (with its :py:class:`Transfer` objects). So the
+    application of these is not only possible with a single line but there
+    are also helper functions to simplify the creation of organs and time
+    periods. Last but not least it realizes a storage of a
     constraints object as XML and also the creation of a constraints object
     based on such an XML file.
 
@@ -358,6 +360,17 @@ class Constraints:
             )
 
     def add_transfer(self, transfer: Transfer):
+        """
+        Method to add previously created transfers to the constraints object.
+
+        Args:
+            transfer: The transfer to be added.
+
+        Raises:
+            PhaseNotFound: If the source or destination phase of the transfer
+                is unknown.
+        """
+
         try:
             self.get_phase_by_id(transfer.destination)
         except PhaseNotFound as e:
@@ -533,7 +546,7 @@ class Constraints:
 
         As there is no easy way to infer intended order to connect multiple
         sub_model, the definition of the sub_model parameter is required and the
-        order in this parameter defines the way we connect hte sub_model to one another.
+        order in this parameter defines the way we connect the sub_models to one another.
 
         Args:
             metabolite_id: The ID to be used for the metabolite. This should match
@@ -1169,6 +1182,20 @@ class Constraints:
         )
 
     def cytoscape(self):  # pragma: no cover
+        """
+        Displays an interactive visualization of the phases, linkers and
+        transfers in a Jupyter Notebook using ipycytoscape.
+
+        Phases are shown as nodes grouped by sub_model, linkers and transfers
+        as edges. Clicking on a phase shows its settings (name, volume,
+        timeframe, assigned model and adjusted reactions); clicking on an edge
+        shows the metabolites transported along it. If a model is assigned
+        to a phase, an additional tab offers a MetExploreViz visualization of
+        it, see :py:func:`cobra2d.visualization.helper.metexplore_interface`.
+
+        Note:
+            This requires a running Jupyter environment with ipywidgets.
+        """
         # is covered in ui-tests
         tab = "&nbsp;&nbsp;&nbsp;&nbsp;"
 

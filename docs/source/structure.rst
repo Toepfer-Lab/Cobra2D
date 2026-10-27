@@ -11,16 +11,15 @@ The following is a brief description of the Constraints class and the phase clas
 Constraints Class
 =============================================
 
-In the following we will take a closer look at the Constraints class. This is
-the one that brings together all the functionalities of this package.
+The Constraints class brings together all the functionalities of this package.
 For a user it is therefore the most important class.
-
-.. autoclass:: cobra2d.constraints.constraints::Constraints
-   :members:
 
 To add periods or sub_models, 'add_sub_models' or 'add_time_slots' can be used.
 
 These methods create all the necessary phase objects, taking into account the specified parameters.
+
+The class, including its full API, is described on the
+:doc:`Constraints class <constraints>` page.
 
 =============================================
 Phase Class
