@@ -68,7 +68,8 @@ Below is a brief example of this visualization.
    :scale: 50 %
    :alt: Example of visualization using Cytoscape
 
-   Example of an interactive Cytoscape visualization.
+   Example of an interactive Cytoscape visualization. Clicking on a phase or
+   a connection shows its details below the graph.
 
 
 Metexplore
