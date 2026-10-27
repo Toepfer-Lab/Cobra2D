@@ -28,11 +28,12 @@ Visualization using GraphViz creates a static image that can later be used in ot
     If it is missing, :py:meth:`~cobra2d.constraints.constraints.Constraints.create_graph`
     issues a :py:class:`~cobra2d.error.GraphvizNotInstalled` warning.
 
-The visualization can be created with the following command.
+The visualization can be created with the following command. It returns a ``graphviz.Digraph``,
+which is displayed directly in a Jupyter Notebook.
 
 .. doctest:: Viz
 
-    >>> con.create_graph()
+    >>> graph = con.create_graph()
 
 
 .. figure:: ../../assets/media/GraphViz.png
@@ -40,10 +41,12 @@ The visualization can be created with the following command.
    :alt: Example of visualization using GraphViz
 
    Example of a GraphViz visualization in which ATP is transported to each
-   following time period.
+   following time period and ADP is transported from ``leaf_2_3`` to
+   ``leaf_2_4``.
 
 Cytoscape visualizes the same as GraphViz but in an interactive environment. Thus, much more information is available
 than is available when using Graphviz. However, this information is not all displayed at the same time,
+but only for the phase or connection selected by the user.
 
 
 Hence the different uses of GraphViz and Cytoscape visualization.
@@ -59,14 +62,15 @@ Below is a brief example of this visualization.
 
 .. doctest:: Viz
 
-    >>> con.cytoscape()
+    >>> con.cytoscape()  # doctest: +SKIP
 
 .. figure:: ../../assets/media/ConInteractive.gif
    :scale: 50 %
    :alt: Example of visualization using Cytoscape
 
    Example of an interactive Cytoscape visualization in which ATP is
-   transported to each following time period.
+   transported to each following time period and ADP is transported from
+   ``leaf_2_3`` to ``leaf_2_4``.
 
 
 Metexplore
@@ -80,8 +84,10 @@ The pathways are sorted alphabetically and the metabolites are sorted based on t
 
 .. doctest:: Viz
 
+    >>> from cobra.io import load_model
     >>> from cobra2d.visualization.helper import metexplore_interface
-    >>> metexplore_interface(model)
+    >>> model = load_model("textbook")
+    >>> metexplore_interface(model)  # doctest: +SKIP
 
 
 .. figure:: ../../assets/media/MetExploreVizInterface.png

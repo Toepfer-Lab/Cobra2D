@@ -13,8 +13,10 @@ Adding new time periods or sub_models
 This class contains two functions to add periods or sub_models.
 
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_sub_models
+   :no-index:
 
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_time_slots
+   :no-index:
 
 The functions create phase objects for the newly
 added time period, sub_model combinations. For the creation of the phase objects the parameters are used, which
@@ -100,9 +102,11 @@ cross-phase synchronization of manually assigned models must perform it
 explicitly.
 
 Adding new linker reactions
---------------------
+---------------------------
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_linker
+   :no-index:
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_linker_series
+   :no-index:
 
 Saving and loading
 ---------------------------------------------------
