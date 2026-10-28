@@ -31,8 +31,8 @@ def _rename(model: Model, suffix: str, objective_factor: float = 1.0):
 
         else:
             logger.warning(
-                msg=f"Item {id(item)} has a problem with its id. No suffix"
-                + "was added"
+                msg=f"Item {id(item)} has no valid ID, so no suffix was "
+                "added."
             )
 
     new_objectives = {}
@@ -99,7 +99,8 @@ def _main_placeholder(
     )
 
     for i, label in enumerate(labels[1:], 1):
-        # Use copy of original to avoid 2n reactions
+        # Copy the original model, not the merged one, to avoid duplicating
+        # the reactions of the phases added so far
         submodel: Model = model.copy()
         _rename(
             model=submodel,

@@ -1,22 +1,21 @@
 Structural design
 =============================================
 
-Cobra2D breaks down a time and space resolved model into a spatial and a temporal component. A combination of
-these two components for a single time and space is described as a phase. The entirety of these phases is
-summarized by a constraints object.
+Cobra2D decomposes a time- and space-resolved model into spatial and temporal components. The combination of a
+single time period and a single sub_model is called a phase. A Constraints object holds all phases and
+the linker and transfer reactions that connect them.
 
-The following is a brief description of the Constraints class and the phase class.
+The following briefly describes the Constraints class and the Phase class.
 
 =============================================
 Constraints Class
 =============================================
 
-The Constraints class brings together all the functionalities of this package.
-For a user it is therefore the most important class.
+The Constraints class brings together all the functionality of this package,
+which makes it the most important class for users.
 
-To add periods or sub_models, 'add_sub_models' or 'add_time_slots' can be used.
-
-These methods create all the necessary phase objects, taking into account the specified parameters.
+Time periods are added with ``add_time_slots`` and sub_models with ``add_sub_models``.
+Both methods create the required phase objects from the specified parameters.
 
 The class, including its full API, is described on the
 :doc:`Constraints class <constraints>` page.
@@ -25,9 +24,10 @@ The class, including its full API, is described on the
 Phase Class
 =============================================
 
-As already described, a phase here defines the combination of a point in time and a defined spatial environment.
+As described above, a phase is the combination of a time period and a sub_model.
 
-Multiple phases can be grouped into a Phases object, which simplifies the handling and application to a cobra model of these, as well as allowing a simple tabular representation.
+Multiple phases can be grouped into a Phases object, which makes it easy to apply them to a COBRApy model and to
+display them as a table.
 
 .. autoclass:: cobra2d.constraints.phase::Phase
    :members:

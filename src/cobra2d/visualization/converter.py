@@ -68,18 +68,17 @@ def _group2lists(
     group: Group,
 ) -> Tuple[Set[Metabolite], Set[Reaction], Set[Group]]:
     """
-    Function that locates all elements belonging to a group.
-    The potential types of elements are metabolites, reactions and groups.
-    Hereby all potential elements are searched recursively and also
-    elements which do not belong to the group itself but for example to a
-    reaction or group of said group. This is continued recursively.
+    Collect all elements belonging to a group, i.e. its metabolites,
+    reactions and groups. Elements that belong to the group only indirectly
+    are included as well: the metabolites of its reactions, and the members
+    of its nested groups, which are collected recursively.
 
     Args:
-        group: The Cobrapy group whose elements should be returned
+        group: The COBRApy group whose elements should be returned.
 
-    Returns: A triplet consisting of all metabolites, reactions and
-        groups that have said association to the given group.
-        The sequence is as follows: (Metabolites, Reactions, Groups).
+    Returns:
+        A tuple ``(metabolites, reactions, groups)`` of sets containing all
+        elements associated with the group, including the group itself.
     """
 
     logging.info(
@@ -152,7 +151,7 @@ def __create_and_append_links(
         else:
             logging.info(
                 f"Create connection from {metabolite.id} to "
-                f"{reaction.id}. With node IDs  {metabolite_id}"
+                f"{reaction.id}. With node IDs {metabolite_id} "
                 f"and {reaction_id}. Reversibility "
                 f"{reversibility} and with the direction 'in'."
             )
@@ -175,23 +174,28 @@ def cobra2metexplore(
     removeUnselectedGroups=False,
 ) -> str:
     """
-    It creates a JSON string that corresponds to the format that MetExploreViz
-    needs to read in. It contains all reactions, metabolites and groups.
-    The cobra groups are displayed in MetExploreViz as pathways.
+    Create a JSON string in the format that MetExploreViz reads. It contains
+    the reactions, metabolites and groups of the model. The groups are
+    displayed as pathways in MetExploreViz.
 
     Note:
-        Not all :py:class:`cobra.core.Group` have to correspond to pathways.
-        Therefore, combinations of metabolites and reactions that do not
-        correspond to any pathways may be displayed as pathways in
-        MetExploreViz.
+        Not every :py:class:`cobra.core.Group` corresponds to a pathway.
+        Therefore, sets of metabolites and reactions that do not form a
+        pathway may be displayed as pathways in MetExploreViz.
 
     Args:
-        model: The :py:class:`cobra.model` to be translated into the
+        model: The :py:class:`cobra.Model` to be translated into the
             JSON representation.
+        groups: The IDs of the groups to be included. By default, the whole
+            model is used.
+        side_metabolites: The IDs of the metabolites to be marked as side
+            metabolites.
+        removeUnselectedGroups: If True, metabolites and reactions that do
+            not belong to the selected ``groups`` are left out. If False,
+            they are included but marked as hidden.
 
     Returns:
-        The :py:class:`cobra.model` encoded in JSON.
-
+        The model encoded as a JSON string in the MetExploreViz format.
     """
     dic = {}
 
@@ -229,7 +233,7 @@ def cobra2metexplore(
     if removeUnselectedGroups:
         for metabolite in metabolites2use:
             logging.info(
-                f"Creating Node for Metabolite {metabolite.id}. "
+                f"Creating node for metabolite {metabolite.id}. "
                 f"With node number {id}."
             )
             side_metabolite = False
@@ -252,7 +256,7 @@ def cobra2metexplore(
     else:
         for metabolite in model.metabolites:
             logging.info(
-                f"Creating Node for Metabolite {metabolite.id}. "
+                f"Creating node for metabolite {metabolite.id}. "
                 f"With node number {id}."
             )
             side_metabolite = False
@@ -285,7 +289,7 @@ def cobra2metexplore(
     if removeUnselectedGroups:
         for reaction in reactions2use:
             logging.info(
-                f"Creating Node for Metabolite {reaction.id}. "
+                f"Creating node for reaction {reaction.id}. "
                 f"With node number {id}."
             )
             reversibility = reaction.reversibility
@@ -319,7 +323,7 @@ def cobra2metexplore(
 
         for reaction in model.reactions:
             logging.info(
-                f"Creating Node for Metabolite {reaction.id}. "
+                f"Creating node for reaction {reaction.id}. "
                 f"With node number {id}."
             )
             reversibility = reaction.reversibility
@@ -376,15 +380,14 @@ def cobra2metexplore(
 
 def cobra2metexplore_flux_file(solution: Solution, file: Union[Path, str]):
     """
-    Converts a cobra solution into a tsv that can be read by MetExploreViz
-    to integrate Flux data into the visualization.
+    Write the fluxes of a COBRApy solution to a tab-separated file that
+    MetExploreViz can read to add the flux values to the visualization.
+    The values are rounded to four decimal places and written with a decimal
+    comma.
 
     Args:
-        solution: The solution of the :py:class:`cobra.model`.
-        file: A string or :py:class:`Path` containing the location and file
-            name under which the tsv containing the flux values should be
-            created.
-
+        solution: The solution of the :py:class:`cobra.Model`.
+        file: The path of the file to be created.
     """
     if isinstance(file, str):
         file = Path(file)
@@ -414,24 +417,24 @@ def cobra2metexplore_file(
     removeUnselectedGroups=True,
 ):
     """
-    Function that creates a JSON file corresponding to a
-    :py:class:`cobra.model` that can be read by MetExploreViz.
-
-    The created file contains the information of the :py:class:`cobra.model`
-    regarding all metabolites, reactions and groups.
+    Write a :py:class:`cobra.Model` to a JSON file that can be read by
+    MetExploreViz, see :py:func:`cobra2metexplore`.
 
     Note:
-        The groups in the :py:class:`cobra.model` are displayed as pathways in
-        MetExploreViz. However, the :py:class:`cobra.core.Group` do not
-        necessarily correspond to pathways.
+        The groups of the :py:class:`cobra.Model` are displayed as pathways
+        in MetExploreViz. However, a :py:class:`cobra.core.Group` does not
+        necessarily correspond to a pathway.
 
     Args:
-        model: The :py:class:`cobra.model` to be translated into the
+        model: The :py:class:`cobra.Model` to be translated into the
             JSON representation.
-
-    Returns:
-        The :py:class:`cobra.model` encoded in JSON.
-
+        file: The path of the file to be created. Its suffix is replaced
+            by ``.json``.
+        groups: The IDs of the groups to be included. By default, the whole
+            model is used.
+        side_metabolites: The IDs of the metabolites to be marked as side
+            metabolites.
+        removeUnselectedGroups: See :py:func:`cobra2metexplore`.
     """
 
     logging.info("")
@@ -477,25 +480,27 @@ def metexplore(
     removeUnselectedGroups=True,
 ):
     """
-    This function creates all the necessary files to visualize a cobra model
-    using MetExploreViz. Furthermore, all data necessary for MetExploreViz
-    will be downloaded if they do not already exist in the specified folder.
-    Furthermore, a local web server is started, which makes all files in the
-    specified folder available. This is accessible at '127.0.0.1' and is
-    automatically stopped when the IPython kernel is stopped.
+    Visualize a COBRApy model with MetExploreViz.
 
-    A web browser is automatically opened and the created JSON file
-    is read in. The flux values must be read in manually via the interface.
+    This function creates all files required to visualize the model and
+    downloads MetExploreViz into the specified directory unless it is
+    already present. It then starts a local web server at
+    ``127.0.0.1:8000`` that serves this directory and opens MetExploreViz in
+    a web browser, which reads in the created JSON file. The flux values
+    have to be loaded manually via the MetExploreViz interface.
 
     Args:
-        model: The Cobra model to be visualized.
-        dir: The directory in which all files are to be created.
-            By default, a MetExplore folder is created and used in the
-            current working directory.
-        solution: The Cobra Solution belonging to the model. If none is
-            passed, the model is automatically optimized to obtain a solution.
-        groups: The IDs of the groups of the Cobra model to be
-            visualized. By default, the whole model is used.
+        model: The COBRApy model to be visualized.
+        dir: The directory in which all files are created. By default, a
+            folder named ``MetExplore`` in the current working directory is
+            used.
+        solution: The COBRApy solution belonging to the model. If None, the
+            model is optimized to obtain one.
+        groups: The IDs of the groups of the model to be visualized. By
+            default, the whole model is used.
+        side_metabolites: The IDs of the metabolites to be marked as side
+            metabolites.
+        removeUnselectedGroups: See :py:func:`cobra2metexplore`.
     """
     import subprocess
     import webbrowser

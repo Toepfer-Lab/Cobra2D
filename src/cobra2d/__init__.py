@@ -3,7 +3,7 @@ from cobra2d.constraints.phase import Phase, Phases
 from cobra2d.constraints.linker import Linker, Linkage
 from cobra2d.constraints.transfer import Transfer, Transfers
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"
 
 __all__ = [
     "Constraints",

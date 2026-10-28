@@ -5,25 +5,24 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/Cobra2D)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/Cobra2D)
 
-Cobra2D is a Python package that extends COBRApy to automatically reconstruct time-resolved and/or multi-subsystem metabolic models. It generates context-specific submodels, adds linker and/or transfer reactions to connect them, and scales the stoichiometry of these linker and transfer reactions as well as the objective coefficients of each submodel to account for the lengths of the respective time intervals and the sizes of the subsystems. The bounds of the remaining reactions are not scaled. For details, see [Linker and transfer reactions](https://cobra2d.readthedocs.io/stable/transport.html#scaling). Cobra2D also provides a time interval- and subsystem size-aware weighted pFBA function.
+Cobra2D is a Python package that extends COBRApy to automatically build time-resolved and/or multi-subsystem metabolic models from an existing model. It creates one context-specific submodel per time interval and subsystem, and connects these submodels with linker and/or transfer reactions. To account for the lengths of the time intervals and the sizes of the subsystems, it scales the stoichiometry of the linker and transfer reactions and the objective coefficients of each submodel. The bounds of all other reactions are not scaled. For details, see [Linker and transfer reactions](https://cobra2d.readthedocs.io/stable/transport.html#scaling). Cobra2D also provides a weighted pFBA function that takes the lengths of the time intervals and the sizes of the subsystems into account.
 
 ### General process
 
-* Define time intervals (phases) and subsystems (e.g. cell types, tissues or organs)
-* Contextualize submodels
-  * Adjusting compartment sizes
-  * Adjusting time intervals
-  * Defining linker reactions (auxiliary reactions that connect phases and allow storage metabolites to be transferred across consecutive phases)
-  * Defining transfer reactions (auxiliary reactions that connect subsystems and allow exchange metabolites to be transferred across subsystems)
-  * Adding context-specific constraints to submodels
-* Construction of a new model containing all context-specific submodels and  their respective constraints
+* Define time intervals and subsystems (e.g. cell types, tissues or organs). Each combination of a time interval and a subsystem forms a phase.
+  * Set the lengths of the time intervals
+  * Set the sizes of the subsystems
+* Connect the phases
+  * Define linker reactions (auxiliary reactions that connect consecutive time intervals and allow storage metabolites to be carried over from one time interval to the next)
+  * Define transfer reactions (auxiliary reactions that connect subsystems and allow metabolites to be exchanged between them)
+* Add context-specific constraints to individual phases
+* Construct a new model that contains all context-specific submodels, their constraints and the reactions connecting them
 
-For this process, this package provides functionalities to not only simplify this process, but also to easily save and
-share the defined settings with other people.
+Cobra2D not only simplifies this process, but also makes it easy to save the defined settings and share them with others.
 
 ### Quick start
 
-Define the spatial submodels and time slots, connect phases, and apply the resulting constraints to a COBRApy model:
+Define the sub_models (subsystems) and time periods, connect the phases, and apply the resulting constraints to a COBRApy model:
 
 ```python
 from cobra2d import Constraints
@@ -55,13 +54,13 @@ The documentation includes notebooks for [constraints](https://cobra2d.readthedo
 
 ### Visualization
 
-The package also provides the possibility to obtain an overview of the created settings via an animated or static graphic.
+The defined settings can also be visualized, either as an interactive graph or as a static image.
 
 ![Interactive Cytoscape visualization of Cobra2D constraints](https://raw.githubusercontent.com/Toepfer-Lab/Cobra2D/main/assets/media/ConInteractive.gif)
 
 ### Installation
 
-After cloning the repository, the package can be installed in the current Python environment using pip. In a terminal, this can be done with the following commands: 
+After cloning the repository, the package can be installed into the current Python environment using pip:
 
 ```
 git clone https://github.com/Toepfer-Lab/Cobra2D.git
@@ -71,7 +70,7 @@ cd Cobra2D
 pip install .
 ```
 
-The static GraphViz visualization (`Constraints.create_graph`) additionally requires the Graphviz system package. It is separate from the `graphviz` Python package and cannot be installed via pip, please refer to the [documentation of graphviz](https://graphviz.readthedocs.io/en/stable/manual.html).
+The static GraphViz visualization (`Constraints.create_graph`) additionally requires the Graphviz system package. It is separate from the `graphviz` Python package and cannot be installed via pip; please refer to the [documentation of graphviz](https://graphviz.readthedocs.io/en/stable/manual.html).
 
 ### Development
 
@@ -104,6 +103,6 @@ tox -e py312 -- -k linker    # arguments after -- are passed through to pytest
 
 A few notes on the setup:
 
-* `tox -e format` only reports diffs, it does not rewrite files. Run `black src/cobra2d/ tests/ --line-length=79` to actually apply the formatting.
-* `py310-req` is the reproducibility check. It installs the pinned `requirements.txt` rather than resolving dependencies fresh, which is why it is tied to Python 3.10 — the pins were generated with `pip-compile` under that version. The remaining environments install from `setup.cfg` and therefore test against current releases of cobra and its dependencies.
+* `tox -e format` only reports diffs; it does not rewrite files. Run `black src/cobra2d/ tests/ --line-length=79` to actually apply the formatting.
+* `py310-req` is the reproducibility check. It installs the pinned `requirements.txt` rather than resolving dependencies afresh. It is tied to Python 3.10 because the pins were generated with `pip-compile` under that version. The remaining environments install from `setup.cfg` and therefore test against current releases of cobra and its dependencies.
 * Without tox-uv, tox falls back to `virtualenv` and expects to find `python3.9`, `python3.10`, … on your `PATH`; environments for versions it cannot find will fail. Add `--skip-missing-interpreters=true` if you deliberately want to run only the subset you have installed.

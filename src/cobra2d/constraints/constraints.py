@@ -67,28 +67,25 @@ def _entries(data: dict, container: str, item: str) -> List[dict]:
 
 class Constraints:
     """
-    This class bundles the functionalities of :py:class:`Phases`,
-    :py:class:`Linkage` (with its :py:class:`Linker` objects) and
-    :py:class:`Transfers` (with its :py:class:`Transfer` objects). So the
-    application of these is not only possible with a single line but there
-    are also helper functions to simplify the creation of organs and time
-    periods. Last but not least it realizes a storage of a
-    constraints object as XML and also the creation of a constraints object
-    based on such an XML file.
+    The Constraints class combines :py:class:`Phases`, :py:class:`Linkage`
+    (with its :py:class:`Linker` objects) and :py:class:`Transfers` (with
+    its :py:class:`Transfer` objects), so that all of them can be applied to
+    a model in a single call. Helper methods simplify the creation of
+    sub_models and time periods, and a constraints object can be saved as an
+    XML file and recreated from it.
 
     Attributes:
-        phases(Phases) : A :py:class:`Phases` object that manages the
+        phases (Phases): A :py:class:`Phases` object that manages the
             individual :py:class:`Phase` objects.
-        linker(Linkage) : A :py:class:`Linkage` object that contains the
-            defined :py:class:`Linker`.
-        transfers(Transfers): A :py:class:`Transfers` object that contains
+        linker (Linkage): A :py:class:`Linkage` object that contains the
+            defined :py:class:`Linker` objects.
+        transfers (Transfers): A :py:class:`Transfers` object that contains
             the defined :py:class:`Transfer` objects.
     """
 
     def __init__(self):
         """
-        Create a Constraints object.
-
+        Create a Constraints object with a single default phase.
         """
         self.phases = Phases()
         self.linker = Linkage()
@@ -132,12 +129,11 @@ class Constraints:
 
     def __str__(self):
         """
-        The toString method of the Constraints class. It creates a tabular
-        based representation with focus on the Phases.
+        Create a table of all phases, with one row per sub_model and one
+        column per time period.
 
         Returns:
-            A table containing the IDs of the phases, their volume and time
-            range.
+            A table containing the ID, volume and timeframe of each phase.
         """
 
         labels, times = self.__get_label_time()
@@ -164,13 +160,16 @@ class Constraints:
 
     def get_phase_by_id(self, id: str) -> Phase:
         """
-        A method to get individual phases by their ID.
+        Get a phase by its ID.
 
         Args:
-            id: ID of the desired phase.
+            id: The ID of the desired phase.
 
         Returns:
-            The phase that has the specified ID.
+            The phase with the specified ID.
+
+        Raises:
+            PhaseNotFound: If there is no phase with this ID.
         """
         try:
             phase = self.phases.phases.get_by_id(id)
@@ -185,24 +184,22 @@ class Constraints:
         phase: Union[str, Phase, List[str], List[Phase]],
     ):
         """
-        A method that allows to influence the reaction in certain phases.
-        For example, reactions during certain phases can be restricted by
-        adjusting upper_bounds and lower_bounds.
+        Adjust a reaction in specific phases. For example, a reaction can be
+        restricted during certain phases by changing its lower and upper
+        bounds.
 
         Args:
-            reaction: A reaction that has the same ID as the one to be adjusted
-                and contains the adjusted parameters. The ID must be the same
-                as the original ID and must not have the phase name extension.
-            phase: The ID of the phase, the phase itself or a list of IDs or a
-                list of phases in which the adjustment defined by the reaction
-                is to be performed.
-
+            reaction: A reaction that carries the adjusted bounds. Its ID must
+                be the ID of the reaction in the original model, i.e. without
+                the phase suffix.
+            phase: The phase in which the reaction is to be adjusted, given
+                as the phase itself or its ID, or a list of phases or IDs.
         """
 
         if isinstance(phase, List):
             for single_phase in phase:
                 self.add_reaction_to_phase(reaction, single_phase)
-                return
+            return
 
         if isinstance(phase, str):
             phase = self.phases.phases.get_by_id(phase)
@@ -212,8 +209,10 @@ class Constraints:
 
     def rich_output(self):
         """
-        Experimental only
-        Display via rich
+        Print a table of the sub_models and time periods using rich.
+
+        Note:
+            This method is experimental.
         """
         output = Table()
 
@@ -240,17 +239,19 @@ class Constraints:
         light_dark: Literal["light", "dark"] = "light",
     ):
         """
-        Method to add new time ranges. It is designed to create multiple time
-        ranges of the same length that are also subject to the same
-        :py:attr:`light_dark` parameter.
+        Add new time periods. Each call creates ``n_ranges`` consecutive time
+        periods of the same length and with the same
+        :py:attr:`Phase.light_dark` value. Call it several times to add time
+        periods of different lengths.
+
+        A phase is created for every combination of a new time period and an
+        existing sub_model. The first call replaces the default time period.
 
         Args:
-            n_ranges: The number of how many such time ranges should be
-                created.
-            time: The length of the time ranges to be created.
-            light_dark: The light_dark parameter to be assigned to these time
-                ranges.
-
+            n_ranges: The number of time periods to create.
+            time: The length of each time period.
+            light_dark: The :py:attr:`Phase.light_dark` value assigned to the
+                new phases.
         """
 
         if self.default_time:
@@ -283,14 +284,21 @@ class Constraints:
         names: Union[List[str], None] = None,
     ):
         """
-        Method to add sub models. These can correspond to organs, for example.
+        Add sub_models, which can represent e.g. cell types, tissues or
+        organs.
+
+        A phase is created for every combination of a new sub_model and an
+        existing time period. The first call replaces the default sub_model.
 
         Args:
-            labels: A list containing the name of the sub models.
-            volumes: A list containing the volumes of the sub models
-            names: A list of human-readable names to be used for the sub
-                models.
+            labels: The labels of the sub_models, used in the phase IDs.
+            volumes: The volumes of the sub_models, in the same order as
+                ``labels``.
+            names: Optional human-readable names of the sub_models, in the
+                same order as ``labels``.
 
+        Raises:
+            InvalidLabel: If ``"default"`` is used as a label.
         """
         assert (len(labels) == len(volumes) and names is None) or (
             len(labels) == len(volumes) == len(names)  # type: ignore
@@ -328,11 +336,14 @@ class Constraints:
 
     def add_linker(self, linker: Linker):
         """
-        Method to add previously created linkers to the constraints object.
+        Add a previously created linker reaction to the constraints object.
 
         Args:
-            linker: The linker to be added.
+            linker: The linker reaction to be added.
 
+        Raises:
+            PhaseNotFound: If the source or destination phase of the linker
+                reaction is unknown.
         """
 
         try:
@@ -361,14 +372,14 @@ class Constraints:
 
     def add_transfer(self, transfer: Transfer):
         """
-        Method to add previously created transfers to the constraints object.
+        Add a previously created transfer reaction to the constraints object.
 
         Args:
-            transfer: The transfer to be added.
+            transfer: The transfer reaction to be added.
 
         Raises:
             PhaseNotFound: If the source or destination phase of the transfer
-                is unknown.
+                reaction is unknown.
         """
 
         try:
@@ -406,40 +417,42 @@ class Constraints:
         sub_models: Optional[List[str]] = None,
     ):
         """
-        Method to create linkers across all existing time periods.
+        Create linker reactions between consecutive time periods of each
+        sub_model.
 
         Args:
-            metabolite_id: The ID to be used for the metabolite. This should match
-                the ID of the metabolite in the model.
-            lower_bound: The 'lower_bound' to be used for the reaction.
-                For more information see :py:attr:`cobra.Reaction.lower_bound`
-                in :py:func:`cobra.Reaction`.
-            upper_bound: The 'upper_bound' to be used for the reaction.
-                For more information see :py:attr:`lower_bound` in
-                :py:class:`cobra.Reaction.`.
-            last2first: Bool that determines whether a linker should be created
-                between the last and the first period.
-                If True said linker will be created.
-                If reverse equals True, a linker will be created
-                from the first to the last period.
-            reverse: Bool that specifies the orientation of the linkers.
-                If True, the linkers are created starting from the last to the
-                first time period and not from the first to the last as usual.
-            sub_models: Restricts the linkers to these sub_models. If None,
-                every sub_model of the model is used. The order is irrelevant,
-                as each sub_model is linked to itself across time.
-            timeframes: Restricts the linkers to these time periods, given as
-                the integer indices used in the phase IDs (the ``<time>`` part
-                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` limits the series
-                to the first three periods. The linkers always connect
-                consecutive entries of the remaining list, so gaps are bridged
-                rather than skipped: ``[0, 2]`` links ``_0`` directly to
-                ``_2``. If None, every time period of the model is used.
+            metabolite_id: The ID of the metabolite to be linked, without the
+                phase suffix. It must match the ID of the metabolite in the
+                model.
+            lower_bound: The lower bound of the linker reactions, see
+                :py:attr:`cobra.Reaction.lower_bound`.
+            upper_bound: The upper bound of the linker reactions, see
+                :py:attr:`cobra.Reaction.upper_bound`.
+            last2first: If True, an additional linker reaction is created from
+                the last to the first time period, closing the cycle. If
+                ``reverse`` is also True, this linker reaction runs from the
+                first to the last time period instead.
+            reverse: If True, the linker reactions run from the last to the
+                first time period instead of from the first to the last.
+            timeframes: Restricts the linker reactions to these time periods,
+                given as the integer indices used in the phase IDs (the
+                ``<time>`` part of ``<sub_model>_<time>``). For example,
+                ``[0, 1, 2]`` limits the series to the first three periods.
+                The linker reactions always connect consecutive entries of the
+                remaining list, so gaps are bridged rather than skipped:
+                ``[0, 2]`` links ``_0`` directly to ``_2``. If None, every time
+                period of the model is used.
+            sub_models: Restricts the linker reactions to these sub_models. If
+                None, every sub_model of the model is used. The order does not
+                matter, as each sub_model is only linked to itself across
+                time.
+
         Raises:
             ValueError: If ``sub_models`` or ``timeframes`` contains an entry
                 that does not exist in the model.
+
         Examples:
-            Application to a four phase model:
+            Application to a model with four time periods:
 
             >>> con = Constraints()
             >>> con.add_time_slots(4, 1)
@@ -538,46 +551,48 @@ class Constraints:
         timeframes: Optional[List[int]] = None,
     ):
         """
-        Method to create transfers along a chain of sub_models.
+        Create transfer reactions along a chain of sub_models.
 
         In contrast to :py:meth:`add_linker_series`, which connects phases of
-        the same sub_model across consecutive time periods, this method connects
-        multiple sub_models within the same time period.
+        the same sub_model across consecutive time periods, this method
+        connects different sub_models within the same time period. For
+        example, transfer reactions can move sucrose from the leaf to the stem
+        and on to the root.
 
-        As there is no easy way to infer intended order to connect multiple
-        sub_model, the definition of the sub_model parameter is required and the
-        order in this parameter defines the way we connect the sub_models to one another.
+        Since the intended order of the sub_models cannot be inferred, it has
+        to be given explicitly via ``sub_models``.
 
         Args:
-            metabolite_id: The ID to be used for the metabolite. This should match
-                the ID of the metabolite in the model.
-            sub_models: The ordered list of sub_models to connect. Each entry is
-                linked to the following one, so the order defines the spatial
-                chain (e.g. ``["leaf", "stem", "root"]`` connects leaf to stem
-                and stem to root).
-            lower_bound: The 'lower_bound' to be used for the reaction.
-                For more information see :py:attr:`cobra.Reaction.lower_bound`
-                in :py:func:`cobra.Reaction`.
-            upper_bound: The 'upper_bound' to be used for the reaction.
-                For more information see :py:attr:`lower_bound` in
-                :py:class:`cobra.Reaction.`.
-            last2first: Bool that determines whether a transfer should be created
-                between the last and the first sub_model.
-                If True said transfer will be created.
-                If reverse equals True, a transfer will be created
-                from the first to the last sub_model.
-            reverse: Bool that specifies the orientation of the transfers.
-                If True, the transfers are created starting from the last to the
-                first sub_model and not from the first to the last as usual.
-            timeframes: Restricts the transfers to these time periods, given as
-                the integer indices used in the phase IDs (the ``<time>`` part
-                of ``<sub_model>_<time>``). So ``[0, 1, 2]`` builds the
-                sub_model chain only in the first three periods. If None, every
-                time period of the model is used.
+            metabolite_id: The ID of the metabolite to be transferred, without
+                the phase suffix. It must match the ID of the metabolite in
+                the model.
+            sub_models: The ordered list of sub_models to connect. Each entry
+                is connected to the following one, so the order defines the
+                spatial chain (e.g. ``["leaf", "stem", "root"]`` connects leaf
+                to stem and stem to root).
+            lower_bound: The lower bound of the transfer reactions, see
+                :py:attr:`cobra.Reaction.lower_bound`.
+            upper_bound: The upper bound of the transfer reactions, see
+                :py:attr:`cobra.Reaction.upper_bound`.
+            last2first: If True, an additional transfer reaction is created
+                from the last to the first sub_model, closing the cycle. If
+                ``reverse`` is also True, this transfer reaction runs from the
+                first to the last sub_model instead.
+            reverse: If True, the transfer reactions run along ``sub_models``
+                from the last to the first entry instead of from the first to
+                the last.
+            timeframes: Restricts the transfer reactions to these time
+                periods, given as the integer indices used in the phase IDs
+                (the ``<time>`` part of ``<sub_model>_<time>``). For example,
+                ``[0, 1, 2]`` builds the sub_model chain only in the first
+                three periods. If None, every time period of the model is
+                used.
+
         Raises:
-            ValueError: If ``sub_models`` is empty, or contains a sub_model that
+            ValueError: If ``sub_models`` is empty or contains a sub_model that
                 does not exist in the model, or if ``timeframes`` contains a
                 time period that does not exist in the model.
+
         Examples:
             Application to a model with three sub_models:
 
@@ -596,7 +611,8 @@ class Constraints:
         if not sub_models:
             raise ValueError(
                 "sub_models is required and must contain at least one "
-                "sub_model, as its order defines the transfer chain."
+                "sub_model, as its order defines the chain of transfer "
+                "reactions."
             )
 
         existing_labels, times = self.__get_label_time()
@@ -668,22 +684,28 @@ class Constraints:
         self, model: Optional[Model] = None, link_genes: bool = False
     ) -> Model:
         """
-        Method to apply all defined adjustments to a :py:class:`Model`.
+        Apply all defined phases, transfer reactions and linker reactions to
+        a :py:class:`Model`.
+
+        ``model`` is not changed. Instead, a new model is built that contains
+        a copy of it for each phase.
 
         Args:
-            model: The model that should be changed.
-            link_genes: Boolean that determines whether the gene-reaction
-                rules should be synchronized across the copies derived from
-                ``model``. Manually assigned phase models retain their own
-                rules and issue a
-                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
+            model: The model to be copied for each phase. It may only be
+                omitted if a model is assigned to every phase via
+                :py:attr:`Phase.model`.
+            link_genes: Whether the gene-reaction rules should be
+                synchronized across all phases that are built from ``model``.
+                Phases with their own model (set via :py:attr:`Phase.model`)
+                are not linked and keep their own rules; a
+                :py:class:`cobra2d.error.GenesNotLinked` warning lists them.
 
-        Returns: A :py:class:`Model` that contains all defined adjustments.
-
+        Returns:
+            A new :py:class:`Model` that contains all defined adjustments.
         """
 
         new_model = self.phases.apply_phases(model, link_genes=link_genes)
-        # TODO: verify if transfers should be apply before linker
+        # TODO: verify whether transfers should be applied before linkers
         new_model = self.transfers.apply(new_model, phases=self.phases)
         new_model = self.linker.apply(new_model, phases=self.phases)
 
@@ -691,7 +713,7 @@ class Constraints:
 
     def to_xml(self) -> Element:
         """
-        Converts a :py:class:`Constraints` object to an :py:class:`Element`.
+        Convert the constraints object to an :py:class:`Element`.
 
         The result follows ``schema.xsd`` and declares
         :py:data:`cobra2d.resources.SCHEMA_NAMESPACE`.
@@ -702,9 +724,7 @@ class Constraints:
             be assigned again after loading.
 
         Returns:
-            An :py:class:`Element` that represents a :py:class:`Constraints`
-            object.
-
+            An :py:class:`Element` that represents the constraints object.
         """
         root = Element("Conf")
         root.set("xmlns", SCHEMA_NAMESPACE)
@@ -717,8 +737,9 @@ class Constraints:
 
     def save_as_xml(self, path: Union[Path, str]):
         """
-        Method to save the constraints object as XML file. Based on this file
-        the constraints object can be reconstructed.
+        Save the constraints object as an XML file, from which it can be
+        recreated with :py:meth:`load_from_xml`. Missing parent directories
+        are created.
 
         Note:
             A :py:class:`Model` assigned to a phase via
@@ -726,8 +747,7 @@ class Constraints:
             after loading.
 
         Args:
-            path: The file path where the created XML file should be saved.
-
+            path: The path of the XML file to be written.
         """
 
         if isinstance(path, str):
@@ -750,24 +770,22 @@ class Constraints:
     @classmethod
     def load_from_xml(cls, path: Union[Path, str, TextIO]) -> Constraints:
         """
-        Method to create a :py:class:`Constraints` object from an XML file.
-        This must match the format of the XSD found at
+        Create a :py:class:`Constraints` object from an XML file. The file
+        must match the schema at
         https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd.
 
         Documents written by Cobra2D 0.5.0 or earlier declare a different
         namespace and are not supported.
 
         Args:
-            path: The path to the XML file to be used for creating a
-                :py:class:`Constraints` object.
+            path: The path to the XML file, or an open file object.
 
         Returns:
-            The :py:class:`Constraints` object created on the properties in the
-            XML file.
+            The :py:class:`Constraints` object described by the XML file.
 
         Raises:
-            PhaseNotFound: If a linker or transfer refers to a phase that the
-                document does not define.
+            PhaseNotFound: If a linker or transfer reaction refers to a phase
+                that the document does not define.
 
         """  # nopep8
 
@@ -783,8 +801,8 @@ class Constraints:
         with open_text(resources, "schema.xsd", encoding="UTF-8") as file:
             xsd = XMLSchema(file)
 
-        # 'to_etree' returns only root. Therefore the same logic as for
-        # encoding cannot be used.
+        # 'to_etree' returns only the root, so the logic used for encoding
+        # cannot be reused here.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
         constraints.phases = Phases.from_dict(
@@ -812,7 +830,8 @@ class Constraints:
         if unknown:
             raise PhaseNotFound(
                 f"The following phases are used as source or destination of a "
-                f"linker or transfer but are not defined by the document: "
+                f"linker or transfer reaction but are not defined by the "
+                f"document: "
                 f"{sorted(unknown)}."
             )
 
@@ -833,12 +852,11 @@ class Constraints:
         labels = list(OrderedDict.fromkeys(labels))
         times = list(OrderedDict.fromkeys(times))
 
-        # NOTE The following two loops reconstruct time_ranges and sub_models
-        # only insufficiently.Only one phase is used to determine which
-        # parameters were originally used. However,these could differ from
-        # the actual ones. The parameters could potentially also be stored
-        # in the XML. However, this would have the consequence that
-        # this would be more difficult for a human being to work on.
+        # NOTE: The following two loops reconstruct time_ranges and sub_models
+        # only approximately. A single phase is used to determine the
+        # parameters that were originally used, but other phases may differ
+        # from it. The parameters could be stored in the XML instead, but
+        # that would make the file harder for humans to edit.
 
         if len(labels) == 1 and labels[0] == "default_0":
             pass
@@ -885,7 +903,7 @@ class Constraints:
 
     def create_graph(self) -> Digraph:
         """
-        Creates a :py:class:`graphviz.Digraph` of the defined phases and the
+        Create a :py:class:`graphviz.Digraph` of the defined phases and the
         linker and transfer reactions connecting them.
 
         Note:
@@ -960,7 +978,7 @@ class Constraints:
                 ]
 
         size = len(linker_edge_dict_reverse)
-        linker_str = "linker existing in all connections:"
+        linker_str = "Linker reactions existing in all connections:"
         for key, value in linker_edge_dict.items():
             if len(value) == size:
                 linker_str += f"\n {key}"
@@ -968,7 +986,7 @@ class Constraints:
                     metabolite_ids.remove(key)
 
         size = len(transfer_edge_dict_reverse)
-        transfer_str = "Transfers existing in all connections:"
+        transfer_str = "Transfer reactions existing in all connections:"
         for key, value in transfer_edge_dict.items():
             if len(value) == size:
                 transfer_str += f"\n {key}"
@@ -1183,13 +1201,14 @@ class Constraints:
 
     def cytoscape(self):  # pragma: no cover
         """
-        Displays an interactive visualization of the phases, linkers and
-        transfers in a Jupyter Notebook using ipycytoscape.
+        Display an interactive visualization of the phases, linker reactions
+        and transfer reactions in a Jupyter Notebook using ipycytoscape.
 
-        Phases are shown as nodes grouped by sub_model, linkers and transfers
-        as edges. Clicking on a phase shows its settings (name, volume,
-        timeframe, assigned model and adjusted reactions); clicking on an edge
-        shows the metabolites transported along it. If a model is assigned
+        Phases are shown as nodes grouped by sub_model, linker and transfer
+        reactions as edges. Clicking on a phase shows its settings (name,
+        volume, timeframe, assigned model and adjusted reactions); clicking on
+        an edge shows the metabolites transported along it. If a model is
+        assigned
         to a phase, an additional tab offers a MetExploreViz visualization of
         it, see :py:func:`cobra2d.visualization.helper.metexplore_interface`.
 
@@ -1300,11 +1319,11 @@ class Constraints:
         )
 
         met_betw_all_phases_linker_html = (
-            "<h5>Linker existing between all Phases:</h5>"
+            "<h5>Linker reactions existing between all phases:</h5>"
             + met_betw_all_phases_linker_html
         )
         met_betw_all_phases_transfer_html = (
-            "<h5>Transfers existing between all Phases:</h5>"
+            "<h5>Transfer reactions existing between all phases:</h5>"
             + met_betw_all_phases_transfer_html
         )
 
@@ -1337,8 +1356,8 @@ class Constraints:
         def log_mouseovers_node(node):
             with out:
                 try:
-                    #  If sub_model does not exist, it's a parent node
-                    #  where we don't want to show anything
+                    # Nodes without a parent are the sub_model nodes
+                    # themselves, for which nothing is shown.
                     sub_model = node["data"]["parent"]
                 except KeyError:
                     return

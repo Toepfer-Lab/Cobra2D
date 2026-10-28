@@ -1,11 +1,14 @@
 Visualization options
 =============================================
 
-There are three different possibilities for visualization. Two of them are limited to the visualization of the
-structure based on the phases using GraphViz and Cytoscape.
-The third visualization option provides an insight into COBRApy models. This is done using MetExploreViz.
+There are three visualization options. Two of them, based on GraphViz and Cytoscape, show the structure of the
+phases and the connections between them. The third one uses MetExploreViz to give insight into COBRApy models.
 
-The following Code block is the basis for the visualizations on this page.
+GraphViz creates a static image, which makes it the better choice for figures used outside of a Jupyter Notebook.
+Cytoscape shows the same structure interactively and provides more information, but only for the phase or
+connection the user has selected. It is therefore better suited for exploring the phases within a Jupyter Notebook.
+
+The following code block is the basis for the visualizations on this page.
 
 .. doctest:: Viz
 
@@ -13,17 +16,17 @@ The following Code block is the basis for the visualizations on this page.
     >>> con = Constraints()
     >>> con.add_sub_models(["root", "leaf", "stem"], [1, 2, 1])
     >>> con.add_time_slots(5, 2)
-    >>> con.add_linker_series("ATP",last2first=False)
-    >>> con.add_linker( Linker( "ADP", source="stem_3", destination="stem_4" ) )
+    >>> con.add_linker_series("ATP", last2first=False)
+    >>> con.add_linker(Linker("ADP", source="stem_3", destination="stem_4"))
 
 
 GraphViz
 ----------
-Visualization using GraphViz creates a static image that can later be used in other contexts.
+GraphViz creates a static image that can also be used outside of Jupyter Notebooks.
 
 .. note::
     Rendering the graph requires the Graphviz system package. It is separate from the
-    ``graphviz`` Python package and cannot be installed via pip, please refer to the
+    ``graphviz`` Python package and cannot be installed via pip; please refer to the
     `documentation of graphviz <https://graphviz.readthedocs.io/en/stable/manual.html>`_.
     If it is missing, :py:meth:`~cobra2d.constraints.constraints.Constraints.create_graph`
     issues a :py:class:`~cobra2d.error.GraphvizNotInstalled` warning.
@@ -44,19 +47,10 @@ which is displayed directly in a Jupyter Notebook.
    following time period and ADP is transported from ``stem_3`` to
    ``stem_4``.
 
-Cytoscape visualizes the same as GraphViz but in an interactive environment. Thus, much more information is available
-than is available when using Graphviz. However, this information is not all displayed at the same time,
-but only for the phase or connection selected by the user.
-
-
-Hence the different uses of GraphViz and Cytoscape visualization.
-GraphViz is therefore the better choice for visualizations that are to be used outside the
-Jupyter Notebook and Cytoscape is the visualization that is suitable if the visualization is only
-used inside the Jupyter Notebook.
-
 Cytoscape
 ----------
-As already described, GraphViz and Cytoscape visualize the phases. The visualization via Cytoscape, unlike GraphViz, is interactive. While the interactive interface provides more detail, it requires the user to select the phase of interest to display the additional information, which reduces its usability as a static representation.
+Unlike GraphViz, the Cytoscape visualization is interactive. The details of a phase or connection are only shown
+once the user selects it, which makes this visualization less suitable as a static representation.
 
 Below is a brief example of this visualization.
 
@@ -72,14 +66,14 @@ Below is a brief example of this visualization.
    a connection shows its details below the graph.
 
 
-Metexplore
+MetExplore
 ------------
 
-We also provide the possibility to visualize a COBRApy model using Metexplore.
-Due to performance constraints, we provide an interface that allows the selection of groups and the
-hiding metabolites of the COBRApy model. These are then visualized using MetExploreViz.
+A COBRApy model can also be visualized using MetExploreViz. Since large models are slow to render, an interface
+allows selecting the groups of the model to be displayed and the metabolites to be hidden as side metabolites.
 
-The pathways are sorted alphabetically and the metabolites are sorted based on their occurrence.
+The groups are listed in the order in which they appear in the model. The metabolites are sorted by the number of
+reactions they participate in, which is shown in parentheses.
 
 .. doctest:: Viz
 
