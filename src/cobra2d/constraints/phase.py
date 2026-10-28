@@ -149,7 +149,15 @@ class Phase:
                 reaction in the original model, i.e. without the phase
                 suffix.
         """
-        self.reaction_settings.append(reaction)
+        # A copy keeps phases independent of each other and of the caller's
+        # object, as they are after loading from XML.
+        self.reaction_settings.append(
+            Reaction(
+                id=reaction.id,
+                lower_bound=reaction.lower_bound,
+                upper_bound=reaction.upper_bound,
+            )
+        )
 
     @classmethod
     def from_dict(cls, data: dict) -> Phase:
