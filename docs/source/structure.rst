@@ -1,7 +1,9 @@
 Structural design
 =============================================
 
-Cobra2D decomposes a time- and space-resolved model into spatial and temporal components. The combination of these two components at a single time point and spatial location is termed a phase. The complete set of phases is represented by a constraints object.
+Cobra2D decomposes a time- and space-resolved model into spatial and temporal components. The combination of a
+single time period and a single sub_model is called a phase. A Constraints object holds all phases and
+the linker and transfer reactions that connect them.
 
 The following briefly describes the Constraints class and the Phase class.
 

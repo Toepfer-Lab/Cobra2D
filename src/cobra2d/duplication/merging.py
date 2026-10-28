@@ -77,7 +77,8 @@ def _link_genes(
     model: Model, reactions: List[str], suffix: str, labels: List[str]
 ) -> Model:
     """
-    Links the gene rule of a reaction to all of its copies in the sub_models.
+    Copy the gene rule of each reaction to all of its copies in the
+    sub_models.
 
     Args:
         model: The model containing every duplicated sub_model.
@@ -121,6 +122,6 @@ def _link_genes(
 
             item.gene_reaction_rule = reference_rule
 
-    logger.info("Linkage of genes between multiple same reactions completed")
+    logger.info("Gene rules linked across all copies of each reaction.")
 
     return _model

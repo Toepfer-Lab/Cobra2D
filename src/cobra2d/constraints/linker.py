@@ -189,8 +189,9 @@ class Linkage(Transports):
     """
 
     # ToDo change to Set? or to DictList
-    # COMMENT:So far, the behavior of DictList works flawlessly. This would
-    # remove the check for duplicates as long the identifiers are not the same
+    # COMMENT: So far, the behavior of DictList works flawlessly. This would
+    # remove the check for duplicates as long as the identifiers are not the
+    # same.
 
     def __init__(self):
         """
@@ -225,7 +226,7 @@ class Linkage(Transports):
         if isinstance(obj, Linker):
             super(Linkage, self).append(obj)
         else:
-            raise TypeError(f"{obj} is not of type linker cannot be added.")
+            raise TypeError(f"{obj} is not a Linker and cannot be added.")
 
     def add_linker(self, linker: Linker):
         """

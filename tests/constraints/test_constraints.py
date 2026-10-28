@@ -432,7 +432,8 @@ class TestConstraints(TestCase):
         # no model given => Error
         with self.assertRaisesRegex(
             ValueError,
-            "Model was None although there were phases without model.",
+            "No model was passed, although there are phases without an "
+            "assigned model.",
         ):
             con.apply_to_model()
 

@@ -151,7 +151,7 @@ def __create_and_append_links(
         else:
             logging.info(
                 f"Create connection from {metabolite.id} to "
-                f"{reaction.id}. With node IDs  {metabolite_id}"
+                f"{reaction.id}. With node IDs {metabolite_id} "
                 f"and {reaction_id}. Reversibility "
                 f"{reversibility} and with the direction 'in'."
             )
@@ -195,7 +195,7 @@ def cobra2metexplore(
             they are included but marked as hidden.
 
     Returns:
-        The :py:class:`cobra.Model` encoded in JSON.
+        The model encoded as a JSON string in the MetExploreViz format.
     """
     dic = {}
 
@@ -233,7 +233,7 @@ def cobra2metexplore(
     if removeUnselectedGroups:
         for metabolite in metabolites2use:
             logging.info(
-                f"Creating Node for Metabolite {metabolite.id}. "
+                f"Creating node for metabolite {metabolite.id}. "
                 f"With node number {id}."
             )
             side_metabolite = False
@@ -256,7 +256,7 @@ def cobra2metexplore(
     else:
         for metabolite in model.metabolites:
             logging.info(
-                f"Creating Node for Metabolite {metabolite.id}. "
+                f"Creating node for metabolite {metabolite.id}. "
                 f"With node number {id}."
             )
             side_metabolite = False
@@ -289,7 +289,7 @@ def cobra2metexplore(
     if removeUnselectedGroups:
         for reaction in reactions2use:
             logging.info(
-                f"Creating Node for Metabolite {reaction.id}. "
+                f"Creating node for reaction {reaction.id}. "
                 f"With node number {id}."
             )
             reversibility = reaction.reversibility
@@ -323,7 +323,7 @@ def cobra2metexplore(
 
         for reaction in model.reactions:
             logging.info(
-                f"Creating Node for Metabolite {reaction.id}. "
+                f"Creating node for reaction {reaction.id}. "
                 f"With node number {id}."
             )
             reversibility = reaction.reversibility

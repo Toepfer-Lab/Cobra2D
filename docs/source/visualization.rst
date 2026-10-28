@@ -4,6 +4,10 @@ Visualization options
 There are three visualization options. Two of them, based on GraphViz and Cytoscape, show the structure of the
 phases and the connections between them. The third one uses MetExploreViz to give insight into COBRApy models.
 
+GraphViz creates a static image, which makes it the better choice for figures used outside of a Jupyter Notebook.
+Cytoscape shows the same structure interactively and provides more information, but only for the phase or
+connection the user has selected. It is therefore better suited for exploring the phases within a Jupyter Notebook.
+
 The following code block is the basis for the visualizations on this page.
 
 .. doctest:: Viz
@@ -12,8 +16,8 @@ The following code block is the basis for the visualizations on this page.
     >>> con = Constraints()
     >>> con.add_sub_models(["root", "leaf", "stem"], [1, 2, 1])
     >>> con.add_time_slots(5, 2)
-    >>> con.add_linker_series("ATP",last2first=False)
-    >>> con.add_linker( Linker( "ADP", source="stem_3", destination="stem_4" ) )
+    >>> con.add_linker_series("ATP", last2first=False)
+    >>> con.add_linker(Linker("ADP", source="stem_3", destination="stem_4"))
 
 
 GraphViz
@@ -43,17 +47,10 @@ which is displayed directly in a Jupyter Notebook.
    following time period and ADP is transported from ``stem_3`` to
    ``stem_4``.
 
-Cytoscape shows the same structure as GraphViz, but interactively. It therefore provides much more information,
-although only for the phase or connection the user has selected.
-
-GraphViz is thus the better choice for images to be used outside of a Jupyter Notebook, while Cytoscape is
-better suited for exploring the phases within a Jupyter Notebook.
-
 Cytoscape
 ----------
-Unlike GraphViz, the Cytoscape visualization is interactive. While it provides more detail, the user has to select
-a phase or connection to display the additional information, which makes it less suitable as a static
-representation.
+Unlike GraphViz, the Cytoscape visualization is interactive. The details of a phase or connection are only shown
+once the user selects it, which makes this visualization less suitable as a static representation.
 
 Below is a brief example of this visualization.
 

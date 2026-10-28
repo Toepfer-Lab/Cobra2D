@@ -9,15 +9,15 @@ class IdAlreadyInUse(Exception):
     def __init__(
         self,
         id: str,
-        message: str = "The ID used has already been used for another "
-        "object of the same type. Please use a different ID.",
+        message: str = "The ID is already used by another object of the "
+        "same type. Please use a different ID.",
     ):
         self.id = (id,)
         self.message = message
         super().__init__(message)
 
     def __str__(self):
-        return self.message + " Concerning ID is: " + str(self.id)
+        return self.message + " Affected ID: " + str(self.id[0])
 
 
 class InvalidLabel(Exception):
@@ -30,7 +30,7 @@ class InvalidLabel(Exception):
         super().__init__(message)
 
     def __str__(self):
-        return self.message or "A used label is invalid."
+        return self.message or "The label is invalid."
 
 
 class GraphvizNotInstalled(Warning):
@@ -45,7 +45,7 @@ class GraphvizNotInstalled(Warning):
     DEFAULT_MESSAGE = (
         "Rendering a graph requires the Graphviz system package. It is "
         "separate from the 'graphviz' Python package and cannot be "
-        "installed via pip, please refer to the documentation of "
+        "installed via pip. Please refer to the documentation of "
         "graphviz: https://graphviz.readthedocs.io/en/stable/manual.html"
     )
 
@@ -108,7 +108,7 @@ class GenesNotLinked(Warning):
 
 class NameWarning(Warning):
     """
-    Warning for cases in which a name might not be available.
+    Warning for cases in which a name might be unavailable.
     """
 
     def __init__(self, *args: object) -> None:

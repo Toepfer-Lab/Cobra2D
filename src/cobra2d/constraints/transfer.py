@@ -212,7 +212,7 @@ class Transfers(Transports):
         if isinstance(obj, Transfer):
             super(Transfers, self).append(obj)
         else:
-            raise TypeError(f"{obj} is not of type Transfer cannot be added.")
+            raise TypeError(f"{obj} is not a Transfer and cannot be added.")
 
     def remove(self, obj_pos: Union[Transport, int]):
         """

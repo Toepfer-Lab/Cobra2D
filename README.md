@@ -5,24 +5,24 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/Toepfer-Lab/Cobra2D)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Toepfer-Lab/Cobra2D)
 
-Cobra2D is a Python package that extends COBRApy to automatically reconstruct time-resolved and/or multi-subsystem metabolic models. It generates context-specific submodels, adds linker and/or transfer reactions to connect them, and scales the stoichiometry of these linker and transfer reactions as well as the objective coefficients of each submodel to account for the lengths of the respective time intervals and the sizes of the subsystems. The bounds of the remaining reactions are not scaled. For details, see [Linker and transfer reactions](https://cobra2d.readthedocs.io/stable/transport.html#scaling). Cobra2D also provides a time interval- and subsystem size-aware weighted pFBA function.
+Cobra2D is a Python package that extends COBRApy to automatically build time-resolved and/or multi-subsystem metabolic models from an existing model. It creates one context-specific submodel per time interval and subsystem, and connects these submodels with linker and/or transfer reactions. To account for the lengths of the time intervals and the sizes of the subsystems, it scales the stoichiometry of the linker and transfer reactions and the objective coefficients of each submodel. The bounds of all other reactions are not scaled. For details, see [Linker and transfer reactions](https://cobra2d.readthedocs.io/stable/transport.html#scaling). Cobra2D also provides a weighted pFBA function that takes the lengths of the time intervals and the sizes of the subsystems into account.
 
 ### General process
 
 * Define time intervals and subsystems (e.g. cell types, tissues or organs). Each combination of a time interval and a subsystem forms a phase.
-* Contextualize the submodels
-  * Set the sizes of the subsystems
   * Set the lengths of the time intervals
-  * Define linker reactions (auxiliary reactions that connect consecutive phases and allow storage metabolites to be carried over from one time interval to the next)
+  * Set the sizes of the subsystems
+* Connect the phases
+  * Define linker reactions (auxiliary reactions that connect consecutive time intervals and allow storage metabolites to be carried over from one time interval to the next)
   * Define transfer reactions (auxiliary reactions that connect subsystems and allow metabolites to be exchanged between them)
-  * Add context-specific constraints to the submodels
-* Construct a new model containing all context-specific submodels and their respective constraints
+* Add context-specific constraints to individual phases
+* Construct a new model that contains all context-specific submodels, their constraints and the reactions connecting them
 
 Cobra2D not only simplifies this process, but also makes it easy to save the defined settings and share them with others.
 
 ### Quick start
 
-Define the spatial submodels and time slots, connect the phases, and apply the resulting constraints to a COBRApy model:
+Define the sub_models (subsystems) and time periods, connect the phases, and apply the resulting constraints to a COBRApy model:
 
 ```python
 from cobra2d import Constraints

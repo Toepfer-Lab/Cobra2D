@@ -67,13 +67,12 @@ def _entries(data: dict, container: str, item: str) -> List[dict]:
 
 class Constraints:
     """
-    This class bundles the functionality of :py:class:`Phases`,
-    :py:class:`Linkage` (with its :py:class:`Linker` objects) and
-    :py:class:`Transfers` (with its :py:class:`Transfer` objects). This
-    allows all of them to be applied to a model in a single call, and helper
-    methods simplify the creation of sub_models and time periods. Finally, a
-    constraints object can be saved as an XML file and recreated from such a
-    file.
+    The Constraints class combines :py:class:`Phases`, :py:class:`Linkage`
+    (with its :py:class:`Linker` objects) and :py:class:`Transfers` (with
+    its :py:class:`Transfer` objects), so that all of them can be applied to
+    a model in a single call. Helper methods simplify the creation of
+    sub_models and time periods, and a constraints object can be saved as an
+    XML file and recreated from it.
 
     Attributes:
         phases (Phases): A :py:class:`Phases` object that manages the
@@ -444,8 +443,9 @@ class Constraints:
                 ``[0, 2]`` links ``_0`` directly to ``_2``. If None, every time
                 period of the model is used.
             sub_models: Restricts the linker reactions to these sub_models. If
-                None, every sub_model of the model is used. The order is irrelevant,
-                as each sub_model is only linked to itself across time.
+                None, every sub_model of the model is used. The order does not
+                matter, as each sub_model is only linked to itself across
+                time.
 
         Raises:
             ValueError: If ``sub_models`` or ``timeframes`` contains an entry
@@ -556,12 +556,11 @@ class Constraints:
         In contrast to :py:meth:`add_linker_series`, which connects phases of
         the same sub_model across consecutive time periods, this method
         connects different sub_models within the same time period. For
-        example, a transfer reaction can move sucrose from the leaf to the stem and on
-        to the root.
+        example, transfer reactions can move sucrose from the leaf to the stem
+        and on to the root.
 
-        As the intended order cannot easily be inferred, the sub_model parameter
-         must be defined, and the order within this parameter determines how
-         the ``sub_models`` are connected to one another.
+        Since the intended order of the sub_models cannot be inferred, it has
+        to be given explicitly via ``sub_models``.
 
         Args:
             metabolite_id: The ID of the metabolite to be transferred, without
@@ -706,7 +705,7 @@ class Constraints:
         """
 
         new_model = self.phases.apply_phases(model, link_genes=link_genes)
-        # TODO: verify if transfers should be apply before linker
+        # TODO: verify whether transfers should be applied before linkers
         new_model = self.transfers.apply(new_model, phases=self.phases)
         new_model = self.linker.apply(new_model, phases=self.phases)
 
@@ -771,8 +770,8 @@ class Constraints:
     @classmethod
     def load_from_xml(cls, path: Union[Path, str, TextIO]) -> Constraints:
         """
-        Create a :py:class:`Constraints` object from an XML file.
-        The file must match the schema found at
+        Create a :py:class:`Constraints` object from an XML file. The file
+        must match the schema at
         https://github.com/Toepfer-Lab/Cobra2D/blob/main/src/cobra2d/resources/schema.xsd.
 
         Documents written by Cobra2D 0.5.0 or earlier declare a different
@@ -802,8 +801,8 @@ class Constraints:
         with open_text(resources, "schema.xsd", encoding="UTF-8") as file:
             xsd = XMLSchema(file)
 
-        # 'to_etree' returns only root. Therefore the same logic as for
-        # encoding cannot be used.
+        # 'to_etree' returns only the root, so the logic used for encoding
+        # cannot be reused here.
         data: Any = xsd.to_dict(path, attr_prefix="")
 
         constraints.phases = Phases.from_dict(
@@ -853,12 +852,11 @@ class Constraints:
         labels = list(OrderedDict.fromkeys(labels))
         times = list(OrderedDict.fromkeys(times))
 
-        # NOTE The following two loops reconstruct time_ranges and sub_models
-        # only insufficiently.Only one phase is used to determine which
-        # parameters were originally used. However,these could differ from
-        # the actual ones. The parameters could potentially also be stored
-        # in the XML. However, this would have the consequence that
-        # this would be more difficult for a human being to work on.
+        # NOTE: The following two loops reconstruct time_ranges and sub_models
+        # only approximately. A single phase is used to determine the
+        # parameters that were originally used, but other phases may differ
+        # from it. The parameters could be stored in the XML instead, but
+        # that would make the file harder for humans to edit.
 
         if len(labels) == 1 and labels[0] == "default_0":
             pass
@@ -1209,8 +1207,8 @@ class Constraints:
         Phases are shown as nodes grouped by sub_model, linker and transfer
         reactions as edges. Clicking on a phase shows its settings (name,
         volume, timeframe, assigned model and adjusted reactions); clicking on
-        an edge
-        shows the metabolites transported along it. If a model is assigned
+        an edge shows the metabolites transported along it. If a model is
+        assigned
         to a phase, an additional tab offers a MetExploreViz visualization of
         it, see :py:func:`cobra2d.visualization.helper.metexplore_interface`.
 
@@ -1358,8 +1356,8 @@ class Constraints:
         def log_mouseovers_node(node):
             with out:
                 try:
-                    #  If sub_model does not exist, it's a parent node
-                    #  where we don't want to show anything
+                    # Nodes without a parent are the sub_model nodes
+                    # themselves, for which nothing is shown.
                     sub_model = node["data"]["parent"]
                 except KeyError:
                     return

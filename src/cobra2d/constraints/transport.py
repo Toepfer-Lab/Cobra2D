@@ -198,9 +198,7 @@ class Transports(ABC):
                     stacklevel=3,
                 )
         else:
-            raise TypeError(
-                f" {obj}\n" f"is not of type Transport. Cant add object."
-            )
+            raise TypeError(f"{obj}\nis not a Transport and cannot be added.")
 
     @abstractmethod
     def remove(self, obj_pos: Union[Transport, int]):
@@ -225,17 +223,15 @@ class Transports(ABC):
                 source = phases.phases.get_by_id(transport.source)
             except KeyError as e:
                 raise KeyError(
-                    f"In {transport}, phase {transport.source} was "
-                    f"used. However, the phase {transport.source} is"
-                    f" unknown to the Phases object."
+                    f"The source phase {transport.source} of\n{transport}\n"
+                    f"is unknown to the Phases object."
                 ) from e
             try:
                 destination = phases.phases.get_by_id(transport.destination)
             except KeyError as e:
                 raise KeyError(
-                    f"In {transport}, phase {transport.destination} was "
-                    f"used. However, the phase {transport.destination} is"
-                    f" unknown to the Phases object."
+                    f"The destination phase {transport.destination} of\n"
+                    f"{transport}\nis unknown to the Phases object."
                 ) from e
 
             try:
@@ -246,10 +242,10 @@ class Transports(ABC):
                 raise KeyError(
                     f"Metabolite "
                     f"{transport.metabolite_id + '_' + transport.source} was "
-                    f"not found in model {model.id}. Associated "
-                    f"transport cannot be created. Check that metabolite "
-                    f"{transport.metabolite_id} exists in the model associated"
-                    f" to phase {transport.source}."
+                    f"not found in model {model.id}, so the transport cannot "
+                    f"be created. Check that metabolite "
+                    f"{transport.metabolite_id} exists in the model of phase "
+                    f"{transport.source}."
                 ) from e
             try:
                 destination_metabolite: Metabolite = (
@@ -261,10 +257,10 @@ class Transports(ABC):
                 raise KeyError(
                     f"Metabolite "
                     f"{transport.metabolite_id + '_' + transport.destination}"
-                    f" was not found in model with id {model.id}. Associated "
-                    f"transport cannot be created. Check that metabolite "
-                    f"{transport.metabolite_id} exists in the model associated"
-                    f" to phase {transport.destination}."
+                    f" was not found in model {model.id}, so the transport "
+                    f"cannot be created. Check that metabolite "
+                    f"{transport.metabolite_id} exists in the model of phase "
+                    f"{transport.destination}."
                 ) from e
 
             # ToDo set subsystem or not
@@ -277,8 +273,8 @@ class Transports(ABC):
 
             if source_metabolite == destination_metabolite:
                 warnings.warn(
-                    f"Source and target metabolite are identical. "
-                    f"Generation of the reaction is skipped. \n "
+                    f"Source and destination metabolite are identical, so "
+                    f"the reaction is not created.\n"
                     f"{str(transport)}",
                     category=UserWarning,
                     stacklevel=3,
@@ -288,20 +284,21 @@ class Transports(ABC):
 
             reac.add_metabolites(
                 {
-                    # source defined as one for visualisation purposes
+                    # The source coefficient is fixed at -1 for readability;
+                    # only the destination coefficient is scaled.
                     source_metabolite: -1,
                     destination_metabolite: (source.volume * source.timeframe)
                     / (destination.volume * destination.timeframe),
                 }
             )
-            logging.info(f"The reaction {reac.id} was created")
+            logging.info(f"The reaction {reac.id} was created.")
             reactions2add.append(reac)
-            logging.info(
-                f"The previously stated reactions (n= {len(reactions2add)}) "
-                f"were added to the model."
-            )
 
         model.add_reactions(reactions2add)
+        logging.info(
+            f"The previously listed reactions (n = {len(reactions2add)}) "
+            f"were added to the model."
+        )
 
         return model
 

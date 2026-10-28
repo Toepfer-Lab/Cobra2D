@@ -34,9 +34,8 @@ def adjusted_pfba(
         model: The COBRApy model created from the constraints object. It is
             not changed.
         fraction_of_optimum: The fraction of the optimum of the original
-            objective that must still be achieved. The original objective is
-            constrained to at least ``fraction_of_optimum`` times its optimal
-            value.
+            objective that must still be achieved, see
+            :py:func:`cobra.util.solver.fix_objective_as_constraint`.
         objective: An objective that replaces the current objective of the
             model before it is fixed as a constraint. By default, the
             current objective of the model is used.

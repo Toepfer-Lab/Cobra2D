@@ -274,7 +274,7 @@ class Phases:
         id: str = phase.id if isinstance(phase, Phase) else phase
 
         if not self.phases.has_id(id):
-            raise KeyError(f" There is no phase with ID: {id}")
+            raise KeyError(f"There is no phase with ID: {id}")
 
         del self.phases[self.phases.index(id)]
 
@@ -328,14 +328,14 @@ class Phases:
         if without_model:
             if model is None:
                 logging.error(
-                    "There are phases without assigned models, but "
-                    "no model was passed that could be used as "
-                    "default model."
+                    "There are phases without an assigned model, but no "
+                    "model was passed that could be used as the default "
+                    "model."
                 )
 
                 raise ValueError(
-                    "Model was None although there were phases "
-                    "without model."
+                    "No model was passed, although there are phases "
+                    "without an assigned model."
                 )
 
             new_model = _main_placeholder(
@@ -363,7 +363,7 @@ class Phases:
                 phase.objective_factor * phase.timeframe * phase.volume,
             )
 
-            # Add all objects of the model to a group named after the label
+            # Add all objects of the model to a group named after the phase
             copy.add_groups(
                 [
                     Group(

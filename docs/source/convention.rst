@@ -2,7 +2,9 @@ Naming Convention
 =============================================
 
 
-The following describes the naming convention used in this package. Apart from the phase suffix that is appended to all copied reactions, metabolites and groups, Cobra2D only creates transfer and linker reactions, so only these are described here.
+The following describes the naming convention used in this package. Cobra2D appends a phase suffix to the IDs of
+all copied reactions, metabolites and groups (see :ref:`order-of-suffixes`). The only reactions it creates itself
+are transfer and linker reactions, whose IDs are described below.
 
 Both source and destination refer to phase IDs, which follow the
 ``<sub_model>_<time>`` pattern (e.g. ``leaf_1``). A sub_model may itself
@@ -39,11 +41,13 @@ ID: <Metabolite_ID>_lk_<sub_model>_[<origin_time>|<destination_time>]
     metabolite is scaled, see :ref:`scaling`.
 
 
+.. _order-of-suffixes:
+
 Order of suffixes:
 -----------------------------------
 IDs are built by appending suffixes to the original ID. Spatial subsystems come first, ordered from the smallest
-to the largest, e.g. compartment, cell type, tissue, organ. They are followed by the time period, if time periods
-are used.
+to the largest, e.g. compartment, cell type, tissue, organ. The time period comes last. It is always present,
+since every phase ID ends with one, even if no time periods were defined explicitly (e.g. ``default_0``).
 
 The general structure is therefore:
 
