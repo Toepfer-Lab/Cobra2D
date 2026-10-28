@@ -92,6 +92,29 @@ class TestConstraints(TestCase):
         self.assertEqual(4, phase.reaction_settings[0].lower_bound)
         self.assertEqual(541, phase.reaction_settings[0].upper_bound)
 
+    def test_add_reaction_to_phase_list(self):
+        """A list of phases adjusts the reaction in every listed phase."""
+        con = Constraints()
+        con.add_time_slots(3, 1)
+        reaction = Reaction(id="test", lower_bound=4, upper_bound=541)
+
+        con.add_reaction_to_phase(
+            reaction, ["default_0", con.get_phase_by_id("default_2")]
+        )
+
+        for phase_id, expected in [
+            ("default_0", 1),
+            ("default_1", 0),
+            ("default_2", 1),
+        ]:
+            settings = con.get_phase_by_id(phase_id).reaction_settings
+            self.assertEqual(expected, len(settings), phase_id)
+
+        settings = con.get_phase_by_id("default_2").reaction_settings
+        self.assertEqual("test", settings[0].id)
+        self.assertEqual(4, settings[0].lower_bound)
+        self.assertEqual(541, settings[0].upper_bound)
+
     def test_add_reaction_to_phase_stores_a_copy(self):
         """Reusing a reaction must not change phases it was added to before."""
         con = Constraints()

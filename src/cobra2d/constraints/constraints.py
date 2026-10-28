@@ -199,7 +199,7 @@ class Constraints:
         if isinstance(phase, List):
             for single_phase in phase:
                 self.add_reaction_to_phase(reaction, single_phase)
-                return
+            return
 
         if isinstance(phase, str):
             phase = self.phases.phases.get_by_id(phase)
