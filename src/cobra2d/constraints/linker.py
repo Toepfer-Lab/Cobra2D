@@ -26,9 +26,9 @@ logger.level = 20
 
 class Linker(Transport):
     """
-    A linker represents the transport of a metabolite from one time period to
-    another within the same sub_model (temporal transport). In the model, it
-    is represented by a pseudo reaction between the source and the
+    A linker reaction represents the transport of a metabolite from one time
+    period to another within the same sub_model (temporal transport). In the
+    model, it is represented by a pseudo reaction between the source and the
     destination phase.
 
     Attributes:
@@ -75,11 +75,11 @@ class Linker(Transport):
 
     def __str__(self) -> str:
         """
-        Create a table describing the linker.
+        Create a table describing the linker reaction.
 
         Returns:
             The metabolite ID, source, destination, lower bound and upper
-            bound of the linker as a table.
+            bound of the linker reaction as a table.
         """
         return super().__str__()
 
@@ -90,9 +90,10 @@ class Linker(Transport):
 
     @property
     def reac_id(self) -> str:
-        """The reaction ID following the naming convention for linkers.
+        """The reaction ID following the naming convention for linker
+        reactions.
 
-        Linkers describe temporal transport, so source and destination differ
+        Linker reactions describe temporal transport, so source and destination differ
         in their time period but share the same sub_model. The resulting ID has
         the form ``<metabolite>_lk_<sub_model>_[<origin_time>|<destination_time>]``,
         e.g. ``STARCH_p_lk_leaf_[1|2]``.
@@ -106,9 +107,10 @@ class Linker(Transport):
 
         if source_sub_model != dest_sub_model:
             raise ValueError(
-                f"A linker connects phases of the same sub_model, but source "
-                f"'{self.source}' and destination '{self.destination}' have "
-                f"different sub_models ('{source_sub_model}' vs. "
+                f"A linker reaction connects phases of the same sub_model, "
+                f"but source '{self.source}' and destination "
+                f"'{self.destination}' have different sub_models "
+                f"('{source_sub_model}' vs. "
                 f"'{dest_sub_model}')."
             )
 
@@ -126,11 +128,12 @@ class Linker(Transport):
 
     def to_xml(self) -> Element:
         """
-        Convert the linker to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the linker reaction to an
+        :py:class:`xml.etree.ElementTree.Element`.
 
         Returns:
             The :py:class:`xml.etree.ElementTree.Element` representation of
-            a linker.
+            a linker reaction.
         """
         element = Element("linker")
         SubElement(element, "destination").set("refid", self.destination)
@@ -145,13 +148,14 @@ class Linker(Transport):
     @classmethod
     def from_dict(cls, data: dict) -> Linker:
         """
-        Create a linker from the data encoded in a dict.
+        Create a linker reaction from the data encoded in a dict.
 
         Args:
-            data: A dict that contains the data required to create a linker.
+            data: A dict that contains the data required to create a linker
+                reaction.
 
         Returns:
-            A linker created from the data in the dict.
+            A linker reaction created from the data in the dict.
 
         Examples:
             .. code-block:: python
@@ -179,8 +183,8 @@ class Linkage(Transports):
     A collection of :py:class:`Linker` objects that can be applied to a
     :py:class:`cobra.Model`.
 
-    Linkers can be added with :py:meth:`append`, removed with
-    :py:meth:`remove` and iterated over. The contained linkers are
+    Linker reactions can be added with :py:meth:`append`, removed with
+    :py:meth:`remove` and iterated over. The contained linker reactions are
     accessible as a list via the ``linker`` property.
     """
 
@@ -196,11 +200,11 @@ class Linkage(Transports):
 
     def __str__(self):
         """
-        Create a table of all linkers.
+        Create a table of all linker reactions.
 
         Returns:
             The metabolite ID, source, destination, lower bound and upper
-            bound of each linker as a table.
+            bound of each linker reaction as a table.
         """
         return super(Linkage, self).__str__()
 
@@ -209,11 +213,11 @@ class Linkage(Transports):
 
     def append(self, obj: Linker):  # type: ignore
         """
-        Add a linker. A linker that is already present is not added again,
-        and a warning is issued instead.
+        Add a linker reaction. A linker reaction that is already present is
+        not added again, and a warning is issued instead.
 
         Args:
-            obj: The linker to be added.
+            obj: The linker reaction to be added.
 
         Raises:
             TypeError: If ``obj`` is not a :py:class:`Linker`.
@@ -225,10 +229,10 @@ class Linkage(Transports):
 
     def add_linker(self, linker: Linker):
         """
-        Add a linker.
+        Add a linker reaction.
 
         Args:
-            linker: The linker to be added.
+            linker: The linker reaction to be added.
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
@@ -244,11 +248,11 @@ class Linkage(Transports):
 
     def remove(self, obj_pos: Union[Linker, int]):  # type: ignore
         """
-        Remove a linker, given either as the linker itself or as its position
-        in the ``linker`` list.
+        Remove a linker reaction, given either as the linker reaction itself
+        or as its position in the ``linker`` list.
 
         Args:
-            obj_pos: The linker to be removed or its position.
+            obj_pos: The linker reaction to be removed or its position.
         """
         super(Linkage, self).remove(obj_pos)
 
@@ -258,11 +262,11 @@ class Linkage(Transports):
 
     def remove_linker(self, obj_pos: Union[Linker, int]):
         """
-        Remove a linker, given either as the linker itself or as its position
-        in the ``linker`` list.
+        Remove a linker reaction, given either as the linker reaction itself
+        or as its position in the ``linker`` list.
 
         Args:
-            obj_pos: The linker to be removed or its position.
+            obj_pos: The linker reaction to be removed or its position.
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
@@ -279,14 +283,14 @@ class Linkage(Transports):
 
     def apply(self, model: Model, phases: Phases) -> Model:
         """
-        Add a reaction for each linker to a :py:class:`cobra.Model`.
+        Add each linker reaction to a :py:class:`cobra.Model`.
 
         Args:
             model: The model to which the linker reactions are added. It must
                 already contain the phases, see :py:meth:`Phases.apply_phases`.
                 The model is changed in place.
             phases: A phases object that contains all phases referenced by
-                the linkers.
+                the linker reactions.
 
         Returns:
             The passed :py:class:`cobra.Model`, now containing the linker
@@ -297,12 +301,12 @@ class Linkage(Transports):
 
     def apply_linkage(self, model: Model, phases: Phases) -> Model:
         """
-        Add a reaction for each linker to a :py:class:`cobra.Model`.
+        Add each linker reaction to a :py:class:`cobra.Model`.
 
         Args:
             model: The model to which the linker reactions are added.
             phases: A phases object that contains all phases referenced by
-                the linkers.
+                the linker reactions.
 
         Returns:
             The passed :py:class:`cobra.Model`, now containing the linker
@@ -342,14 +346,15 @@ class Linkage(Transports):
     @classmethod
     def from_dict(cls, data: List[dict]) -> Linkage:
         """
-        Create a linkage from a list of dicts, each encoding a linker.
+        Create a linkage from a list of dicts, each encoding a linker
+        reaction.
 
         Args:
             data: A list of dicts, each containing the data required to
-                create a linker, see :py:meth:`Linker.from_dict`.
+                create a linker reaction, see :py:meth:`Linker.from_dict`.
 
         Returns:
-            A linkage containing the linkers created from the dicts.
+            A linkage containing the linker reactions created from the dicts.
 
         Examples:
             .. code-block:: python

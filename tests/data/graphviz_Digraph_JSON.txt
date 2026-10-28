@@ -11,6 +11,6 @@ digraph {
 	}
 	model0_0 -> model0_1 [label="" labelangle=75 labeldistance=6]
 	model1_0 -> model1_1 [dir=none style=invis]
-	"linker existing in all connections:
+	"Linker reactions existing in all connections:
  amp_c" [shape=rectangle]
 }

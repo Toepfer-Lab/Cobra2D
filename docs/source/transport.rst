@@ -28,10 +28,10 @@ coefficient:
     \frac{volume_{source} \cdot timeframe_{source}}
     {volume_{destination} \cdot timeframe_{destination}}
 
-A linker or transfer is therefore only 1:1 if source and destination have the
+A linker or transfer reaction is therefore only 1:1 if source and destination have the
 same volume and timeframe. For example, in the quick start on the
 :doc:`landing page <index>` the leaf has a volume of 2 and the root a volume
-of 1, both with a timeframe of 12. The transfer of ``glc__D_e`` therefore
+of 1, both with a timeframe of 12. The transfer reaction of ``glc__D_e`` therefore
 becomes ``glc__D_e_leaf_0 --> 2.0 glc__D_e_root_0``.
 
 **Objective:** When the phases are applied to a model, the objective
@@ -48,7 +48,7 @@ also weights the flux of each reaction by ``timeframe * volume`` of its phase.
 Linker Reactions
 =============================================
 
-The Linker class is shown first, followed by the Linkage class, which manages multiple linkers.
+The Linker class is shown first, followed by the Linkage class, which manages multiple linker reactions.
 
 .. autoclass:: cobra2d.constraints.linker::Linker
    :members:
@@ -61,7 +61,7 @@ Transfer Reactions
 =============================================
 
 Transfer reactions are handled in the same way as linker reactions. The Transfer class is shown first,
-followed by the Transfers class, which manages multiple transfers.
+followed by the Transfers class, which manages multiple transfer reactions.
 
 .. autoclass:: cobra2d.constraints.transfer::Transfer
    :members:

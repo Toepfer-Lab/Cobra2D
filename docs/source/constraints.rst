@@ -117,8 +117,8 @@ A constraints object can be written to an XML file and read back from it:
     con = Constraints.load_from_xml("conf.xml")
 
 The format is defined by ``src/cobra2d/resources/schema.xsd``. A document
-holds the phases, the transfers and the linkers, and declares the namespace
-of that schema:
+holds the phases, the transfer reactions and the linker reactions, and
+declares the namespace of that schema:
 
 .. code-block:: xml
 
@@ -136,8 +136,8 @@ of that schema:
         <linkage/>
     </Conf>
 
-The file stores the phases with their reaction settings and the transfers
-and linkers between them. A :py:class:`cobra.Model` assigned to a phase via
+The file stores the phases with their reaction settings and the transfer and
+linker reactions between them. A :py:class:`cobra.Model` assigned to a phase via
 :py:attr:`cobra2d.constraints.phase.Phase.model` is not stored and has to be
 assigned again after loading.
 

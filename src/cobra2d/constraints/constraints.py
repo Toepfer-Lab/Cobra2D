@@ -337,14 +337,14 @@ class Constraints:
 
     def add_linker(self, linker: Linker):
         """
-        Add a previously created linker to the constraints object.
+        Add a previously created linker reaction to the constraints object.
 
         Args:
-            linker: The linker to be added.
+            linker: The linker reaction to be added.
 
         Raises:
             PhaseNotFound: If the source or destination phase of the linker
-                is unknown.
+                reaction is unknown.
         """
 
         try:
@@ -373,14 +373,14 @@ class Constraints:
 
     def add_transfer(self, transfer: Transfer):
         """
-        Add a previously created transfer to the constraints object.
+        Add a previously created transfer reaction to the constraints object.
 
         Args:
-            transfer: The transfer to be added.
+            transfer: The transfer reaction to be added.
 
         Raises:
             PhaseNotFound: If the source or destination phase of the transfer
-                is unknown.
+                reaction is unknown.
         """
 
         try:
@@ -418,7 +418,8 @@ class Constraints:
         sub_models: Optional[List[str]] = None,
     ):
         """
-        Create linkers between consecutive time periods of each sub_model.
+        Create linker reactions between consecutive time periods of each
+        sub_model.
 
         Args:
             metabolite_id: The ID of the metabolite to be linked, without the
@@ -428,21 +429,22 @@ class Constraints:
                 :py:attr:`cobra.Reaction.lower_bound`.
             upper_bound: The upper bound of the linker reactions, see
                 :py:attr:`cobra.Reaction.upper_bound`.
-            last2first: If True, an additional linker is created from the last
-                to the first time period, closing the cycle. If ``reverse`` is
-                also True, this linker runs from the first to the last time
-                period instead.
-            reverse: If True, the linkers run from the last to the first time
-                period instead of from the first to the last.
-            timeframes: Restricts the linkers to these time periods, given as
-                the integer indices used in the phase IDs (the ``<time>`` part
-                of ``<sub_model>_<time>``). For example, ``[0, 1, 2]`` limits
-                the series to the first three periods. The linkers always
-                connect consecutive entries of the remaining list, so gaps are
-                bridged rather than skipped: ``[0, 2]`` links ``_0`` directly
-                to ``_2``. If None, every time period of the model is used.
-            sub_models: Restricts the linkers to these sub_models. If None,
-                every sub_model of the model is used. The order is irrelevant,
+            last2first: If True, an additional linker reaction is created from
+                the last to the first time period, closing the cycle. If
+                ``reverse`` is also True, this linker reaction runs from the
+                first to the last time period instead.
+            reverse: If True, the linker reactions run from the last to the
+                first time period instead of from the first to the last.
+            timeframes: Restricts the linker reactions to these time periods,
+                given as the integer indices used in the phase IDs (the
+                ``<time>`` part of ``<sub_model>_<time>``). For example,
+                ``[0, 1, 2]`` limits the series to the first three periods.
+                The linker reactions always connect consecutive entries of the
+                remaining list, so gaps are bridged rather than skipped:
+                ``[0, 2]`` links ``_0`` directly to ``_2``. If None, every time
+                period of the model is used.
+            sub_models: Restricts the linker reactions to these sub_models. If
+                None, every sub_model of the model is used. The order is irrelevant,
                 as each sub_model is only linked to itself across time.
 
         Raises:
@@ -549,15 +551,17 @@ class Constraints:
         timeframes: Optional[List[int]] = None,
     ):
         """
-        Create transfers along a chain of sub_models.
+        Create transfer reactions along a chain of sub_models.
 
         In contrast to :py:meth:`add_linker_series`, which connects phases of
         the same sub_model across consecutive time periods, this method
-        connects different sub_models within the same time period.
+        connects different sub_models within the same time period. For
+        example, a transfer reaction can move sucrose from the leaf to the stem and on
+        to the root.
 
-        Since the intended order of the sub_models cannot be inferred, the
-        ``sub_models`` parameter is required, and its order defines how the
-        sub_models are connected to one another.
+        As the intended order cannot easily be inferred, the sub_model parameter
+         must be defined, and the order within this parameter determines how
+         the ``sub_models`` are connected to one another.
 
         Args:
             metabolite_id: The ID of the metabolite to be transferred, without
@@ -571,17 +575,19 @@ class Constraints:
                 :py:attr:`cobra.Reaction.lower_bound`.
             upper_bound: The upper bound of the transfer reactions, see
                 :py:attr:`cobra.Reaction.upper_bound`.
-            last2first: If True, an additional transfer is created from the
-                last to the first sub_model, closing the cycle. If ``reverse``
-                is also True, this transfer runs from the first to the last
-                sub_model instead.
-            reverse: If True, the transfers run along ``sub_models`` from the
-                last to the first entry instead of from the first to the last.
-            timeframes: Restricts the transfers to these time periods, given as
-                the integer indices used in the phase IDs (the ``<time>`` part
-                of ``<sub_model>_<time>``). For example, ``[0, 1, 2]`` builds
-                the sub_model chain only in the first three periods. If None,
-                every time period of the model is used.
+            last2first: If True, an additional transfer reaction is created
+                from the last to the first sub_model, closing the cycle. If
+                ``reverse`` is also True, this transfer reaction runs from the
+                first to the last sub_model instead.
+            reverse: If True, the transfer reactions run along ``sub_models``
+                from the last to the first entry instead of from the first to
+                the last.
+            timeframes: Restricts the transfer reactions to these time
+                periods, given as the integer indices used in the phase IDs
+                (the ``<time>`` part of ``<sub_model>_<time>``). For example,
+                ``[0, 1, 2]`` builds the sub_model chain only in the first
+                three periods. If None, every time period of the model is
+                used.
 
         Raises:
             ValueError: If ``sub_models`` is empty or contains a sub_model that
@@ -606,7 +612,8 @@ class Constraints:
         if not sub_models:
             raise ValueError(
                 "sub_models is required and must contain at least one "
-                "sub_model, as its order defines the transfer chain."
+                "sub_model, as its order defines the chain of transfer "
+                "reactions."
             )
 
         existing_labels, times = self.__get_label_time()
@@ -678,21 +685,21 @@ class Constraints:
         self, model: Optional[Model] = None, link_genes: bool = False
     ) -> Model:
         """
-        Apply all defined phases, transfers and linkers to a
-        :py:class:`Model`.
+        Apply all defined phases, transfer reactions and linker reactions to
+        a :py:class:`Model`.
 
-        The passed model is not changed. Instead, a new model is built that
-        contains a copy of it for each phase.
+        ``model`` is not changed. Instead, a new model is built that contains
+        a copy of it for each phase.
 
         Args:
             model: The model to be copied for each phase. It may only be
                 omitted if a model is assigned to every phase via
                 :py:attr:`Phase.model`.
             link_genes: Whether the gene-reaction rules should be
-                synchronized across the copies derived from ``model``.
-                Manually assigned phase models keep their own rules, and a
-                :py:class:`cobra2d.error.GenesNotLinked` warning is issued
-                instead.
+                synchronized across all phases that are built from ``model``.
+                Phases with their own model (set via :py:attr:`Phase.model`)
+                are not linked and keep their own rules; a
+                :py:class:`cobra2d.error.GenesNotLinked` warning lists them.
 
         Returns:
             A new :py:class:`Model` that contains all defined adjustments.
@@ -778,8 +785,8 @@ class Constraints:
             The :py:class:`Constraints` object described by the XML file.
 
         Raises:
-            PhaseNotFound: If a linker or transfer refers to a phase that the
-                document does not define.
+            PhaseNotFound: If a linker or transfer reaction refers to a phase
+                that the document does not define.
 
         """  # nopep8
 
@@ -824,7 +831,8 @@ class Constraints:
         if unknown:
             raise PhaseNotFound(
                 f"The following phases are used as source or destination of a "
-                f"linker or transfer but are not defined by the document: "
+                f"linker or transfer reaction but are not defined by the "
+                f"document: "
                 f"{sorted(unknown)}."
             )
 
@@ -972,7 +980,7 @@ class Constraints:
                 ]
 
         size = len(linker_edge_dict_reverse)
-        linker_str = "linker existing in all connections:"
+        linker_str = "Linker reactions existing in all connections:"
         for key, value in linker_edge_dict.items():
             if len(value) == size:
                 linker_str += f"\n {key}"
@@ -980,7 +988,7 @@ class Constraints:
                     metabolite_ids.remove(key)
 
         size = len(transfer_edge_dict_reverse)
-        transfer_str = "Transfers existing in all connections:"
+        transfer_str = "Transfer reactions existing in all connections:"
         for key, value in transfer_edge_dict.items():
             if len(value) == size:
                 transfer_str += f"\n {key}"
@@ -1195,12 +1203,13 @@ class Constraints:
 
     def cytoscape(self):  # pragma: no cover
         """
-        Display an interactive visualization of the phases, linkers and
-        transfers in a Jupyter Notebook using ipycytoscape.
+        Display an interactive visualization of the phases, linker reactions
+        and transfer reactions in a Jupyter Notebook using ipycytoscape.
 
-        Phases are shown as nodes grouped by sub_model, linkers and transfers
-        as edges. Clicking on a phase shows its settings (name, volume,
-        timeframe, assigned model and adjusted reactions); clicking on an edge
+        Phases are shown as nodes grouped by sub_model, linker and transfer
+        reactions as edges. Clicking on a phase shows its settings (name,
+        volume, timeframe, assigned model and adjusted reactions); clicking on
+        an edge
         shows the metabolites transported along it. If a model is assigned
         to a phase, an additional tab offers a MetExploreViz visualization of
         it, see :py:func:`cobra2d.visualization.helper.metexplore_interface`.
@@ -1312,11 +1321,11 @@ class Constraints:
         )
 
         met_betw_all_phases_linker_html = (
-            "<h5>Linker existing between all Phases:</h5>"
+            "<h5>Linker reactions existing between all phases:</h5>"
             + met_betw_all_phases_linker_html
         )
         met_betw_all_phases_transfer_html = (
-            "<h5>Transfers existing between all Phases:</h5>"
+            "<h5>Transfer reactions existing between all phases:</h5>"
             + met_betw_all_phases_transfer_html
         )
 

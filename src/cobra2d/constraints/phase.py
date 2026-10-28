@@ -285,18 +285,18 @@ class Phases:
         Apply the defined phases to a :py:class:`Model`.
 
         The model is copied once for each phase, and all copies are merged
-        into a new model. If a model is assigned to a phase via
-        :py:attr:`Phase.model`, that model is used for the phase instead of
-        the passed one. The passed model itself is not changed.
+        into a new model. If a phase already has a model assigned (see
+        :py:attr:`Phase.model`), that model is used for the phase instead of
+        ``model``. ``model`` itself is not changed.
 
         Args:
             model: The model to be copied for each phase. It may only be
                 omitted if a model is assigned to every phase.
             link_genes: Whether the gene-reaction rules should be
-                synchronized across the copies derived from the passed model.
-                Manually assigned phase models keep their own rules, and a
-                :py:class:`cobra2d.error.GenesNotLinked` warning is issued
-                instead.
+                synchronized across all phases that are built from ``model``.
+                Phases with their own model (set via :py:attr:`Phase.model`)
+                are not linked and keep their own rules; a
+                :py:class:`cobra2d.error.GenesNotLinked` warning lists them.
 
         Returns:
             A new model that consists of one copy of the original model per
