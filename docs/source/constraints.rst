@@ -1,16 +1,16 @@
 Constraints Class
 =============================================
 
-In the following we will take a closer look at the Constraints class. This is
-the one that brings together all the functionalities of this package.
-For a user it is therefore the most important class.
+This page takes a closer look at the Constraints class. It brings together all
+the functionality of this package, which makes it the most important class for
+users.
 
 .. autoclass:: cobra2d.constraints.constraints::Constraints
    :members:
 
 Adding new time periods or sub_models
 -----------------------------------------
-This class contains two functions to add periods or sub_models.
+The class provides two methods to add time periods or sub_models.
 
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_sub_models
    :no-index:
@@ -18,11 +18,9 @@ This class contains two functions to add periods or sub_models.
 .. autofunction:: cobra2d.constraints.constraints.Constraints.add_time_slots
    :no-index:
 
-The functions create phase objects for the newly
-added time period, sub_model combinations. For the creation of the phase objects the parameters are used, which
-were specified in each case with the addition of periods or sub_models. By default there is a phase called "default_0".
-This has a volume of 1 and a time period of 1. When one of the two methods is used for the first time, it is extended
-as shown below.
+Both methods create a phase object for each new combination of time period and sub_model, using the
+parameters specified when the time period or sub_model was added. Initially, there is a single phase called
+``default_0`` with a volume of 1 and a timeframe of 1:
 
 .. doctest::
 
@@ -37,7 +35,7 @@ as shown below.
     |           | time     |     1     |
     +----------------------+-----------+
 
-By adding time frames we get
+Adding time periods results in:
 
 .. doctest::
 
@@ -54,7 +52,7 @@ By adding time frames we get
     +----------------------+-----------+-----------+-----------+-----------+
 
 
-If we add sub_models instead we get the following:
+Adding sub_models instead results in:
 
 .. doctest::
 
@@ -74,7 +72,7 @@ If we add sub_models instead we get the following:
     |          | time      |   1    |
     +----------------------+--------+
 
-As we can see the default time period or sub_model is replaced as soon as we define times or sub_models ourselves.
+As shown, the default time period or sub_model is replaced as soon as time periods or sub_models are defined explicitly.
 
 Applying phase models and synchronizing gene rules
 ---------------------------------------------------
@@ -138,9 +136,9 @@ of that schema:
         <linkage/>
     </Conf>
 
-What is stored are the phases with their reaction settings and the transfers
+The file stores the phases with their reaction settings and the transfers
 and linkers between them. A :py:class:`cobra.Model` assigned to a phase via
-:py:attr:`cobra2d.constraints.phase.Phase.model` is not, and has to be
+:py:attr:`cobra2d.constraints.phase.Phase.model` is not stored and has to be
 assigned again after loading.
 
 Files written by Cobra2D 0.5.0 or earlier declare a different namespace and

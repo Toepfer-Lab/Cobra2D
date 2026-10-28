@@ -1,11 +1,12 @@
 Linker and transfer reactions
 =============================================
 
-Here we discuss the possibilities of transporting metabolites between individual phases. As described in structural design, the temporal and spatial components are considered separately, so metabolites can be moved between time periods or between spatial locations.
+This page describes how metabolites are transported between individual phases. As described in
+:doc:`Structural design <structure>`, the temporal and spatial components are considered separately, so
+metabolites can be moved either between time periods or between sub_models.
 
-We speak of transfer reactions when talking about spatial transport and of linker reactions when talking about temporal transport. Both are listed below.
-
-Both classes behave almost identically and provide a similar interface.
+Spatial transport is represented by transfer reactions, temporal transport by linker reactions. The
+corresponding classes behave almost identically and provide a similar interface.
 
 .. _scaling:
 
@@ -19,7 +20,8 @@ reactions and in the objective. The bounds of the remaining reactions of a
 phase are not scaled.
 
 **Linker and transfer reactions:** The metabolite of the source phase has the
-coefficient -1, the metabolite of the destination phase the coefficient
+coefficient -1, and the metabolite of the destination phase has the
+coefficient:
 
 .. math::
 
@@ -46,7 +48,7 @@ also weights the flux of each reaction by ``timeframe * volume`` of its phase.
 Linker Reactions
 =============================================
 
-The linker class is shown first, followed by the linkage class. The linkage class comprises several linker reactions.
+The Linker class is shown first, followed by the Linkage class, which manages multiple linkers.
 
 .. autoclass:: cobra2d.constraints.linker::Linker
    :members:
@@ -58,9 +60,8 @@ The linker class is shown first, followed by the linkage class. The linkage clas
 Transfer Reactions
 =============================================
 
-Transfer reactions are handled in the same way as linker reactions.
-
-So first the transfer class is displayed, followed by the transfers class, which manages several transfer reactions.
+Transfer reactions are handled in the same way as linker reactions. The Transfer class is shown first,
+followed by the Transfers class, which manages multiple transfers.
 
 .. autoclass:: cobra2d.constraints.transfer::Transfer
    :members:

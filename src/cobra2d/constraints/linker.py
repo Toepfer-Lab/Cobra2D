@@ -26,22 +26,21 @@ logger.level = 20
 
 class Linker(Transport):
     """
-    Linker is a Subclass of Transport and represents a transition of a
-    Metabolite from one Phase to another. Phases itself define a fixed time
-    period in a fixed organ. Using this information, a pseudo reaction can be
-    created representing the transition between two such phases.
+    A linker represents the transport of a metabolite from one time period to
+    another within the same sub_model (temporal transport). In the model, it
+    is represented by a pseudo reaction between the source and the
+    destination phase.
 
     Attributes:
-        metabolite_id: The ID to be used for the metabolite. This should match
-                the ID of the metabolite in the model.
+        metabolite_id (str): The ID of the metabolite to be transported,
+            without the phase suffix. It must match the ID of the metabolite
+            in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
-        lower_bound (float): The 'lower_bound' to be used for the reaction.
-            For more information see 'lower_bound' in
-            :py:func:`cobra.Reaction`.
-        upper_bound (float): The 'upper_bound' to be used for the reaction.
-            For more information see 'lower_bound' in
-            :py:func:`cobra.Reaction`.
+        lower_bound (float): The lower bound of the linker reaction, see
+            :py:attr:`cobra.Reaction.lower_bound`.
+        upper_bound (float): The upper bound of the linker reaction, see
+            :py:attr:`cobra.Reaction.upper_bound`.
     """
 
     def __init__(
@@ -56,18 +55,15 @@ class Linker(Transport):
         Initialize a Linker.
 
         Args:
-            metabolite_id: The ID to be used for the metabolite. This should
-                match the ID of the metabolite in the model.
-            source: The ID of the source phase or the source
-                phase itself.
-            destination: The ID of the source phase or the
-                source phase itself.
-            lower_bound: The 'lower_bound' to be used for the reaction.
-                For more information see :py:attr:`cobra.Reaction.lower_bound`
-                in :py:func:`cobra.Reaction`.
-            upper_bound: The 'upper_bound' to be used for the reaction.
-                For more information see :py:attr:`lower_bound` in
-                :py:class:`cobra.Reaction.`.
+            metabolite_id: The ID of the metabolite to be transported, without
+                the phase suffix. It must match the ID of the metabolite in
+                the model.
+            source: The source phase or its ID.
+            destination: The destination phase or its ID.
+            lower_bound: The lower bound of the linker reaction, see
+                :py:attr:`cobra.Reaction.lower_bound`.
+            upper_bound: The upper bound of the linker reaction, see
+                :py:attr:`cobra.Reaction.upper_bound`.
         """
         super().__init__(
             metabolite_id=metabolite_id,
@@ -79,11 +75,11 @@ class Linker(Transport):
 
     def __str__(self) -> str:
         """
-        The toString method of the Linker class.
-        Returns:
-            The ID, name, source, destination, lower bound and upper
-            bound of the linker object as a formatted string.
+        Create a table describing the linker.
 
+        Returns:
+            The metabolite ID, source, destination, lower bound and upper
+            bound of the linker as a table.
         """
         return super().__str__()
 
@@ -130,7 +126,7 @@ class Linker(Transport):
 
     def to_xml(self) -> Element:
         """
-        Converts a linker to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the linker to an :py:class:`xml.etree.ElementTree.Element`.
 
         Returns:
             The :py:class:`xml.etree.ElementTree.Element` representation of
@@ -149,13 +145,13 @@ class Linker(Transport):
     @classmethod
     def from_dict(cls, data: dict) -> Linker:
         """
-        Creates a linker object based on the data encoded in a dict.
+        Create a linker from the data encoded in a dict.
 
         Args:
-            data: A dict that contains the necessary data to create a linker.
+            data: A dict that contains the data required to create a linker.
 
         Returns:
-            A linker based on the data from the dict.
+            A linker created from the data in the dict.
 
         Examples:
             .. code-block:: python
@@ -180,9 +176,12 @@ class Linker(Transport):
 
 class Linkage(Transports):
     """
-    Linkage as a class represents multiple Linker. Furthermore it implements
-    the applying of Linkers to a cobra.model.
+    A collection of :py:class:`Linker` objects that can be applied to a
+    :py:class:`cobra.Model`.
 
+    Linkers can be added with :py:meth:`append`, removed with
+    :py:meth:`remove` and iterated over. The contained linkers are
+    accessible as a list via the ``linker`` property.
     """
 
     # ToDo change to Set? or to DictList
@@ -197,11 +196,11 @@ class Linkage(Transports):
 
     def __str__(self):
         """
-        The toString method of the Linkage class.
+        Create a table of all linkers.
 
         Returns:
-            The ID, name, source, destination, lower bound and upper
-            bound of all linker objects as a formatted string.
+            The metabolite ID, source, destination, lower bound and upper
+            bound of each linker as a table.
         """
         return super(Linkage, self).__str__()
 
@@ -210,10 +209,14 @@ class Linkage(Transports):
 
     def append(self, obj: Linker):  # type: ignore
         """
-        Adds linker to the linkage class.
+        Add a linker. A linker that is already present is not added again,
+        and a warning is issued instead.
 
         Args:
             obj: The linker to be added.
+
+        Raises:
+            TypeError: If ``obj`` is not a :py:class:`Linker`.
         """
         if isinstance(obj, Linker):
             super(Linkage, self).append(obj)
@@ -222,7 +225,7 @@ class Linkage(Transports):
 
     def add_linker(self, linker: Linker):
         """
-        Adds linker to the linkage class.
+        Add a linker.
 
         Args:
             linker: The linker to be added.
@@ -241,14 +244,11 @@ class Linkage(Transports):
 
     def remove(self, obj_pos: Union[Linker, int]):  # type: ignore
         """
-        Function to remove a linker. Either the position of the linker in the
-        :py:attr:`linkage.linker` list can be specified or the respective
-        linker.
+        Remove a linker, given either as the linker itself or as its position
+        in the ``linker`` list.
 
         Args:
-            obj_pos: The position of the linker object to be deleted or
-                itself.
-
+            obj_pos: The linker to be removed or its position.
         """
         super(Linkage, self).remove(obj_pos)
 
@@ -258,13 +258,11 @@ class Linkage(Transports):
 
     def remove_linker(self, obj_pos: Union[Linker, int]):
         """
-        Function to remove a linker. Either the position of the linker in the
-        :py:attr:`linkage.linker` list can be specified or the respective
-        linker.
+        Remove a linker, given either as the linker itself or as its position
+        in the ``linker`` list.
 
         Args:
-            obj_pos: The position of the linker object to be deleted or
-                itself.
+            obj_pos: The linker to be removed or its position.
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
@@ -281,32 +279,34 @@ class Linkage(Transports):
 
     def apply(self, model: Model, phases: Phases) -> Model:
         """
-        Function to apply all linkers contained in Linkage to a
-        :py:class:`cobra.Model`
+        Add a reaction for each linker to a :py:class:`cobra.Model`.
 
         Args:
-            model: The model to which the Linker should be applied.
+            model: The model to which the linker reactions are added. It must
+                already contain the phases, see :py:meth:`Phases.apply_phases`.
+                The model is changed in place.
             phases: A phases object that contains all phases referenced by
-                the individual Linker.
+                the linkers.
 
         Returns:
-            A :py:class:`cobra.model` that contains the Linker.
+            The passed :py:class:`cobra.Model`, now containing the linker
+            reactions.
         """
 
         return super(Linkage, self).apply(model=model, phases=phases)
 
     def apply_linkage(self, model: Model, phases: Phases) -> Model:
         """
-        Function to apply all linkers contained in Linkage to a
-        :py:class:`cobra.Model`
+        Add a reaction for each linker to a :py:class:`cobra.Model`.
 
         Args:
-            model: The model to which the Linker should be applied.
+            model: The model to which the linker reactions are added.
             phases: A phases object that contains all phases referenced by
-                the individual Linker.
+                the linkers.
 
         Returns:
-            A :py:class:`cobra.model` that contains the Linker.
+            The passed :py:class:`cobra.Model`, now containing the linker
+            reactions.
 
         Note:
             This method is deprecated and will be removed in version 1.0.0.
@@ -326,12 +326,11 @@ class Linkage(Transports):
 
     def to_xml(self) -> Element:
         """
-        Converts a linkage to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the linkage to an :py:class:`xml.etree.ElementTree.Element`.
 
         Returns:
             The :py:class:`xml.etree.ElementTree.Element` representation of
-            a linkage.
-
+            the linkage.
         """
 
         root = Element("linkage")
@@ -343,14 +342,14 @@ class Linkage(Transports):
     @classmethod
     def from_dict(cls, data: List[dict]) -> Linkage:
         """
-        Creates a linkage object based on the data encoded in a dict.
+        Create a linkage from a list of dicts, each encoding a linker.
 
         Args:
-            data: A list of dicts that contain the necessary data to create a
-                linker object.
+            data: A list of dicts, each containing the data required to
+                create a linker, see :py:meth:`Linker.from_dict`.
 
         Returns:
-            A linkage created based on the data from the dict.
+            A linkage containing the linkers created from the dicts.
 
         Examples:
             .. code-block:: python

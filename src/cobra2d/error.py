@@ -3,8 +3,7 @@ from typing import Iterable, List
 
 class IdAlreadyInUse(Exception):
     """
-    Exception used if an ID is already in use, preventing the addition of
-    another object.
+    Raised if an object cannot be added because its ID is already in use.
     """
 
     def __init__(
@@ -23,7 +22,7 @@ class IdAlreadyInUse(Exception):
 
 class InvalidLabel(Exception):
     """
-    Used if a label for a sub-model is not valid.
+    Raised if a label for a sub_model is not valid.
     """
 
     def __init__(self, message: str):
@@ -60,7 +59,7 @@ class GraphvizNotInstalled(Warning):
 
 class PhaseNotFound(Warning):
     """
-    Raises a Warning in case that a phase is not available
+    Raised if a phase with the requested ID does not exist.
     """
 
     def __init__(self, *args: object) -> None:
@@ -109,7 +108,7 @@ class GenesNotLinked(Warning):
 
 class NameWarning(Warning):
     """
-    Warning for cases, in which a name might not be available
+    Warning for cases in which a name might not be available.
     """
 
     def __init__(self, *args: object) -> None:

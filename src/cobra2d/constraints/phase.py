@@ -1,6 +1,5 @@
 """
-Implementation of the phase and Phases classes.
-
+Implementation of the Phase and Phases classes.
 """
 
 from __future__ import annotations
@@ -27,30 +26,29 @@ from cobra2d.error import GenesNotLinked, IdAlreadyInUse
 
 class Phase:
     """
-    The phase class defines the representation of an organ, period combination.
-    Hereby phase contains all information like the id but also the time frame
-    of the considered period and the volume of the organ. This information is
-    not only used for the creation of a :py:class:`Model` with these
-    organ-period combinations but also for the normalization of for example
-    linker reactions. Furthermore, phases also contain individual adjustments
-    of reactions within the phase.
+    A phase represents the combination of a sub_model (e.g. an organ) and a
+    time period. It holds the ID of this combination together with the
+    length of the time period and the volume of the sub_model. These are
+    used both to build a :py:class:`Model` containing all phases and to
+    scale the linker and transfer reactions between them. In addition, a
+    phase can hold adjustments of individual reactions that only apply
+    within this phase.
 
     Attributes:
-        id(str): The ID of the phase.
-        name(str): The name of the phase.
-        light_dark(Literal["light","dark"]): Definition of the lighting
-            conditions. This is metadata only: it is stored and written to
-            XML, but not used when constructing the model.
-        timeframe(int): The length of the time period of the phase.
-        volume(int): The volume of the organ.
-        model(Model): This attribute can be used to assign a model to the
-            phase. This guarantees that :py:meth:`Phases.apply_phases` (and
-            therefore :py:meth:`Constraints.apply_to_model`, which forwards
-            to it) does not create a duplicate of the passed model but uses
-            the one associated with the phase.
-        reaction_settings(Reaction): Definition of reactions to be adjusted
-            identically to those defined here within the phase.
-        objective_factor(float): A factor that scales the objective
+        id (str): The ID of the phase.
+        name (str): The name of the phase.
+        light_dark (Literal["light","dark"]): The lighting conditions. This
+            is metadata only: it is stored and written to XML, but not used
+            when constructing the model.
+        timeframe (int): The length of the time period of the phase.
+        volume (int): The volume of the sub_model.
+        model (Optional[Model]): A model assigned to this phase. If set,
+            :py:meth:`Phases.apply_phases` (and therefore
+            :py:meth:`Constraints.apply_to_model`, which forwards to it) uses
+            this model for the phase instead of a copy of the passed model.
+        reaction_settings (List[Reaction]): Reactions whose bounds replace
+            those of the reactions with the same ID within this phase.
+        objective_factor (float): A factor that scales the objective
             coefficients of this phase before summing all objective
             functions to form the final one. The coefficients are multiplied
             by ``objective_factor * timeframe * volume``, so the length of
@@ -83,10 +81,9 @@ class Phase:
 
         Args:
             id: The ID to be used for the phase.
-            light_dark: Definition of the lighting conditions. Stored as
-                metadata only.
+            light_dark: The lighting conditions. Stored as metadata only.
             timeframe: The length of the time period of the phase.
-            volume: The volume of the organ.
+            volume: The volume of the sub_model.
             name: The name of the phase.
             objective_factor: A factor that scales the objective
                 coefficients of this phase, see :py:attr:`objective_factor`.
@@ -102,14 +99,10 @@ class Phase:
 
     def __str__(self):
         """
-        The toString method of the Phases class. It creates a tabular based
-        representation of the Phases class.
+        Create a table describing the phase.
 
         Returns:
-            The ID, name, volume and time frame of each phase in a table form
-            as a string.
-
-
+            The ID, name, volume and timeframe of the phase as a table.
         """
         output = PrettyTable(["Phase", "Name", "Volume", "Timeframe"])
         output.add_row([self.id, self.name, self.volume, self.timeframe])
@@ -118,10 +111,11 @@ class Phase:
 
     def to_xml(self):
         """
-        Converts a Phase to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the phase to an :py:class:`xml.etree.ElementTree.Element`.
 
         Returns:
-        A :py:class:`xml.etree.ElementTree.Element` representing a phase.
+            A :py:class:`xml.etree.ElementTree.Element` representing the
+            phase.
         """
         element = Element("phase")
 
@@ -146,26 +140,27 @@ class Phase:
 
     def add_reaction(self, reaction: Reaction):
         """
-        Function to add a reaction whose parameters are used to adjust
-        reactions within the phase.
+        Add a reaction whose bounds are used to adjust the reaction with the
+        same ID within the phase.
 
         Args:
-            reaction: A reaction whose parameters are applied to the
-                reaction with identical ID in the phase. The ID must not
-                contain the phase ID.
+            reaction: A reaction whose bounds are applied to the reaction
+                with the same ID in the phase. Its ID must be the ID of the
+                reaction in the original model, i.e. without the phase
+                suffix.
         """
         self.reaction_settings.append(reaction)
 
     @classmethod
     def from_dict(cls, data: dict) -> Phase:
         """
-        Creates a phase object based on the data encoded in a dict.
+        Create a phase from the data encoded in a dict.
 
         Args:
-            data: A dict that contains the necessary data to create a phase.
+            data: A dict that contains the data required to create a phase.
 
         Returns:
-            A phase created based on the data from the dict.
+            A phase created from the data in the dict.
 
         Examples:
             .. code-block:: python
@@ -211,13 +206,11 @@ class Phase:
 
 class Phases:
     """
-    The Phases class manages all phases defined for a model. Furthermore,
-    it is responsible for creating an extended model based on the phases.
+    The Phases class manages all phases defined for a model and creates the
+    extended model that contains a copy of the model for each phase.
 
-
-    Attributes
+    Attributes:
         phases (DictList[Phase]): A list that contains the individual phases.
-
     """
 
     phases: DictList[Phase]
@@ -230,14 +223,10 @@ class Phases:
 
     def __str__(self):
         """
-        The toString method of the Phases class. It creates a tabular based
-        representation of the Phases class.
+        Create a table of all phases.
 
         Returns:
-            The ID, name, volume and time frame of each phase in a table form
-            as a string.
-
-
+            The ID, name, volume and timeframe of each phase as a table.
         """
         output = PrettyTable(["Phase", "Name", "Volume", "Timeframe"])
         for phase in self.phases:
@@ -249,7 +238,7 @@ class Phases:
 
     def clear_phases(self):
         """
-        Method to delete all phases.
+        Remove all phases.
         """
         del self.phases
         self.phases = DictList()
@@ -257,10 +246,13 @@ class Phases:
     # TODO: maybe ability to add Iterators?
     def add_phase(self, phase: Phase):
         """
-        Method to add a phase to the Phases object.
+        Add a phase.
 
         Args:
-            phase: The phase object to be added.
+            phase: The phase to be added.
+
+        Raises:
+            IdAlreadyInUse: If a phase with the same ID already exists.
         """
 
         if self.phases.has_id(phase.id):
@@ -270,14 +262,13 @@ class Phases:
 
     def remove_phase(self, phase: Union[Phase, str]):  # ToDo Change to @Param
         """
-        Method to remove individual phases.
+        Remove a single phase.
 
         Args:
-            phase: The phase that is to be removed, or its ID.
+            phase: The phase to be removed, or its ID.
 
         Raises:
             KeyError: If there is no phase with this ID.
-
         """
 
         id: str = phase.id if isinstance(phase, Phase) else phase
@@ -291,26 +282,30 @@ class Phases:
         self, model: Optional[Model] = None, link_genes: bool = False
     ) -> Model:
         """
-        Method to apply the previously defined phases to a
-        :py:class:`Model`. The :py:class:`Model` is copied several
-        times and each resulting :py:class:`Model` corresponds to a
-        phase or time and organ combination. If a phase contains a
-        :py:class:`Model`, then that :py:class:`Model` will be used
-        and not the passed :py:class:`Model`. The extended
-        :py:class:`Model` is returned.
+        Apply the defined phases to a :py:class:`Model`.
+
+        The model is copied once for each phase, and all copies are merged
+        into a new model. If a model is assigned to a phase via
+        :py:attr:`Phase.model`, that model is used for the phase instead of
+        the passed one. The passed model itself is not changed.
 
         Args:
-            model: The model to which the phases are to be applied.
-            link_genes: Boolean that determines whether the already existing
-                gene-reaction rules should be synchronized across the copies
-                derived from the passed model. Manually assigned phase models
-                retain their own rules and issue a
-                :py:class:`cobra2d.error.GenesNotLinked` warning instead.
+            model: The model to be copied for each phase. It may only be
+                omitted if a model is assigned to every phase.
+            link_genes: Whether the gene-reaction rules should be
+                synchronized across the copies derived from the passed model.
+                Manually assigned phase models keep their own rules, and a
+                :py:class:`cobra2d.error.GenesNotLinked` warning is issued
+                instead.
 
         Returns:
-            A Cobra model that consists of multiple copies of the original,
-            each assigned to a phase. The name of the elements that belong to
-            a phase ends with "_nameOfThePhase".
+            A new model that consists of one copy of the original model per
+            phase. The IDs of the reactions, metabolites and groups of a
+            phase end with ``_<phase ID>``.
+
+        Raises:
+            ValueError: If ``model`` is None although there are phases
+                without an assigned model.
         """
         with_model: List[Phase] = []
         without_model: List[Phase] = []
@@ -400,11 +395,10 @@ class Phases:
 
     def to_xml(self) -> Element:
         """
-        Converts a phases object to an :py:class:`Element`.
+        Convert the phases object to an :py:class:`Element`.
 
         Returns:
-            A :py:class:`Element` representing a phases
-            object.
+            An :py:class:`Element` representing the phases object.
         """
 
         root = Element("phases")
@@ -417,14 +411,14 @@ class Phases:
     @classmethod
     def from_dict(cls, data: List[dict]) -> Phases:
         """
-        Creates a phases object based on the data encoded in a dict.
+        Create a phases object from a list of dicts, each encoding a phase.
 
         Args:
-            data: A list of dicts that contain the necessary data to create a
-                phases object.
+            data: A list of dicts, each containing the data required to
+                create a phase, see :py:meth:`Phase.from_dict`.
 
         Returns:
-            A phases object created based on the data from the dict.
+            A phases object containing the phases created from the dicts.
 
         Examples:
             .. code-block:: python

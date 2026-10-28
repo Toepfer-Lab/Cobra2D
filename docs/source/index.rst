@@ -11,7 +11,7 @@ Cobra2D
     Getting started <self>
     Structural design <structure>
     Linker and transfer reactions <transport>
-    Visualisation <visualization>
+    Visualization <visualization>
     Naming convention <convention>
     Examples <example>
     API reference <api>

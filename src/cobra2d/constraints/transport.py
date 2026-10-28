@@ -1,7 +1,7 @@
 """
-Implementation of the abstract class for the transport of a metabolite between
-phases. The transport is later represented in the model by pseudo reactions.
-The properties of these reactions are also defined here.
+Implementation of the abstract base classes for the transport of a metabolite
+between phases. In the model, a transport is represented by a pseudo reaction
+whose properties are also defined here.
 """
 
 from __future__ import annotations
@@ -47,7 +47,11 @@ def split_phase_id(phase_id: str) -> tuple[str, str]:
 
 
 class Transport(ABC):
-    """ """
+    """
+    Abstract base class for the transport of a metabolite from a source to a
+    destination phase. See :py:class:`cobra2d.Linker` and
+    :py:class:`cobra2d.Transfer` for the concrete implementations.
+    """
 
     metabolite_id: str
     source: str
@@ -82,11 +86,11 @@ class Transport(ABC):
     @abstractmethod
     def __str__(self) -> str:
         """
-        The toString method of the Linker class.
-        Returns:
-            The ID, name, source, destination, lower bound and upper
-            bound of the linker object as a formatted string.
+        Create a table describing the transport.
 
+        Returns:
+            The metabolite ID, source, destination, lower bound and upper
+            bound of the transport as a table.
         """
         output = PrettyTable(
             [
@@ -141,6 +145,12 @@ class Transport(ABC):
 
 
 class Transports(ABC):
+    """
+    Abstract base class for a collection of :py:class:`Transport` objects.
+    See :py:class:`cobra2d.Linkage` and :py:class:`cobra2d.Transfers` for the
+    concrete implementations.
+    """
+
     transports: List[Transport]
 
     @abstractmethod

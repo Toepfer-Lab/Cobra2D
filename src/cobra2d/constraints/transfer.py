@@ -1,3 +1,7 @@
+"""
+Implementation of the Transfer and Transfers classes.
+"""
+
 from __future__ import annotations
 
 from typing import List, Union
@@ -15,22 +19,25 @@ from cobra2d.constraints.transport import (
 
 class Transfer(Transport):
     """
-    Representation of a Transfer. It includes the attribute 'metabolite_id',
-    which refers to the metabolite that is transferred. Changing this
-    attribute, it changes the corresponding internal identifier. It is
-    recommended to use Phases when creating the Transfer to avoid KeyErrors
+    A transfer represents the transport of a metabolite from one sub_model to
+    another within the same time period (spatial transport). In the model, it
+    is represented by a pseudo reaction between the source and the
+    destination phase.
+
+    The reaction ID is derived from ``metabolite_id``, ``source`` and
+    ``destination`` (see :py:attr:`reac_id`), so changing one of these
+    attributes also changes the ID.
 
     Attributes:
-        metabolite_id: The ID to be used for the metabolite. This should match
-                the ID of the metabolite in the model.
+        metabolite_id (str): The ID of the metabolite to be transported,
+            without the phase suffix. It must match the ID of the metabolite
+            in the model.
         source (str): The ID of the source phase.
         destination (str): The ID of the destination phase.
-        lower_bound (float): The 'lower_bound' to be used for the reaction.
-            For more information see 'lower_bound' in
-            :py:func:`cobra.Reaction`.
-        upper_bound (float): The 'upper_bound' to be used for the reaction.
-            For more information see 'lower_bound' in
-            :py:func:`cobra.Reaction`.
+        lower_bound (float): The lower bound of the transfer reaction, see
+            :py:attr:`cobra.Reaction.lower_bound`.
+        upper_bound (float): The upper bound of the transfer reaction, see
+            :py:attr:`cobra.Reaction.upper_bound`.
     """
 
     def __init__(
@@ -42,18 +49,18 @@ class Transfer(Transport):
         upper_bound: float = 1000.0,
     ):
         """
-        Initializes the Transfer.
+        Initialize a Transfer.
 
         Args:
-            metabolite_id (str) = The identifier of the metabolite
-            source: The ID of the source phase or the source
-                phase itself.
-            destination: The ID of the source phase or the
-                source phase itself..
-            lower_bound (float): The 'lower_bound' to be used for the
-                reaction.
-            upper_bound (float): The 'upper_bound' to be used for the
-                reaction.
+            metabolite_id: The ID of the metabolite to be transported, without
+                the phase suffix. It must match the ID of the metabolite in
+                the model.
+            source: The source phase or its ID.
+            destination: The destination phase or its ID.
+            lower_bound: The lower bound of the transfer reaction, see
+                :py:attr:`cobra.Reaction.lower_bound`.
+            upper_bound: The upper bound of the transfer reaction, see
+                :py:attr:`cobra.Reaction.upper_bound`.
         """
 
         super().__init__(
@@ -112,11 +119,11 @@ class Transfer(Transport):
 
     def to_xml(self) -> Element:
         """
-        Converts a transfer to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the transfer to an :py:class:`xml.etree.ElementTree.Element`.
 
         Returns:
             The :py:class:`xml.etree.ElementTree.Element` representation of
-            a transfer.
+            the transfer.
         """
         element = Element("transfer")
         SubElement(element, "destination").set("refid", self.destination)
@@ -131,14 +138,14 @@ class Transfer(Transport):
     @classmethod
     def from_dict(cls, data: dict) -> Transfer:
         """
-        Creates a transfer object based on the data encoded in a dict.
+        Create a transfer from the data encoded in a dict.
 
         Args:
-            data: A dict that contains the necessary data to create
-                a transfer.
+            data: A dict that contains the data required to create a
+                transfer.
 
         Returns:
-            A transfer based on the data from the dict.
+            A transfer created from the data in the dict.
 
         Examples:
             .. code-block:: python
@@ -163,8 +170,8 @@ class Transfer(Transport):
 
 class Transfers(Transports):
     """
-    Transfers as a class represents multiple Transfer objects. Furthermore it
-    implements the applying of transfers to a :py:class:`cobra.Model`.
+    A collection of :py:class:`Transfer` objects that can be applied to a
+    :py:class:`cobra.Model`.
 
     Transfers can be added with :py:meth:`append`, removed with
     :py:meth:`remove` and iterated over. The contained transfers are
@@ -176,11 +183,11 @@ class Transfers(Transports):
 
     def __str__(self):
         """
-        The toString method of the Transfers class.
+        Create a table of all transfers.
 
         Returns:
-            The ID, name, source, destination, lower bound and upper
-            bound of all transfer objects as a formatted string.
+            The metabolite ID, source, destination, lower bound and upper
+            bound of each transfer as a table.
         """
 
         return super(Transfers, self).__str__()
@@ -190,11 +197,14 @@ class Transfers(Transports):
 
     def append(self, obj: Transfer):  # type: ignore
         """
-        Adds a transfer to the Transfers class.
+        Add a transfer. A transfer that is already present is not added
+        again, and a warning is issued instead.
 
         Args:
             obj: The transfer to be added.
 
+        Raises:
+            TypeError: If ``obj`` is not a :py:class:`Transfer`.
         """
         if isinstance(obj, Transfer):
             super(Transfers, self).append(obj)
@@ -203,12 +213,12 @@ class Transfers(Transports):
 
     def remove(self, obj_pos: Union[Transport, int]):
         """
-        Function to remove a transfer. Either the position of the transfer in
-        the ``transfers`` list can be specified or the respective transfer.
+        Remove a transfer, given either as the transfer itself or as its
+        position in the ``transfers`` list.
 
         Args:
-            obj_pos: The position of the transfer object to be deleted or
-                itself."""
+            obj_pos: The transfer to be removed or its position.
+        """
         super(Transfers, self).remove(obj_pos)
 
     @property
@@ -217,23 +227,30 @@ class Transfers(Transports):
 
     def apply(self, model: Model, phases: Phases) -> Model:
         """
-        Returns a :py:class:`cobra.Model` including transfers reactions in the
-        Transfers object.
+        Add a reaction for each transfer to a :py:class:`cobra.Model`.
 
         Args:
-            model: The model to include the transfer reactions.
+            model: The model to which the transfer reactions are added. It
+                must already contain the phases, see
+                :py:meth:`Phases.apply_phases`. The model is changed in
+                place.
             phases: A phases object that contains all phases referenced by
-                each individual Transfer.
+                the transfers.
 
         Returns:
-            A :py:class:`cobra.model` that contains the transfers.
+            The passed :py:class:`cobra.Model`, now containing the transfer
+            reactions.
         """
 
         return super(Transfers, self).apply(model=model, phases=phases)
 
     def to_xml(self) -> Element:
         """
-        Converts Transfers to an :py:class:`xml.etree.ElementTree.Element`.
+        Convert the transfers to an :py:class:`xml.etree.ElementTree.Element`.
+
+        Returns:
+            The :py:class:`xml.etree.ElementTree.Element` representation of
+            the transfers.
         """
 
         root = Element("transfers")
@@ -247,14 +264,16 @@ class Transfers(Transports):
     @classmethod
     def from_dict(cls, data: List[dict]) -> Transfers:
         """
-        Creates a Transfers object based on the data encoded in a dict.
+        Create a Transfers object from a list of dicts, each encoding a
+        transfer.
 
         Args:
-            data: A list of dicts that contain the necessary data to create a
-                transfer object.
+            data: A list of dicts, each containing the data required to
+                create a transfer, see :py:meth:`Transfer.from_dict`.
 
         Returns:
-            A transfers-container created based on the data from the dict.
+            A Transfers object containing the transfers created from the
+            dicts.
 
         Examples:
             .. code-block:: python

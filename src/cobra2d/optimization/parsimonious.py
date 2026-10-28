@@ -21,9 +21,8 @@ def adjusted_pfba(
     reactions: Optional[List[Reaction]] = None,
 ) -> Solution:
     """
-    A customized version of the pFBA provided by COBRApy.
-    It differs in that it takes into account the time periods and
-    volumes defined through a Constraints object.
+    A customized version of the pFBA provided by COBRApy that takes into
+    account the time periods and volumes defined by a Constraints object.
 
     The flux of each reaction is weighted by ``timeframe * volume`` of the
     phase it belongs to. Linker and transfer reactions (identified by the
@@ -32,11 +31,12 @@ def adjusted_pfba(
 
     Args:
         constraints: The Constraints object that defines the entire model.
-        model: The COBRApy model created by the constraints object.
-        fraction_of_optimum: The accuracy that the solution must have.
-            More precisely, a constraint is defined that the original
-            objective function must be greater than the product of
-            fraction_of_optimum and flux of the original objective.
+        model: The COBRApy model created from the constraints object. It is
+            not changed.
+        fraction_of_optimum: The fraction of the optimum of the original
+            objective that must still be achieved. The original objective is
+            constrained to at least ``fraction_of_optimum`` times its optimal
+            value.
         objective: An objective that replaces the current objective of the
             model before it is fixed as a constraint. By default, the
             current objective of the model is used.
@@ -73,7 +73,7 @@ def add_adjusted_pfba_objective(
     fraction_of_optimum: float = 1.0,
 ) -> None:
     """
-    Adds the objective of the weighted pFBA to a model.
+    Add the objective of the weighted pFBA to a model.
 
     The current objective is fixed as a constraint (scaled by
     ``fraction_of_optimum``) and replaced by the minimization of the sum of
@@ -85,11 +85,12 @@ def add_adjusted_pfba_objective(
 
     Args:
         constraints: The Constraints object that defines the entire model.
-        model: The COBRApy model created by the constraints object.
+        model: The COBRApy model created from the constraints object. It is
+            changed in place.
         objective: An objective that replaces the current objective of the
             model before it is fixed as a constraint.
         fraction_of_optimum: The fraction of the optimum of the original
-            objective that must be achieved.
+            objective that must still be achieved.
 
     Raises:
         ValueError: If the model already has a pFBA objective.

@@ -97,6 +97,28 @@ def metexplore_interface(
     side_metabolites: Optional[List[str]] = None,
     remove_unselected_groups=True,
 ):
+    """
+    Create a widget for visualizing a model with MetExploreViz.
+
+    The widget lists the groups of the model on the left and its metabolites
+    on the right, sorted by the number of reactions they participate in.
+    The button opens the selected groups in MetExploreViz, with the selected
+    metabolites marked as side metabolites, see
+    :py:func:`cobra2d.visualization.converter.metexplore`.
+
+    Args:
+        model: The COBRApy model to be visualized.
+        solution: The COBRApy solution belonging to the model. If None, the
+            model is optimized when the visualization is opened.
+        side_metabolites: The IDs of the metabolites that are preselected as
+            side metabolites.
+        remove_unselected_groups: If True, metabolites and reactions that do
+            not belong to the selected groups are left out. If False, they
+            are included but hidden.
+
+    Returns:
+        The widget.
+    """
     groups = [(group.id, False) for group in model.groups]
     group_selection = multi_checkbox_widget(groups)
     side_metabolite_selection = select_side_metabolites(
